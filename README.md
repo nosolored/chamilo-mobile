@@ -1,4 +1,4 @@
-Chamilo LMS Mobile Messaging app
+Chamilo LMS Mobile app
 ================================
 
 Instalación
