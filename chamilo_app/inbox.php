@@ -2,7 +2,7 @@
 /* For licensing terms, see /license.txt */
 /**
  * Controller for REST request
- * @author Nosolored <angel.quiroz@beeznest.com>
+ * @author Nosolored <info@nosolored.com>
  * @package chamilo.webservices
  */
 /* Require libs and classes */
