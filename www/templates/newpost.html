@@ -1,0 +1,68 @@
+<header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a id="btn-back-url" class="navbar-brand" href="#post/<%= c_id %>/<%= f_id %>/<%= t_id %>"><i class="glyphicon glyphicon-chevron-left"></i><%= lang.Response %></a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#logout">
+                            <i class="glyphicon glyphicon-log-out"></i> <%= lang.singOut %>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+<div class="container">
+	<section id="main_content">
+        <form action="#" id="frm-new-post" method="post">
+            <input type="hidden" name="course-id" id="course-id" value="<%= c_id %>">
+            <input type="hidden" name="forum-id" id="forum-id" value="<%= f_id %>">
+            <input type="hidden" name="thread-id" id="thread-id" value="<%= t_id %>">
+            
+            <fieldset>
+                <legend for="txt-title"><%= lang.title %>:</legend>
+                <div class="form-group">
+                    <input type="text" name="txt-title" id="txt-title" required class="form-control" value="<%= title %>" >
+                </div>
+            </fieldset>
+            
+            <fieldset>
+            	<% if( text != '') { %>
+                	<div style="margin: 5px;">
+                        <div style="font-size: 90%; font-style: italic;">Cita <%= poster %>:</div>
+                        <div style="color: #006600; font-size: 90%; font-style: italic; background-color: #FAFAFA; border: #D1D7DC 1px solid; padding: 3px;">
+                            <p><%= text %></p>
+                        </div>
+                    </div>
+                <% } %>
+            </fieldset>
+            
+            <fieldset>
+                <legend for="txt-text"><%= lang.text %>:</legend>
+                <div class="form-group">
+                     <textarea rows="5"name="txt-text" id="txt-text" required class="form-control"></textarea>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <label for="notice-email"><%= lang.Notify %></label>
+                <input type="checkbox" id="notice-email" value="1">
+            </fieldset>
+            
+            <div class="form-group">
+                <button class="btn btn-primary btn-lg btn-block" id="btn-submit" type="submit"><%= lang.ResponsePost %></button>
+            </div>
+        </form>
+    </section>
+</div>

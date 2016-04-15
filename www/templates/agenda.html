@@ -1,0 +1,62 @@
+<header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a id="btn-back-url" class="navbar-brand" href="#course/<%= c_id %>"><i class="glyphicon glyphicon-chevron-left"></i> <%= lang.agenda %></a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#logout">
+                            <i class="glyphicon glyphicon-log-out"></i> <%= lang.singOut %>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<div class="container">
+	<section id="main_content">
+        <% for (var i = 0; i < events.length; i++) { %>
+            <div class="container announcement-view">
+                <article class="panel panel-primary">
+                    <header class="panel-heading">
+                        <h3 class="panel-title"><% print(events[i]['title']); %></h3>
+                    </header>
+                    <div class="panel-body">
+                    	<% if( events[i]['start_date'] == events[i]['end_date']){ %>
+                        	<i class="glyphicon glyphicon-time"></i> <% print(events[i]['start_date']); %>
+                            <% if( events[i]['all_day'] == '1'){ %>
+                                <br />
+                                <%= lang.allDay %>
+                            <% } %>
+                        <% } else { %>
+                        	<i class="glyphicon glyphicon-time"></i> <% print(events[i]['start_date']); %>
+                        	<br>
+                            <i class="glyphicon glyphicon-time"></i>
+                            <% if( events[i]['all_day'] == '1'){ %>
+                                <%= lang.allDay %>
+                            <% } else { %>
+                                <% print(events[i]['end_date']); %>
+                            <% } %> 
+                        <% } %>
+                        <hr>
+                        <% print(events[i]['content']); %>
+                    </div>
+                </article>
+            </div>
+        <% } %>
+    </section>
+</div>
+
+

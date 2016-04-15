@@ -1,0 +1,66 @@
+<header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a id="btn-back-url" class="navbar-brand" href="#forum/<%= c_id %>"><i class="glyphicon glyphicon-chevron-left"></i> Temas</a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#logout">
+                            <i class="glyphicon glyphicon-log-out"></i> <%= lang.singOut %>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+	<section id="main_content">
+    	
+        	<div class="sectiontitle" style="padding-top:5px;">
+            	<%= f_title %>
+                <span style="float:right">
+                	<a href="#new_thread/<%= c_id %>/<%= f_id %>"><img src="img/forum/new_thread.png" style="margin-top:-5px;" /></a>
+            	</span>
+                <div class="clearfix"></div>
+            </div>
+        	<div class="sectioncomment">
+            	<% var candado = 0 %>
+                <% for (var i = 0; i < collection.length; i++) { %>
+                    <% if ( candado == "0" ){ %>
+                        <% candado = "1"; %>
+                        <table class="table-striped" width="100%">
+                        <tr><th>Título</th><th>&nbsp;</th></tr>
+                    <% } %>
+                    <tr>
+                        <td style="padding: 0 10px;">
+                            <a href="#post/<%= collection[i]['c_id'] %>/<%= collection[i]['forum_id'] %>/<%= collection[i]['thread_id'] %>">
+                                <% print(collection[i]['title']); %>
+                            </a>
+                        </td>
+                        <td>
+                            Respuestas: <% print(collection[i]['replies']); %> <br />
+                            Vistas: <% print(collection[i]['views']); %> <br />
+                             Último mensaje: <% print(collection[i]['last_post_date']); %> Publicado por <% print(collection[i]['last_poster']); %>
+                        </td>
+                    </tr>
+                <% } %>
+                <% if ( candado == "1" ){ %>
+                    </table>
+                <% } else { %>
+                	No hay temas en este foro
+                <% } %>
+            </div>
+
+    </section>
+</div>
