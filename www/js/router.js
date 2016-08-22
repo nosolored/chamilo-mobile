@@ -30,7 +30,6 @@ define([
 	'views/newthread',
 	'views/newpost',
 	'collections/posts',
-	'views/details-ranking',
 	'views/profile'
 ], function (
     $,
@@ -64,7 +63,6 @@ define([
 	NewThreadView,
 	NewPostView,
 	PostsCollection,
-	DetailsRankingView,
 	ProfileView
 ) {
     var Router = Backbone.Router.extend({
