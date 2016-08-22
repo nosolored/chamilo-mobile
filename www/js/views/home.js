@@ -19,6 +19,7 @@ define([
             'click #btn-back-url.no-event': 'homeBackOnClick'
         },
         homeBackOnClick: function (e) {
+			console.log("boton atras");
             e.preventDefault();
 		} 
 	});

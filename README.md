@@ -1,4 +1,4 @@
-Chamilo LMS Mobile app
+﻿Chamilo LMS Mobile app
 ================================
 
 Instalación
@@ -15,6 +15,10 @@ Añadir la plataforma Android
 
 ```
 cordova platform add android
+cordova plugin add cordova-plugin-pdialog
+cordova plugin add cordova-plugin-spinner
+cordova plugin add cordova-plugin-dialogs
+cordova plugin add cordova-plugin-file-transfer
 ```
 
 Construir el APK de Android

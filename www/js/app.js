@@ -1,6 +1,6 @@
 define([
     'jquery',
-    'database',
+	'database',
     'router'
 ], function ($, DB, Router) {
 

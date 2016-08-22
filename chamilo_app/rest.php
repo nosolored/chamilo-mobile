@@ -10,7 +10,9 @@
 require_once __DIR__ . '/../../main/inc/global.inc.php';
 require_once 'webservices/WSApp.class.php';
 require_once 'webservices/AppWebService.class.php';
+require_once 'app.lib.php';
 
+use ChamiloSession as Session;
 /* Manage actions */
 $json = array();
 
@@ -35,7 +37,18 @@ switch ($action) {
             $webService = new AppWebService();
 
             $userInfo = $webService->getUserInfoApiKey($username);
-
+			
+			$user_id = UserManager::get_user_id_from_username($username);
+			$chamiloUser = api_get_user_info($user_id);
+			$_user['user_id'] = $chamiloUser['user_id'];
+			$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+			$_user['uidReset'] = true;
+			Session::write('_user', $_user);
+			$uidReset = true;
+			$logging_in = true;
+			Event::event_login($_user['user_id']);
+			Login::init_user($user_id, true);
+			
             $json = array(
                 'status' => true,
                 'userInfo' => $userInfo
@@ -103,16 +116,77 @@ switch ($action) {
             );
         }
         break;
-	case 'getCoursesList':
+	case 'getUsersMessage':
         if (AppWebService::isValidApiKey($username, $apiKey)) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
 
-            $courses = $webService->getCoursesList($user_id);
-
+            $user_search = isset($_POST['user_search']) ? $_POST['user_search'] : '';
+			if($user_search == ''){
+				$users = '';
+			}else{
+            	$users = $webService->getUsersMessage($user_id, $user_search);
+			}
+			
             $json = array(
                 'status' => true,
-                'courses' => $courses
+                'users' => $users
+            );
+        } else {
+            $json = array(
+                'status' => false
+            );
+        }
+        break;
+	
+	case 'formNewMessage':
+        if (AppWebService::isValidApiKey($username, $apiKey)) {
+            $webService = new AppWebService();
+            $webService->setApiKey($apiKey);
+			
+			$to_userid = isset($_POST['to_userid']) ? $_POST['to_userid'] : '';
+			$result = $webService->sendNewEmail($to_userid, $title, $text, $user_id);
+			
+            $json = array(
+                'status' => $result
+            );
+        } else {
+            $json = array(
+                'status' => false
+            );
+        }
+        break;
+		
+		
+	case 'formReplyMessage':
+        if (AppWebService::isValidApiKey($username, $apiKey)) {
+            $webService = new AppWebService();
+            $webService->setApiKey($apiKey);
+			
+			$message_id = isset($_POST['message_id']) ? $_POST['message_id'] : '0';
+			$check_quote = isset($_POST['check_quote']) ? $_POST['check_quote'] : '0';
+			
+			$result = $webService->sendReplyEmail($message_id, $title, $text, $check_quote, $user_id);
+			
+            $json = array(
+                'status' => $result
+            );
+        } else {
+            $json = array(
+                'status' => false
+            );
+        }
+        break;
+		
+	case 'getCoursesList':
+		if (AppWebService::isValidApiKey($username, $apiKey)) {
+            $webService = new AppWebService();
+            $webService->setApiKey($apiKey);
+            $courses = $webService->getCoursesList($user_id);
+	     $json = array(
+                'status' => true,
+                'courses' => $courses,
+				'sessions' => $sessions
             );
         } else {
             $json = array(
@@ -137,6 +211,23 @@ switch ($action) {
                 'status' => false
             );
         }
+        break;
+	
+	case 'getInfoCourse':
+		if (AppWebService::isValidApiKey($username, $apiKey)) {
+            $webService = new AppWebService();
+            $webService->setApiKey($apiKey);
+
+            $webService->registerAccessCourse($c_id, $user_id);
+
+            $json = array(
+                'status' => true
+            );
+        } else {
+            $json = array(
+                'status' => false
+            );
+        }
         break;	
 	
 	case 'getDescription':
@@ -144,11 +235,28 @@ switch ($action) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
 
-            $descriptions = $webService->getDescription($c_id);
+            $descriptions = $webService->getDescription($c_id, $username);
 
             $json = array(
                 'status' => true,
                 'descriptions' => $descriptions
+            );
+        } else {
+            $json = array(
+                'status' => false
+            );
+        }
+        break;
+		
+	case 'getNotebook':
+		if (AppWebService::isValidApiKey($username, $apiKey)) {
+            $webService = new AppWebService();
+            $webService->setApiKey($apiKey);
+
+            $notebooks = $webService->getNotebook($c_id, $username);
+			$json = array(
+                'status' => true,
+                'notebooks' => $notebooks
             );
         } else {
             $json = array(
@@ -162,7 +270,7 @@ switch ($action) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
 
-            $documents = $webService->getDocuments($c_id, $path);
+            $documents = $webService->getDocuments($c_id, $path, $user_id);
 
             $json = array(
                 'status' => true,
@@ -295,8 +403,8 @@ switch ($action) {
 		if (AppWebService::isValidApiKey($username, $apiKey)) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
-
-            $posts = $webService->createThread($c_id, $forum_id, $title, $text, $notice, $user_id);
+            
+			$posts = $webService->createThread($c_id, $forum_id, $title, $text, $notice, $user_id);
 			if($posts!==false){
 				$json = array(
 					'status' => true
@@ -334,43 +442,6 @@ switch ($action) {
             );
         }
         break;
-		
-	case 'getRanking':
-		if (AppWebService::isValidApiKey($username, $apiKey)) {
-            $webService = new AppWebService();
-            $webService->setApiKey($apiKey);
-
-            $ranking = $webService->getRanking($c_id);
-
-            $json = array(
-                'status' => true,
-                'ranking' => $ranking
-            );
-        } else {
-            $json = array(
-                'status' => false
-            );
-        }
-        break;
-	
-	case 'getDetailsRanking':
-		if (AppWebService::isValidApiKey($username, $apiKey)) {
-            $webService = new AppWebService();
-            $webService->setApiKey($apiKey);
-
-            $details_ranking = $webService->getDetailsRanking($c_id,$user_id);
-
-            $json = array(
-                'status' => true,
-                'info' => $details_ranking
-            );
-        } else {
-            $json = array(
-                'status' => false
-            );
-        }
-        break;
-		
 		
     default:
 }

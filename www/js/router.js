@@ -2,18 +2,23 @@ define([
     'jquery',
     'backbone',
 	'collections/courses',
+	//'collections/messages',
 	'models/campus',
     'models/message',
 	'models/post',
     'views/login',
     'views/inbox',
     'views/message',
+	'views/replymessage',
+	'views/newmessage',
+//	'views/outbox',
     'views/logout',
     'views/alert',
 	'views/home',
 	'views/courses',
 	'views/course',
 	'views/description',
+	'views/notebook',
 	'views/documents',
 	'collections/announcements',
 	'views/announcements',
@@ -25,23 +30,29 @@ define([
 	'views/newthread',
 	'views/newpost',
 	'collections/posts',
+	'views/details-ranking',
 	'views/profile'
 ], function (
     $,
     Backbone,
 	CoursesCollection,
+	//MessagesCollection,
 	CampusModel,
     MessageModel,
 	PostModel,
     LoginView,
     InboxView,
     MessageView,
+	ReplyMessageView,
+	NewMessageView,
+//	OutboxView,
     LogoutView,
     AlertView,
 	HomeView,
 	CoursesView,
 	CourseView,
 	DescriptionView,
+	NotebookView,
 	DocumentView,
 	AnnouncementsCollection,
 	AnnouncementsView,
@@ -53,6 +64,7 @@ define([
 	NewThreadView,
 	NewPostView,
 	PostsCollection,
+	DetailsRankingView,
 	ProfileView
 ) {
     var Router = Backbone.Router.extend({
@@ -61,6 +73,7 @@ define([
 			'my-courses': 'showListCourses',
 			'course/:id': 'showCourse',
 			'description/:id': 'showDescription',
+			'notebook/:id': 'showNotebook',
 			'documents/:id/:path': 'showDocuments',
 			'documents/:id/:path/:back': 'showDocuments',
 			'announcements/:id': 'showAnnouncements',
@@ -68,6 +81,9 @@ define([
 			'agenda/:id': 'showAgenda',
 			'list-messages': 'showListMessages',
             'message/:id': 'showMessage',
+			'reply_message/:id': 'showReplyMessage',
+			'new-message': 'showNewMessage',
+//			'outbox': 'showOutbox',
 			'forum/:id': 'showForum',
 			'thread/:id/:f_id': 'showThreads',
 			'post/:id/:f_id/:t_id': 'showPosts',
@@ -85,8 +101,10 @@ define([
 	var coursesCollection = new CoursesCollection();
 	var announcementsCollection = new AnnouncementsCollection();
 	var postsCollection = new PostsCollection();
+	//var messagesCollection = new MessagesCollection();
 
     var showIndex = function () {
+		console.log("showIndex");
         var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
@@ -103,7 +121,8 @@ define([
     };
 	
 	var showListCourses = function() {
-        var getCampusData = campusModel.getData();
+		console.log("showListCourses");
+		 var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
 			var coursesView = new CoursesView({
@@ -116,7 +135,8 @@ define([
 	};
 	
 	var showListMessages = function() {
-        var getCampusData = campusModel.getData();
+		console.log("showListMessages");
+		var getCampusData = campusModel.getData();
 			
 		$.when(getCampusData).done(function () {
 			var inboxView = new InboxView({
@@ -127,6 +147,7 @@ define([
 	};
 	
 	var showCourse = function (courseId) {
+		console.log("showCourse");
 		courseId = parseInt(courseId);
 		if (!courseId) {
             new AlertView({
@@ -141,6 +162,7 @@ define([
 		var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
+			//var courseModel = new CourseModel();
 			var courseModel = coursesCollection.get(courseId);
             
             var courseView = new CourseView({
@@ -159,6 +181,8 @@ define([
 	};
 	
 	var showDescription = function (courseId){
+		console.log("showDescription");
+		console.log(courseId);
 		courseId = parseInt(courseId);
 		if (!courseId) {
             new AlertView({
@@ -173,7 +197,8 @@ define([
 		var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
-
+			//var courseModel = new CourseModel();
+    		console.log(campusModel);
             var descriptionView = new DescriptionView({
                 model: campusModel,
 				id: courseId
@@ -190,7 +215,43 @@ define([
         });
 	};
 	
+	var showNotebook = function (courseId){
+		console.log("showNotebook");
+		console.log(courseId);
+		courseId = parseInt(courseId);
+		if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+
+            return;
+        }
+		
+		var getCampusData = campusModel.getData();
+
+        $.when(getCampusData).done(function () {
+			//var courseModel = new CourseModel();
+    		console.log(campusModel);
+            var notebookView = new NotebookView({
+                model: campusModel,
+				id: courseId
+            });
+            notebookView.render();
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        });
+	};
+	
 	var showDocuments = function (courseId, path){
+		console.log("showDocuments");
 		courseId = parseInt(courseId);
 		
 		if (!courseId) {
@@ -224,6 +285,7 @@ define([
 	};
 	
     var showMessage = function (messageId) {
+		console.log("showMessage");
         messageId = parseInt(messageId);
 
         if (!messageId) {
@@ -241,10 +303,11 @@ define([
         $.when(getCampusData).done(function () {
             var messageModel = new MessageModel();
             var getMessageData = messageModel.getData(messageId);
-
+			console.log(messageId);
             $.when(getMessageData).done(function () {
                 var messageView = new MessageView({
-                    model: messageModel
+                    model: messageModel,
+					id: messageId
                 });
 
                 messageView.render();
@@ -268,7 +331,79 @@ define([
         });
     };
 	
+	var showReplyMessage = function (messageId){
+		console.log("showReplyMessage");
+		messageId = parseInt(messageId);
+		console.log(messageId);
+		
+		if (!messageId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedMessage
+                }
+            });
+			return;
+        }
+		
+		var getCampusData = campusModel.getData();
+		//var messageModel = messagesCollection.get(messageId);
+
+        $.when(getCampusData).done(function () {
+			var messageModel = new MessageModel();
+            var getMessageData = messageModel.getData(messageId);
+			$.when(getMessageData).done(function () {
+				var replyMessageView = new ReplyMessageView({
+					model: messageModel,
+					campus:campusModel,
+					id: messageId
+				});
+				replyMessageView.render();
+			});
+
+            $.when(getMessageData).fail(function () {
+                new AlertView({
+                    model: {
+                        message: window.lang.messageDoesNotExists
+                    }
+                });
+            });	
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        });
+	};
+	
+	var showNewMessage = function() {
+		console.log("showNewMessage");
+		var getCampusData = campusModel.getData();
+			
+		$.when(getCampusData).done(function () {
+			var newMessageView = new NewMessageView({
+				model:campusModel
+			});
+			newMessageView.render();
+		});
+	};
+/*
+	var showOutbox = function() {
+		console.log("showOutbox");
+		var getCampusData = campusModel.getData();
+			
+		$.when(getCampusData).done(function () {
+			var outboxView = new OutboxView({
+				model:campusModel
+			});
+			outboxView.render();
+		});
+	};
+*/	
 	var showAnnouncements = function (courseId){
+		console.log("showAnnouncement");
 		courseId = parseInt(courseId);
 		if (!courseId) {
             new AlertView({
@@ -300,6 +435,7 @@ define([
 	};	
 	
 	var showAnnouncement = function (cid) {
+		console.log("showAnnouncement");
 		cid = parseInt(cid);
 		if (!cid) {
             new AlertView({
@@ -333,6 +469,7 @@ define([
 	};
 	
 	var showAgenda = function (courseId) {
+		console.log("showAgenda");
 		courseId = parseInt(courseId);
 		if (!courseId) {
             new AlertView({
@@ -347,6 +484,7 @@ define([
 		var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
+			//var courseModel = new CourseModel();
     
             var agendaView = new AgendaView({
                 model: campusModel,
@@ -365,6 +503,7 @@ define([
 	};
 	
 	var showProfile = function() {
+		console.log("showProfile");
 		 var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
@@ -377,6 +516,7 @@ define([
 	};
 	
     var showLogout = function () {
+		console.log("showLogout");
         var logoutView = new LogoutView();
 
         document.body.innerHTML = '';
@@ -396,6 +536,7 @@ define([
     };
 	
 	var showForum = function (courseId){
+		console.log("showForum");
 		courseId = parseInt(courseId);
 		
 		if (!courseId) {
@@ -428,6 +569,7 @@ define([
 	};
 	
 	var showThreads = function (courseId, forumId){
+		console.log("showThreads");
 		courseId = parseInt(courseId);
 		forumId = parseInt(forumId);
 		
@@ -461,6 +603,7 @@ define([
 	};
 	
 	var showPosts = function (courseId, forumId, threadId){
+		console.log("showPosts");
 		courseId = parseInt(courseId);
 		forumId = parseInt(forumId);
 		threadId = parseInt(threadId)
@@ -497,6 +640,7 @@ define([
 	};
 	
 	var showNewThread = function (courseId, forumId){
+		console.log("showNewThread");
 		courseId = parseInt(courseId);
 		forumId = parseInt(forumId);
 		
@@ -530,6 +674,7 @@ define([
 	};
 	
 	var showNewPost = function (courseId, forumId, threadId){
+		console.log("showNewPost");
 		courseId = parseInt(courseId);
 		forumId = parseInt(forumId);
 		threadId = parseInt(threadId);
@@ -568,6 +713,7 @@ define([
 	};
 	
 	var showReplyPost = function (courseId, forumId, threadId, postId){
+		console.log("showNewPost");
 		courseId = parseInt(courseId);
 		forumId = parseInt(forumId);
 		threadId = parseInt(threadId);
@@ -608,6 +754,7 @@ define([
 	};
 	
 	var showQuotePost = function (courseId, forumId, threadId, postId){
+		console.log("showQuotePost");
 		courseId = parseInt(courseId);
 		forumId = parseInt(forumId);
 		threadId = parseInt(threadId);
@@ -646,7 +793,7 @@ define([
             });
         });
 	};
-	
+		
     return {
         initialize: function () {
             var router = new Router;
@@ -654,12 +801,16 @@ define([
 			router.on('route:showListCourses', showListCourses);
 			router.on('route:showCourse', showCourse);
 			router.on('route:showDescription', showDescription);
+			router.on('route:showNotebook', showNotebook);
 			router.on('route:showAnnouncements', showAnnouncements);
 			router.on('route:showAnnouncement', showAnnouncement);
 			router.on('route:showAgenda', showAgenda);
 			router.on('route:showDocuments', showDocuments);
 			router.on('route:showListMessages', showListMessages);
             router.on('route:showMessage', showMessage);
+			router.on('route:showReplyMessage', showReplyMessage);
+			router.on('route:showNewMessage', showNewMessage);
+//			router.on('route:showOutbox', showOutbox);
 			router.on('route:showForum', showForum);
 			router.on('route:showThreads', showThreads);
 			router.on('route:showPosts', showPosts);
@@ -668,9 +819,7 @@ define([
 			router.on('route:showReplyPost', showReplyPost);
 			router.on('route:showQuotePost', showQuotePost);
 			router.on('route:showProfile', showProfile);
-			router.on('route:showRanking', showRanking);
             router.on('route:showLogout', showLogout);
-			router.on('route:showDetailsRanking', showDetailsRanking);
 
             Backbone.history.start();
 		}

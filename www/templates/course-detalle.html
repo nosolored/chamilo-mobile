@@ -1,11 +1,11 @@
-<p>
-	<% if (url_picture != "") { %>
-    	<img class="center-block" src="<%= url_picture %>" alt="item course">
-    <% }else{ %>
-    	<img class="center-block" src="img/course.png" alt="item course">
-    <% } %>
-</p>
-<h4 class="list-group-item-heading"><%= title %></h4>
-<p class="list-group-item-text">
-    <%= teacher  %>
-</p>
+<div class="row">
+	<div class="col-md-2">
+        <img class="center-block" src="<%= course_image %>" alt="item course">
+    </div>
+    <div class="col-md-10">
+		<h4 class="list-group-item-heading"><%= title %></h4>
+		<p class="list-group-item-text">
+    		<%= teacher  %>
+		</p>
+    </div>
+</div>

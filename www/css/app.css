@@ -83,7 +83,9 @@ hr {
 }
 
 .format-link-document{
-	font-size: 2em;	
+	font-size: 1.2em;
+	font-weight: normal;
+	text-align: center;	
 }
 
 .forum_table {
@@ -126,6 +128,43 @@ hr {
 }
 #frm-new-thread legend {
 	margin-bottom: 0px;
+}
+
+.position-podium{
+	position:relative;
+	margin-bottom: 40px;
+}
+
+.photo-podium{
+	border: 5px double #ccc;
+	border-radius:10px;
+	background: #fff;
+	position:absolute;	
+}
+
+.panel-default .panel-heading {
+    background-color: #ecf0f1;
+    border-bottom-color: #ecf0f1;
+    border-left-color: #ecf0f1;
+    border-right-color: #ecf0f1;
+    border-top-color: #ecf0f1;
+    color: #2c3e50;
+}
+.big_icon img {
+    padding:5px;
+  -moz-border-radius:10px;
+  -border-radius:10px;
+  -webkit-border-radius:10px;
+  border-radius:10px;
+  -webkit-box-shadow: 0 4px 8px #C8C8C8;
+  -opera-box-shadow: 0 4px 8px #C8C8C8;
+  -moz-box-shadow: 0 4px 8px #C8C8C8;
+  box-shadow: 0 4px 8px #C8C8C8;
+  border: 1px solid #e6e6e6;
+}
+#course_tools .content {
+    margin-bottom: 20px;
+    text-align: center;
 }
 
 /* Small devices (tablets, 768px and up) */

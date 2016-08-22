@@ -19,7 +19,9 @@ define([
 	var infoModel = new InfoModel();
   
     var loadThreads = function () {
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+	    console.log("funcion loadThreads");
+	    
+		var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getForums = $.post(url, {
             action: 'getThreadsList',
             username: campusModel.get('username'),

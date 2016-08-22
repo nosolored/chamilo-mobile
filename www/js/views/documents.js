@@ -18,7 +18,8 @@ define([
 	var documentsModel = new DocumentsModel();
 
   var loadDocuments = function () {
- 	
+	  console.log("funcion loadDocuments");
+	  	
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getDocuments = $.post(url, {
             action: 'getDocuments',
@@ -32,7 +33,7 @@ define([
 			if (!response.status) {
                 return;
             }
-			
+			console.log(response);
 			documentsModel.set({"c_id": courseId});
 			documentsModel.set({"path": path});
 			documentsModel.set({"base": campusModel.get('url') + '/plugin/chamilo_app/download.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey')});
@@ -78,6 +79,7 @@ define([
 				path = docu[this.options.path_id]['path'];
 	
 			}
+			console.log("initialize")
 		
             loadDocuments();
             documentsModel.on('change', this.render, this);
@@ -91,34 +93,31 @@ define([
         },
         documentDownloadOnClick: function (e) {
             e.preventDefault();
-			//console.log(e.target);            // The element that was clicked.
-  			
-			//cordova.InAppBrowser.open($(e.target).prop("href"), '_blank', 'location=no');
+
 			function fail(e) {
-			  var msg = '';
-			
-			  switch (e.code) {
-				case FileError.QUOTA_EXCEEDED_ERR:
-				  msg = 'QUOTA_EXCEEDED_ERR';
-				  break;
-				case FileError.NOT_FOUND_ERR:
-				  msg = 'NOT_FOUND_ERR';
-				  break;
-				case FileError.SECURITY_ERR:
-				  msg = 'SECURITY_ERR';
-				  break;
-				case FileError.INVALID_MODIFICATION_ERR:
-				  msg = 'INVALID_MODIFICATION_ERR';
-				  break;
-				case FileError.INVALID_STATE_ERR:
-				  msg = 'INVALID_STATE_ERR';
-				  break;
-				default:
-				  msg = 'Unknown Error';
-				  break;
-			  };
-			
-			  console.log('Error: ' + msg);
+			  	var msg = '';
+				SpinnerPlugin.activityStop();
+				switch (e.code) {
+					case FileError.QUOTA_EXCEEDED_ERR:
+					  msg = 'QUOTA_EXCEEDED_ERR';
+					  break;
+					case FileError.NOT_FOUND_ERR:
+					  msg = 'NOT_FOUND_ERR';
+					  break;
+					case FileError.SECURITY_ERR:
+					  msg = 'SECURITY_ERR';
+					  break;
+					case FileError.INVALID_MODIFICATION_ERR:
+					  msg = 'INVALID_MODIFICATION_ERR';
+					  break;
+					case FileError.INVALID_STATE_ERR:
+					  msg = 'INVALID_STATE_ERR';
+					  break;
+					default:
+					  msg = 'Unknown Error';
+					  break;
+				};
+				console.log('Error: ' + msg);
 			}
 			
 			var assetURL = $(e.target).prop("href");
@@ -128,7 +127,13 @@ define([
 								
 			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem) {
 			  fileTransfer = new FileTransfer();
+			/* Box progress */
+			cordova.plugin.pDialog.init({progressStyle : 'HORIZONTAL', title: 'Por favor espere...', message : 'Descargando del servidor...'});
+			cordova.plugin.pDialog.setProgress(0);
+			/* End box progress */
 			  fileTransfer.download(assetURL, "/sdcard/Download/" + fileName, function(entry) {
+				  cordova.plugin.pDialog.dismiss();
+				  
 				  navigator.notification.alert(
 						'Fichero descargado con el nombre '+fileName, 
 						function(){
@@ -137,18 +142,29 @@ define([
 						'Respuesta de la aplicación'
 					);
 				}, function (error) {
-				console.log('download error: ' + error.code);
-				console.log("download error source " + error.source);
-				console.log("download error target " + error.target);
-				console.log(error);
-				navigator.notification.alert(
-					'No se ha podido descargar el archivo adjunto', 
-					function(){
-						//$.mobile.loading("hide");	
-					}, 
-					'Respuesta de la aplicación'
-				);
-			  });
+					cordova.plugin.pDialog.dismiss();
+					
+					console.log('download error: ' + error.code);
+					console.log("download error source " + error.source);
+					console.log("download error target " + error.target);
+					console.log(error);
+					navigator.notification.alert(
+						'No se ha podido descargar el archivo adjunto', 
+						function(){
+
+						}, 
+						'Respuesta de la aplicación'
+					);
+			  	});
+				
+				fileTransfer.onprogress = function(progressEvent) {
+					if (progressEvent.lengthComputable) {
+						var perc = Math.floor(progressEvent.loaded / progressEvent.total * 100);
+						cordova.plugin.pDialog.setProgress(perc);
+					} else {
+
+					}
+				};
 			}, fail);
 		}
     });

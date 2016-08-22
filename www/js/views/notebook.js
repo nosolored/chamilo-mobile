@@ -1,22 +1,22 @@
 define([
     'underscore',
     'backbone',
-	'models/description',
-    'text!template/description.html',
+	'models/notebook',
+    'text!template/notebook.html',
     'views/alert'
 ], function (
     _,
     Backbone,
-	DescriptionModel,
-    DescriptionTemplate,
+	NotebookModel,
+    NotebookTemplate,
     AlertView
 ) {
     var campusModel = null;
 	var courseId = 0;
-	var descriptionModel = new DescriptionModel();
+	var notebookModel = new NotebookModel();
 
-  var loadDescription = function () {
-	  console.log("funcion loadDescription");
+  var loadNotebook = function () {
+	  console.log("funcion loadNotebook");
 	  console.log(window.navigator.onLine);
         /*
 		if (!window.navigator.onLine) {
@@ -30,27 +30,28 @@ define([
 		*/
 
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
-        var getDescription = $.post(url, {
-            action: 'getDescription',
+        var getNotebook = $.post(url, {
+            action: 'getNotebook',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-			c_id: courseId
+			c_id: courseId,
+			user_id: campusModel.get('user_id')
         });
 
-        $.when(getDescription).done(function (response) {
+        $.when(getNotebook).done(function (response) {
 			//console.log(response);
             if (!response.status) {
                 return;
             }
 			
-			descriptionModel.set({"c_id": courseId});
-			descriptionModel.set({"descriptions": response.descriptions});
-			descriptionModel.cid = courseId;
+			notebookModel.set({"c_id": courseId});
+			notebookModel.set({"notebooks": response.notebooks});
+			notebookModel.cid = courseId;
 			
-            if (response.descriptions.length === 0) {
+            if (response.notebooks.length === 0) {
                 new AlertView({
                     model: {
-                        message: window.lang.noDescription
+                        message: window.lang.noNotebook
                     }
                 });
                 return;
@@ -58,9 +59,9 @@ define([
 		});
     };
 
-    var DescriptionView = Backbone.View.extend({
+    var NotebookView = Backbone.View.extend({
         el: 'body',
-        template: _.template(DescriptionTemplate),
+        template: _.template(NotebookTemplate),
         initialize: function () {
 			$(this.el).unbind();
             campusModel = this.model;
@@ -68,15 +69,15 @@ define([
 			console.log("initialize")
 			console.log(courseId);
 		
-            loadDescription();
-            descriptionModel.on('change', this.render, this);
+            loadNotebook();
+            notebookModel.on('change', this.render, this);
         },
         render: function () {
-			console.log(descriptionModel);
-            this.el.innerHTML = this.template(descriptionModel.toJSON());
+			console.log(notebookModel);
+            this.el.innerHTML = this.template(notebookModel.toJSON());
 			return this;
         }
     });
 
-    return DescriptionView;
+    return NotebookView;
 });

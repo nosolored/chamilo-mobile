@@ -8,7 +8,6 @@
  */
 abstract class WSAPP
 {
-
     protected $apiKey;
 
     /**
@@ -45,47 +44,15 @@ abstract class WSAPP
             return false;
         }
 
-        $userTable = Database::get_main_table(TABLE_MAIN_USER);
-		
-		global $_configuration;
-    	$password_encryption = isset($_configuration['password_encryption']) ? $_configuration['password_encryption'] : 'sha1';
+        $user = UserManager::getRepository()->findOneBy([
+            'username' => $username
+        ]);
 
-    	switch ($password_encryption) {
-        	case 'sha1':
-				$whereConditions = array(
-					"username = '?' " => $username,
-					"AND password = '?'" => sha1($password)
-				);
-				break;
-			case 'md5':
-			default:
-				$whereConditions = array(
-					"username = '?' " => $username,
-					"AND password = '?'" => md5($password)
-				);
-		}
-		/*
-        $whereConditions = array(
-            "username = '?' " => $username,
-            "AND password = '?'" => sha1($password)
-        );
-		*/
-
-        $conditions = array(
-            'where' => $whereConditions
-        );
-
-        $table = Database::select('count(1) as qty', $userTable, $conditions);
-
-        if ($table != false) {
-            $row = current($table);
-
-            if ($row['qty'] > 0) {
-                return true;
-            }
+        if (empty($user)) {
+            return false;
         }
 
-        return false;
+        return UserManager::isPasswordValid($password, $user);
     }
 
 }

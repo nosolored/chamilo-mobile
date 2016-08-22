@@ -11,9 +11,11 @@ define([
             var self = this;
             var deferred = $.Deferred();
 
-            var courseModel = new CourseModel(attributes); 
-				courseModel.cid = courseModel.get("c_id"); 
-				self.add(courseModel);
+            var courseModel = new CourseModel(attributes); //Crea un objeto (modelo) con los datos de un curso
+                //console.log(courseModel);
+				//console.log(attributes);
+				courseModel.cid = courseModel.get("c_id");  // Indicamos que el cid sea el id del curso
+				self.add(courseModel);						// Añade el objeto (modelo) a la coleccion
                 deferred.resolve();
 
             return deferred.promise();

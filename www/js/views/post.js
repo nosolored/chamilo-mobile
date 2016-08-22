@@ -20,7 +20,10 @@ define([
 	var infoModel = new InfoModel();
   
     var loadPosts = function () {
-	    var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+	    console.log("funcion loadPosts");
+	    //console.log(postsCollection);
+		
+        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getPosts = $.post(url, {
             action: 'getPostsList',
             username: campusModel.get('username'),
@@ -32,12 +35,18 @@ define([
         });
 		
         $.when(getPosts).done(function (response) {
+			console.log(response);
             if (!response.status) {
                 return;
             }
 			thread_title = response.data.thread_title;
 			infoModel.set("thread_title", thread_title);		
-            response.data.posts.forEach(function (postData) {
+            
+			//response.data.posts.forEach(function (postData) {
+			
+			for (var i in response.data.posts){
+				var postData = response.data.posts[i];
+				console.log(postData);
 				var cid = parseInt("" + postData.c_id + "0" + postData.forum_id + "0" + postData.thread_id + "0" + postData.post_id);
 				if(postsCollection.get(cid) == null){ 
 					postsCollection.create({
@@ -62,7 +71,7 @@ define([
 					post.set({"filename": postData.filename});
 					postsCollection.set(post,{remove: false});
 				}
-			});
+			};
 			
             if (response.data.posts.length === 0) {
                 new AlertView({
@@ -91,6 +100,7 @@ define([
 			postsCollection.unbind();
 			postsCollection.reset();
 			
+			console.log("initialize")
 			base = campusModel.get('url') + '/plugin/chamilo_app/forum-download.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey') + '&user_id=' + campusModel.get('user_id');
 
 		 	loadPosts();
@@ -115,7 +125,14 @@ define([
 		},
 		filePostOnClick: function (e) {
             e.preventDefault();
-						
+			//console.log(e.target);            // The element that was clicked.
+  			
+			/*
+			console.log($(e.target).prop("href"));
+			//console.log($(e.target).id());
+			cordova.InAppBrowser.open($(e.target).prop("href"), '_blank', 'location=no');
+			*/
+			
 			function fail(e) {
 			  var msg = '';
 			
@@ -154,6 +171,8 @@ define([
 				  navigator.notification.alert(
 						'Fichero descargado con el nombre '+fileName, 
 						function(){
+							//$.mobile.loading("hide");
+							console.log(fileName);
 							window.open("/sdcard/Download/" + fileName,'_system')	
 						}, 
 						'Respuesta de la aplicación'

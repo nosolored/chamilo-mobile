@@ -18,7 +18,9 @@ define([
 
   
     var loadForums = function () {
-	
+	    console.log("funcion loadForums");
+	    //console.log(forumsCollection);
+		
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getForums = $.post(url, {
             action: 'getForumsList',
@@ -29,15 +31,19 @@ define([
         });
 
         $.when(getForums).done(function (response) {
+			//console.log(response);
             if (!response.status) {
                 return;
             }
 			var forums = response.forums.info_forum; 
 			cat_forum = response.forums.info_category;
+			//console.log(cat_forum);
 			
+            //forums.forEach(function (forumData) {
 			for( i in forums ){
 				var forumData = forums[i];
 				//comprobamos si existe
+				//console.log(forumData);
 				var cid = parseInt("" + forumData.c_id + "000" + forumData.forum_id);
 				if(forumsCollection.get(cid) == null){ 
 					forumsCollection.create({
@@ -87,12 +93,14 @@ define([
 			$(this.el).unbind();
             campusModel = this.model;
 			courseId = this.id;
+			console.log("initialize")
 
 		 	loadForums();
 			forumsCollection.on('add', this.render, this);
             forumsCollection.on('change', this.render, this);
         },
         render: function () {
+			//console.log(forumsCollection);
             this.el.innerHTML = this.template({collection: forumsCollection.toJSON(), c_id: courseId, category: cat_forum});
 			return this;
         },

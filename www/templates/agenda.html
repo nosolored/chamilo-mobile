@@ -28,6 +28,10 @@
 <div class="container">
 	<section id="main_content">
         <% for (var i = 0; i < events.length; i++) { %>
+        	<!--
+            <div class="sectiontitle"><% print(events[i]['title']); %></div>
+            <div class="sectioncomment"><% print(events[i]['content']); %></div>
+            -->
             <div class="container announcement-view">
                 <article class="panel panel-primary">
                     <header class="panel-heading">
@@ -36,12 +40,22 @@
                     <div class="panel-body">
                     	<% if( events[i]['start_date'] == events[i]['end_date']){ %>
                         	<i class="glyphicon glyphicon-time"></i> <% print(events[i]['start_date']); %>
+                            <!--
+                            <a href="#" target="_blank" rel="external" class="btn btn-xs btn-warning pull-right">
+                                <i class="glyphicon glyphicon-link"></i> <%= lang.viewInPlatform %>
+                            </a>
+                            -->
                             <% if( events[i]['all_day'] == '1'){ %>
                                 <br />
                                 <%= lang.allDay %>
                             <% } %>
                         <% } else { %>
                         	<i class="glyphicon glyphicon-time"></i> <% print(events[i]['start_date']); %>
+                            <!--
+                            <a href="#" target="_blank" rel="external" class="btn btn-xs btn-warning pull-right">
+                                <i class="glyphicon glyphicon-link"></i> <%= lang.viewInPlatform %>
+                            </a>
+                            -->
                         	<br>
                             <i class="glyphicon glyphicon-time"></i>
                             <% if( events[i]['all_day'] == '1'){ %>

@@ -9,6 +9,7 @@ define([
             title: '',
 			directory: '',
 			url_picture: '',
+			course_image: '',
             teacher: '',
 			url: ''
         }

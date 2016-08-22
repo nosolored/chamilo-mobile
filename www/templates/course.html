@@ -24,50 +24,67 @@
     </div>
 </header>
 
-<div class="container">
-    <div class="list-group">
-        <a class="list-group-item" href="#description/<%= c_id %>">
-            <p>
-                <img class="center-block" src="img/info.png" alt="Description">
-            </p>
-            <h4 class="list-group-item-heading text-center"><%= lang.description %></h4>
-        </a>
+<div class="container" id="course_tools">
+    <div class="row">
+    	<div class="col-xs-6 col-md-3 course-tool">
+        	<div class="big_icon">
+        		<a class="" href="#description/<%= c_id %>">
+                    <img class="center-block" src="img/info.png" alt="Description">
+            	</a>
+                <div class="content">
+					<h5><a class="" href="#description/<%= c_id %>"><%= lang.description %></a></h5>
+                </div>
+        	</div>
+        </div>
+        <div class="col-xs-6 col-md-3 course-tool">
+            <div class="big_icon">
+        		<a class="" href="#documents/<%= c_id %>/root">
+                    <img class="center-block" src="img/documents.png" alt="Documents">
+            	</a>
+                <div class="content">
+					<h5><a class="" href="#documents/<%= c_id %>/root"><%= lang.documents %></a></h5>
+                </div>
+        	</div>
+        </div>
+   		<div class="col-xs-6 col-md-3 course-tool">
+        	<div class="big_icon">
+        		<a class="" href="#announcements/<%= c_id %>">
+                    <img class="center-block" src="img/valves.png" alt="Announcement">
+            	</a>
+                <div class="content">
+					<h5><a class="" href="#announcements/<%= c_id %>"><%= lang.announcement %></a></h5>
+                </div>
+        	</div>
+        </div>
+        <div class="col-xs-6 col-md-3 course-tool">
+        	<div class="big_icon">
+        		<a class="" href="#agenda/<%= c_id %>">
+                    <img class="center-block" src="img/agenda.png" alt="Agenda">
+            	</a>
+                <div class="content">
+					<h5><a class="" href="#agenda/<%= c_id %>"><%= lang.agenda %></a></h5>
+                </div>
+        	</div>
+        </div>
+        <div class="col-xs-6 col-md-3 course-tool">
+        	<div class="big_icon">
+        		<a class="" href="#forum/<%= c_id %>">
+                    <img class="center-block" src="img/forum.png" alt="Forum">
+            	</a>
+                <div class="content">
+					<h5><a class="" href="#forum/<%= c_id %>"><%= lang.forum %></a></h5>
+                </div>
+        	</div>
+        </div>
+        <div class="col-xs-6 col-md-3 course-tool">
+        	<div class="big_icon">
+        		<a class="" href="#notebook/<%= c_id %>">
+                    <img class="center-block" src="img/notebook.png" alt="Notebook">
+            	</a>
+                <div class="content">
+					<h5><a class="" href="#notebook/<%= c_id %>"><%= lang.notebook %></a></h5>
+                </div>
+        	</div>
+        </div>
     </div>
-    
-    <div class="list-group">
-        <a class="list-group-item" href="#documents/<%= c_id %>/root">
-            <p>
-                <img class="center-block" src="img/documents.png" alt="Documents">
-            </p>
-            <h4 class="list-group-item-heading text-center"><%= lang.documents %></h4>
-        </a>
-    </div>
-    
-    <div class="list-group">
-        <a class="list-group-item" href="#announcements/<%= c_id %>">
-            <p>
-                <img class="center-block" src="img/valves.png" alt="Announcement">
-            </p>
-            <h4 class="list-group-item-heading text-center"><%= lang.announcement %></h4>
-        </a>
-    </div>
-    
-    <div class="list-group">
-        <a class="list-group-item" href="#agenda/<%= c_id %>">
-            <p>
-                <img class="center-block" src="img/agenda.png" alt="Agenda">
-            </p>
-            <h4 class="list-group-item-heading text-center"><%= lang.agenda %></h4>
-        </a>
-    </div>
-    
-    <div class="list-group">
-        <a class="list-group-item" href="#forum/<%= c_id %>">
-            <p>
-                <img class="center-block" src="img/forum.png" alt="Forum">
-            </p>
-            <h4 class="list-group-item-heading text-center"><%= lang.forum %></h4>
-        </a>
-    </div>
-    
 </div>

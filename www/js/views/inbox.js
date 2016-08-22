@@ -19,11 +19,28 @@ define([
     var messagesCollection = new MessagesCollection();
 
     var loadMessages = function () {
+		console.log("##### ENTRO EN LOADMESSAGES #####");
+		console.log(window.navigator.onLine);
+        /*
+		if (!window.navigator.onLine) {
+            new AlertView({
+                model: {
+                    message: window.lang.notOnLine
+                }
+            });
+            return;
+        }
+		*/
+		
+		//console.log(messagesCollection);
+		
 		var listId = '';
 		messagesCollection.each(function(model){
 			listId += listId ? '-' : '';
 			listId += model.get('messageId');
 		});
+		//console.log("listado de id de mensajes");
+		//console.log(listId);
 		
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getMessages = $.post(url, {
@@ -33,11 +50,15 @@ define([
             last: campusModel.get('lastMessage'),
 			list: listId
         });
+		
+		//console.log(getMessages);
 
         $.when(getMessages).done(function (response) {
             if (!response.status) {
                 return;
             }
+			
+			//console.log(response);
 			
 			//Add new messages
             response.messages.forEach(function (messageData) {
@@ -55,6 +76,7 @@ define([
 			
 			//Remove messages
 			response.remove_messages.forEach(function (messageId) {
+				console.log(messageId);
 				messagesCollection.removeDB(messageId);
 			});
 			
@@ -78,6 +100,18 @@ define([
     };
 	
 	var loadAllMessages = function () {
+        /*
+		if (!window.navigator.onLine) {
+			console.log(window.navigator.onLine);
+            new AlertView({
+                model: {
+                    message: window.lang.notOnLine
+                }
+            });
+            return;
+        }
+		*/
+
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getMessages = $.post(url, {
             action: 'getAllMessages',
@@ -125,6 +159,7 @@ define([
         el: 'body',
         template: _.template(InboxTemplate),
         initialize: function () {
+			console.log("entro en initialize del inbox.js");
 			$(this.el).unbind();
 			messagesCollection.unbind();
 			
@@ -147,6 +182,7 @@ define([
         },
         render: function () {
             this.el.innerHTML = this.template();
+			//console.log(messagesCollection);
             messagesCollection.each(this.renderMessage, this);
 
             return this;
@@ -162,8 +198,8 @@ define([
             var inboxMessageView = new InboxMessageView({
                 model: messageModel
             });
-
-            this.$el.find('#messages-list').prepend(inboxMessageView.render().el);
+			//this.$el.find('#message'+messageModel.cid).remove();
+            this.$el.find('#messages-list').append(inboxMessageView.render().el);
         },
 		renderMessageRemove: function (messageModel) {
 			this.$el.find('#message'+messageModel.cid).remove();

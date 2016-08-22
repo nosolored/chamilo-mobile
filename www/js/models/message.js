@@ -51,8 +51,11 @@ define([
             ], 'readwrite');
             var store = transaction.objectStore(DB.TABLE_MESSAGE);
 			var request = store.delete(self.cid);
+			console.log(self.cid);
             
             request.onsuccess = function (e) {
+				console.log("Item borrado");
+				console.log(request);
 				deferred.resolve();
             };
 
@@ -100,10 +103,12 @@ define([
             var request = store.delete(parseInt(cid));
 
             request.onsuccess = function (e) {
+                console.log("borrado item");
 				deferred.resolve();
             };
 
             request.onerror = function () {
+				console.log("problema al borrar item");
                 deferred.reject();
             };
 

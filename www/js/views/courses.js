@@ -17,7 +17,21 @@ define([
     var coursesCollection = null;
 
   var loadCourses = function () {
-
+	  console.log("funcion loadCourses");
+	  
+        /*
+		if (!window.navigator.onLine) {
+			console.log("ups!");
+            new AlertView({
+                model: {
+                    message: window.lang.notOnLine
+                }
+            });
+            return;
+        }
+		
+		//console.log(coursesCollection);
+		*/
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getCourses = $.post(url, {
             action: 'getCoursesList',
@@ -39,6 +53,7 @@ define([
 						title: courseData.title,
 						directory: courseData.directory,
 						url_picture: courseData.url_picture,
+						course_image: courseData.course_image,
 						teacher: courseData.teacher,
 						url: campusModel.get('url') + '/courses/' + courseData.directory
 					});
@@ -48,6 +63,7 @@ define([
 					course.set({"title": courseData.title});
 					course.set({"directory": courseData.directory});
 					course.set({"url_picture": courseData.url_picture});
+					course.set({"course_image": courseData.course_image});
 					course.set({"teacher": courseData.teacher});
 					coursesCollection.set(course,{remove: false});
 				}
@@ -71,6 +87,7 @@ define([
 			$(this.el).unbind();
             campusModel = this.model;
 			coursesCollection = this.collection;
+			console.log("initialize")
 		
             loadCourses();
 

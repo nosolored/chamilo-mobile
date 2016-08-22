@@ -16,6 +16,20 @@ define([
     
 
   var loadProfile = function () {
+	  console.log("funcion loadProfile");
+        /*
+		if (!window.navigator.onLine) {
+            new AlertView({
+                model: {
+                    message: window.lang.notOnLine
+                }
+            });
+            return;
+        }
+		*/
+		
+		console.log(profileModel);
+		
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getCourses = $.post(url, {
             action: 'getProfile',
@@ -25,6 +39,7 @@ define([
         });
 
         $.when(getCourses).done(function (response) {
+			console.log(response);
             if (!response.status) {
                 return;
             }
@@ -60,11 +75,14 @@ define([
         initialize: function () {
 			$(this.el).unbind();
             campusModel = this.model;
+			console.log("initialize")
             loadProfile();
 			profileModel.on('change', this.render, this);
         },
         render: function () {
+			console.log(profileModel.toJSON);
 			this.el.innerHTML = this.template(profileModel.toJSON());
+
             return this;
         }
     });

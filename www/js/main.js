@@ -18,26 +18,43 @@ document.addEventListener('deviceready', function () {
         window.lang = appLang;
 
         App.initialize();
+		
+		
+		
+		
 	});
 });
 
 document.addEventListener("backbutton", onBackKeyDown, false);
 		
 function onBackKeyDown(e) {
+  console.log(window.navigator.onLine);
+  //console.log(e);
   e.preventDefault();
   var url_back = $("#btn-back-url").prop("href");
+  console.log(url_back);
   if(url_back != ""){
 	  var res = url_back.split("#");
 	  if( res[res.length-1] == "exit"){
 	      navigator.app.exitApp();	  
 	  }else if(res[res.length-1] == "javascript:history.back();"){
+		  console.log("navigator.app.backHistory();");
 		  navigator.app.backHistory();
 	  }else{
 	  	var url = '#'+res[res.length-1];
+		console.log(url);
 		window.location.href = url;
 	  }
   }else{
 	  var url = '#'; 
+	  console.log(url); 
 	  window.location.href = url;
   }
+  //navigator.app.backHistory();
+  
+  
+  
+  //var MyApp = new Backbone.Router();
+  //MyApp.navigate(url, {trigger: false});
+  //window.location.href = url;
 }

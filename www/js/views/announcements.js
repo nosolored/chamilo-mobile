@@ -18,7 +18,21 @@ define([
     var announcementsCollection = null;
 
 
-    var loadAnnouncements = function () {
+  var loadAnnouncements = function () {
+	  console.log("funcion Announcements");
+	  	/*
+        if (!window.navigator.onLine) {
+            new AlertView({
+                model: {
+                    message: window.lang.notOnLine
+                }
+            });
+            return;
+        }
+		*/
+		
+		console.log(announcementsCollection);
+		
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getAnnouncements = $.post(url, {
             action: 'getAnnouncementsList',
@@ -29,6 +43,7 @@ define([
         });
 
         $.when(getAnnouncements).done(function (response) {
+			console.log(response);
             if (!response.status) {
                 return;
             }
@@ -53,7 +68,10 @@ define([
 					announcement.set({"content": announcementData.content});
 					announcement.set({"last_edit": announcementData.last_edit});
 					announcement.set({"teacher": announcementData.teacher});
+					
+					
 					announcementsCollection.set(announcement,{remove: false});
+					console.log(announcement);
 				}
             });
 
@@ -76,6 +94,8 @@ define([
             campusModel = this.model;
 			announcementsCollection = this.collection;
 			courseId = this.id;
+			console.log("initialize")
+			//console.log(campusModel);
 			
             loadAnnouncements();
 
@@ -109,8 +129,15 @@ define([
         },
         announcementsUpdateOnClick: function (e) {
             e.preventDefault();
+			console.log(announcementsCollection);
+			
             loadAnnouncements();
 			$(".navbar-toggle").trigger( "click" );
+			
+			
+			
+			//console.log(coursesCollection);
+			//Backbone.history.loadUrl(Backbone.history.fragment);
         }
     });
 

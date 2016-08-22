@@ -1,4 +1,6 @@
 <?php
+use ChamiloSession as Session;
+
 require_once __DIR__ . '/../../../main/forum/forumconfig.inc.php';
 require_once __DIR__ . '/../../../main/forum/forumfunction.inc.php';
 
@@ -266,6 +268,193 @@ class AppWebService extends WSAPP
         return $messages;
     }
 
+	
+	public function getUsersMessage($user_id, $user_search)
+	{
+		/* LOGIN */
+		$chamiloUser = api_get_user_info($user_id);
+		$_user['user_id'] = $chamiloUser['user_id'];
+		$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+		$_user['uidReset'] = true;
+		Session::write('_user', $_user);
+		$uidReset = true;
+		$logging_in = true;
+		//Event::event_login($_user['user_id']);
+		/* Fin login */
+		Login::init_user($user_id, true);
+		
+		$track_online_table      = Database::get_main_table(TABLE_STATISTIC_TRACK_E_ONLINE);
+        $tbl_my_user		     = Database::get_main_table(TABLE_MAIN_USER);
+        $tbl_my_user_friend      = Database::get_main_table(TABLE_MAIN_USER_REL_USER);
+        $tbl_user 			     = Database::get_main_table(TABLE_MAIN_USER);
+        $tbl_access_url_rel_user = Database :: get_main_table(TABLE_MAIN_ACCESS_URL_REL_USER);
+        $search				     = Database::escape_string($user_search);
+
+        $access_url_id           = api_get_multiple_access_url() == 'true' ? api_get_current_access_url_id() : 1;
+        $user_id                 = api_get_user_id();
+        $is_western_name_order   = api_is_western_name_order();
+
+        $likeCondition = " AND (firstname LIKE '%$search%' OR lastname LIKE '%$search%' OR email LIKE '%$search%') ";
+
+        if (api_get_setting('allow_social_tool')=='true' && api_get_setting('allow_message_tool') == 'true') {
+            // All users
+            if (api_get_setting('allow_send_message_to_all_platform_users') == 'true' || api_is_platform_admin() ) {
+                if ($access_url_id != 0) {
+                    $sql = "SELECT DISTINCT u.user_id as id, u.firstname, u.lastname, u.email
+                            FROM $tbl_user u LEFT JOIN $tbl_access_url_rel_user r ON u.user_id = r.user_id
+                            WHERE
+                                u.status <> 6  AND
+                                u.user_id <> $user_id AND
+                                r.access_url_id = $access_url_id
+                                $likeCondition ";
+
+                } else {
+                    $sql = "SELECT DISTINCT u.user_id as id, u.firstname, u.lastname, u.email
+                            FROM $tbl_user u
+                            WHERE
+                                u.status <> 6  AND
+                                u.user_id <> $user_id
+                                $likeCondition ";
+                }
+            } else {
+                //only my contacts
+                if ($access_url_id != 0) {
+                    $sql = "SELECT DISTINCT u.user_id as id, u.firstname, u.lastname, u.email
+                            FROM $tbl_access_url_rel_user r, $tbl_my_user_friend uf
+                            INNER JOIN $tbl_my_user AS u
+                            ON uf.friend_user_id = u.user_id
+                            WHERE
+                                u.status <> 6 AND
+                                relation_type NOT IN(".USER_RELATION_TYPE_DELETED.", ".USER_RELATION_TYPE_RRHH.") AND
+                                uf.user_id = $user_id AND
+                                friend_user_id <> $user_id AND
+                                u.user_id = r.user_id AND
+                                r.access_url_id = $access_url_id
+                                $likeCondition";
+                } else {
+                    $sql = "SELECT DISTINCT u.user_id as id, u.firstname, u.lastname, u.email
+                            FROM $tbl_my_user_friend uf
+                            INNER JOIN $tbl_my_user AS u
+                            ON uf.friend_user_id = u.user_id
+         	                WHERE
+                                u.status <> 6 AND
+                                relation_type NOT IN(".USER_RELATION_TYPE_DELETED.", ".USER_RELATION_TYPE_RRHH.") AND
+                                uf.user_id = $user_id AND
+                                friend_user_id <> $user_id
+                                $likeCondition";
+                }
+            }
+        } elseif (api_get_setting('allow_social_tool')=='false' && api_get_setting('allow_message_tool')=='true') {
+            if (api_get_setting('allow_send_message_to_all_platform_users') == 'true') {
+                $sql = "SELECT DISTINCT u.user_id as id, u.firstname, u.lastname, u.email
+                        FROM $tbl_user u LEFT JOIN $tbl_access_url_rel_user r ON u.user_id = r.user_id
+                        WHERE
+                            u.status <> 6  AND
+                            u.user_id <> $user_id AND
+                            r.access_url_id = $access_url_id
+                            $likeCondition ";
+            } else {
+                $time_limit = api_get_setting('time_limit_whosonline');
+                $online_time = time() - $time_limit*60;
+                $limit_date	 = api_get_utc_datetime($online_time);
+                $sql = "SELECT SELECT DISTINCT u.user_id as id, u.firstname, u.lastname, u.email
+                        FROM $tbl_my_user u INNER JOIN $track_online_table t
+                        ON u.user_id=t.login_user_id
+                        WHERE login_date >= '".$limit_date."' AND
+                        $likeCondition";
+            }
+        }
+        $sql .=' LIMIT 20';
+        $result = Database::query($sql);
+
+        $showEmail = api_get_setting('show_email_addresses');
+        $return = array();
+        if (Database::num_rows($result) > 0) {
+            while ($row = Database::fetch_array($result, 'ASSOC')) {
+                $name = api_get_person_name($row['firstname'], $row['lastname']);
+                if ($showEmail == 'true') {
+                    $name .= ' ('.$row['email'].')';
+                }
+                $return[] = array(
+                    'text' => $name,
+                    'id' => $row['id']
+                );
+            }
+        }
+		//error_log(print_r($return,1));
+		return $return;
+	}
+
+	public function sendNewEmail($to_userid, $title, $text, $user_id)
+    {
+		/* LOGIN */
+		$chamiloUser = api_get_user_info($user_id);
+		$_user['user_id'] = $chamiloUser['user_id'];
+		$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+		$_user['uidReset'] = true;
+		Session::write('_user', $_user);
+		$uidReset = true;
+		$logging_in = true;
+		//Event::event_login($_user['user_id']);
+		/* Fin login */
+		Login::init_user($user_id, true);
+	
+		if (is_array($to_userid) && count($to_userid)> 0) {
+			foreach ($to_userid as $user) {
+				//error_log(print_r($user,1));
+				$res = MessageManager::send_message(
+					$user,
+					$title,
+					$text);
+					/*	
+					$_FILES,
+					$file_comments,
+					$group_id,
+					$parent_id
+					);
+					*/
+			}
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	public function sendReplyEmail($message_id, $title, $text, $check_quote, $user_id)
+    {
+		/* LOGIN */
+		$chamiloUser = api_get_user_info($user_id);
+		$_user['user_id'] = $chamiloUser['user_id'];
+		$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+		$_user['uidReset'] = true;
+		Session::write('_user', $_user);
+		$uidReset = true;
+		$logging_in = true;
+		//Event::event_login($_user['user_id']);
+		/* Fin login */
+		Login::init_user($user_id, true);
+		
+		$message_info = MessageManager::get_message_by_id($message_id);
+		
+		$user = $message_info['user_sender_id'];
+		$reply = '';
+		if($check_quote == '1'){
+			$user_reply_info = api_get_user_info($message_info['user_sender_id']);
+			$reply .= '<p><br/></p>'.sprintf(
+				get_lang('XWroteY'),
+				$user_reply_info['complete_name'],
+				Security::filter_terms($message_info['content'])
+			);
+		}
+		$text_message = $reply.' '.$text;
+		$res = MessageManager::send_message($user, $title, $text_message);
+		if($res){			
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
 	/**
      * Get the list of courses for a user
      * @param int $user_id The id of the user
@@ -277,11 +466,14 @@ class AppWebService extends WSAPP
         $listCourses = CourseManager::get_courses_list_by_user_id($user_id);
 		
         foreach ($listCourses as $course) {
-			$info = CourseManager::get_course_information_by_id($course['real_id']);
-			$infoCourse = api_format_course_array($info);
+			
+			//$course_info = api_get_course_info($course_code);
+			$infoCourse = api_get_course_info_by_id($course['real_id']);
+			//$info = CourseManager::get_course_information_by_id($course['real_id']);
+			//$infoCourse = api_format_course_array($info);
 
 			$teacher = CourseManager::get_teacher_list_from_course_code_to_string($infoCourse['code']);
-
+            /*
             $store_path = api_get_path(SYS_COURSE_PATH).$infoCourse['path'];
             $url_picture = $store_path.'/course-pic85x85.png';
 
@@ -290,19 +482,21 @@ class AppWebService extends WSAPP
             }else{
 				$url_picture = api_get_path(WEB_COURSE_PATH).$infoCourse['path'].'/course-pic85x85.png';
 			}
-			
+			*/
 			$courses[] = array(
                 'id' => $infoCourse['real_id'],
                 'title' => $infoCourse['title'],
                 'code' => $infoCourse['code'],
                 'directory' => $infoCourse['directory'],
-				'url_picture' => $url_picture,
+				'url_picture' => $infoCourse['course_image_large'], //$url_picture,
+				'course_image' => $infoCourse['course_image'],
                 'teacher' => $teacher
             );
         }
 
         return $courses;
     }
+	
 	
 	/**
      * Get the profile info user
@@ -311,7 +505,8 @@ class AppWebService extends WSAPP
      */
     public function getProfile($user_id)
     {
-		$user = UserManager::get_user_info_by_id($user_id);
+		//$user = UserManager::get_user_info_by_id($user_id);
+		$user = api_get_user_info($user_id);
 		
 		$firstname = null;
 		$lastname = null;
@@ -331,32 +526,81 @@ class AppWebService extends WSAPP
 			$user['complete_name_with_username'] = $user['complete_name'].' ('.$user['username'].')';
 		}
 		
-		$t_uf  = Database :: get_main_table(TABLE_MAIN_USER_FIELD);
-	    $t_ufv = Database :: get_main_table(TABLE_MAIN_USER_FIELD_VALUES);
+		//$t_uf  = Database :: get_main_table(TABLE_MAIN_USER_FIELD);
+	    //$t_ufv = Database :: get_main_table(TABLE_MAIN_USER_FIELD_VALUES);
+		
+		$t_uf  = Database :: get_main_table(TABLE_EXTRA_FIELD);
+	    $t_ufv = Database :: get_main_table(TABLE_EXTRA_FIELD_VALUES);
+		
 		$extra = array();
 		
-		$sql = "SELECT field_display_text,field_value "
+		$sql = "SELECT a.display_text ,b.value "
               ." FROM $t_uf a INNER JOIN $t_ufv b ON a.id=b.field_id "
-			  ." WHERE a.field_visible='1' AND b.user_id='".$user_id."' AND b.field_value<>'';";
+			  ." WHERE a.visible='1' AND b.item_id='".$user_id."' AND b.value<>'';";
         $rs = Database::query($sql);
 		while( $row = Database::fetch_row($rs) ) {
 			$extra[] = $row;
 		}
 		$user['extra'] = $extra;
 		
+		$user['picture_uri'] = UserManager::getUserPicture($user_id);
+		
+		/*
 		$img_array = UserManager::get_user_picture_path_by_id($user_id, 'web', true, true);
 		$user['picture_uri'] = $img_array['dir'].$img_array['file'];
-		
+		*/
 		return $user;
     }
+	
+	/**
+     * Register course access
+     * @param int $c_id The id course
+     * @return booleano true if success
+     */
+    public function registerAccessCourse($c_id, $user_id)
+    {
+		$courseInfo = api_get_course_info_by_id($c_id);
+		$course_code = $courseInfo['code'];
+		
+		/* LOGIN */
+		$chamiloUser = api_get_user_info($user_id);
+		$_user['user_id'] = $chamiloUser['user_id'];
+		$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+		$_user['uidReset'] = true;
+		Session::write('_user', $_user);
+		$uidReset = true;
+		$logging_in = true;
+		//Event::event_login($_user['user_id']);
+		Login::init_user($user_id, true);
+		Login::init_course($course_code, true);
+		/* Fin login */
+		Event::accessCourse();
+	}
 	
 	/**
      * Get description of course
      * @param int $c_id The id course
      * @return array the all descriptions
      */
-    public function getDescription($c_id)
+    public function getDescription($c_id, $username)
     {
+		$courseInfo = api_get_course_info_by_id($c_id);	
+		$user_id = UserManager::get_user_id_from_username($username);
+	
+		/* LOGIN */
+		$chamiloUser = api_get_user_info($user_id);
+		$_user['user_id'] = $chamiloUser['user_id'];
+		$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+		$_user['uidReset'] = true;
+		Session::write('_user', $_user);
+		$uidReset = true;
+		$logging_in = true;
+		Login::init_user($user_id, true);
+		Login::init_course($courseInfo['code'], true);
+		// Tracking
+		eventAccessTool(TOOL_COURSE_DESCRIPTION);
+		//Event::event_access_tool(TOOL_COURSE_DESCRIPTION);
+		
 		global $_configuration;
 		$ruta = $_configuration['root_web'];
 				
@@ -374,23 +618,90 @@ class AppWebService extends WSAPP
     }
 	
 	/**
+     * Get notebook of course
+     * @param int $c_id The id course
+     * @param string $username 
+     * @return array the all notebook
+     */
+    public function getNotebook($c_id, $username)
+    {
+		$courseInfo = api_get_course_info_by_id($c_id);	
+		$user_id = UserManager::get_user_id_from_username($username);
+	
+		/* LOGIN */
+		$chamiloUser = api_get_user_info($user_id);
+		$_user['user_id'] = $chamiloUser['user_id'];
+		$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+		$_user['uidReset'] = true;
+		Session::write('_user', $_user);
+		$uidReset = true;
+		$logging_in = true;
+		Login::init_user($user_id, true);
+		Login::init_course($courseInfo['code'], true);
+		// Tracking
+		eventAccessTool(TOOL_NOTEBOOK);
+		//Event::event_access_tool(TOOL_COURSE_DESCRIPTION);
+		
+		global $_configuration;
+		$ruta = $_configuration['root_web'];
+		
+		$t_notebook = Database :: get_course_table(TABLE_NOTEBOOK);
+		$sql = "SELECT * FROM $t_notebook
+                WHERE
+                    c_id = $c_id AND
+                    user_id = '" . api_get_user_id() . "'
+                ";
+        $result = Database::query($sql);
+		$results = array();
+		while ($row = Database::fetch_array($result)) {
+			$creation_date = api_get_local_time($row['creation_date'], null, date_default_timezone_get());
+            $update_date = api_get_local_time($row['update_date'], null, date_default_timezone_get());
+			if($row['update_date']==$row['creation_date']){
+				$update = '';
+			}else{
+				$update = date_to_str_ago($update_date).' '.$update_date;	
+			}
+			$results[] = array('id' => $row['notebook_id'],
+								'title' => $row['title'],
+								'description' => str_replace('src="/','src="'.$ruta,$row['description']),
+								'creation_date' => date_to_str_ago($creation_date).' '.$creation_date,
+								'update_date' => $update);	
+		}
+		return $results;
+    }
+	
+	/**
      * Get documents of course
      * @param int $c_id The id course
      * @return array the all documents
      */
-    public function getDocuments($c_id, $path)
+    public function getDocuments($c_id, $path, $user_id)
     {	
+		/* LOGIN */
+		$chamiloUser = api_get_user_info($user_id);
+		$_user['user_id'] = $chamiloUser['user_id'];
+		$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+		$_user['uidReset'] = true;
+		Session::write('_user', $_user);
+		$uidReset = true;
+		$logging_in = true;
+		Event::event_login($_user['user_id']);
+		Login::init_user($user_id, true);
+		/* Fin login */
+		
 		$lib_path = api_get_path(LIBRARY_PATH);
 		require_once $lib_path.'fileDisplay.lib.php';
 		global $_configuration;
 		$ruta = $_configuration['root_web'];
 		
-		$_course = CourseManager::get_course_information_by_id($c_id);
+		//$_course = CourseManager::get_course_information_by_id($c_id);
+		$_course = api_get_course_info_by_id($c_id);
 				
 		$libpath = api_get_path(LIBRARY_PATH);
 		require_once $libpath.'document.lib.php';
         
 		$documents = DocumentManager::get_all_document_data($_course,$path);
+		
 		$results = array();
 		
 		foreach($documents as $document) {
@@ -425,11 +736,13 @@ class AppWebService extends WSAPP
 				$results[] = array('id' => $document['id'],
 									'filetype' => $document['filetype'],
 									'path' => $document['path'],
+									'filename' => basename($document['path']),
 									'title' => $document['title'],
 									'icon' => $icon,
 									'size' => $document['size']);
 			}
 		}
+		//error_log(print_r($results,1));
 		return $results;
     }
 	
@@ -439,17 +752,32 @@ class AppWebService extends WSAPP
 	 * @param int $user_id 
      * @return array the all announcements
      */
-    public function getAnnouncements($c_id, $user_id)
+    public function getAnnouncements($c_id, $user_id, $session_id = 0)
     {
 		global $_configuration;
 		$ruta = $_configuration['root_web'];
 		
+		$info_course = api_get_course_info_by_id($c_id);
+		$info_user = api_get_user_info($user_id);
+		$teacher_list = CourseManager::get_teacher_list_from_course_code($info_course['code']);
+
+        $teacher_name = '';
+        if (!empty($teacher_list)) {
+            foreach ($teacher_list as $teacher_data) {
+                $teacher_name = api_get_person_name($teacher_data['firstname'], $teacher_data['lastname']);
+                $teacher_email = $teacher_data['email'];
+                break;
+            }
+        }
+
+        $courseLink = api_get_course_url($info_course['code'], $session_id);
+	
 		$tbl_announcement = Database::get_course_table(TABLE_ANNOUNCEMENT);
         $tbl_item_property = Database::get_course_table(TABLE_ITEM_PROPERTY);
 
         if (!empty($user_id) && is_numeric($user_id)) {
             $user_id = intval($user_id);
-            $sql = "SELECT announcement.c_id, announcement.id, announcement.title, announcement.content, toolitemproperties.insert_user_id,toolitemproperties.lastedit_date ".
+            $sql = "SELECT announcement.iid, announcement.c_id, announcement.id, announcement.title, announcement.content, announcement.display_order, toolitemproperties.insert_user_id,toolitemproperties.lastedit_date ".
 					"FROM $tbl_announcement announcement, $tbl_item_property toolitemproperties ".
 					"WHERE ".
 						"announcement.c_id = $c_id AND ".
@@ -457,7 +785,7 @@ class AppWebService extends WSAPP
 						"announcement.id = toolitemproperties.ref AND ".
 						"toolitemproperties.tool='announcement' AND ".
 						"( ".
-						  "toolitemproperties.to_user_id='$user_id' AND ".
+						  "(toolitemproperties.to_user_id='$user_id' OR toolitemproperties.to_user_id is null) AND ".
 						  "(toolitemproperties.to_group_id='0' OR toolitemproperties.to_group_id is null) ".
 						") ".
 						"AND toolitemproperties.visibility='1' ".
@@ -469,14 +797,27 @@ class AppWebService extends WSAPP
             $result = array();
             if ($num_rows > 0) {
                 while ($myrow = Database::fetch_array($rs)) {
-					$info_user = UserManager::get_user_info_by_id($myrow['insert_user_id']);
-                   $result[] = array(
+				    $info_user_publisher = api_get_user_info($myrow['insert_user_id']);
+					$content = $myrow['content'];
+					$content = str_replace('src="/','src="'.$ruta,$content);
+					$content = str_replace('((user_name))',$info_user['username'],$content);
+					$content = str_replace('((user_firstname))',$info_user['firstname'],$content);
+					$content = str_replace('((user_lastname))',$info_user['lastname'],$content);
+					$content = str_replace('((teacher_name))',$teacher_name,$content);
+					$content = str_replace('((teacher_email))',$teacher_email,$content);
+					$content = str_replace('((course_title))',$info_course['title'],$content);
+					$content = str_replace('((course_link))',Display::url($courseLink, $courseLink),$content);
+					$content = str_replace('((official_code))',$info_user['official_code'],$content);
+					
+                    $result[] = array(
+					   'iid' => $myrow['iid'],
 				   	   'c_id' => $myrow['c_id'],
 					   'a_id' => $myrow['id'],
 					   'title' => $myrow['title'],
-					   'content' => str_replace('src="/','src="'.$ruta,$myrow['content']),
-					   'teacher' => $info_user['firstname'].' '.$info_user['lastname'], 
-					   'last_edit' => date("d-m-Y H:i:s",strtotime($myrow['lastedit_date']))
+					   'content' => $content,
+					   'teacher' => $info_user_publisher['firstname'].' '.$info_user_publisher['lastname'], 
+					   'display_order' => $myrow['display_order'],
+					   'last_edit' => api_get_local_time($myrow['lastedit_date'])
 					);
                 }
                 return $result;
@@ -502,17 +843,25 @@ class AppWebService extends WSAPP
             return array();
         }
 		
-        $courseInfo = CourseManager::get_course_information_by_id($course_id);
+		$courseInfo = api_get_course_info_by_id($course_id);
+        //$courseInfo = CourseManager::get_course_information_by_id($course_id);
         $course_id = $courseInfo['real_id'];
         $user_id = intval($user_id);
         $session_id = intval($session_id);
-        $group_memberships = GroupManager::get_group_ids($course_id, $user_id);
+        
+		if($session_id > 0){
+			$where_session = "AND ip.session_id = $session_id";
+		}else{
+			$where_session = "AND (ip.session_id = $session_id OR ip.session_id IS NULL)"; 	
+		}
+		
+		$group_memberships = GroupManager::get_group_ids($course_id, $user_id);
         
         $tlb_course_agenda = Database::get_course_table(TABLE_AGENDA);
         $tbl_property = Database::get_course_table(TABLE_ITEM_PROPERTY);
 
         if (is_array($group_memberships) && count($group_memberships) > 0) {
-            $where_condition = "( ip.to_user_id = $user_id OR ip.to_group_id IN (0, ".implode(", ", $group_memberships).") ) ";
+            $where_condition = "( ip.to_user_id = $user_id OR ip.to_group_id IN (0, ".implode(", ", $group_memberships).") OR ip.insert_user_id = $user_id ) ";
 
             $sql = "SELECT DISTINCT agenda.*
                     FROM $tlb_course_agenda agenda
@@ -523,11 +872,13 @@ class AppWebService extends WSAPP
                         $where_condition AND
                         ip.visibility   = '1' AND
                         agenda.c_id     = $course_id AND
-                        ip.c_id         = $course_id
-                    ";
+                        ip.c_id         = $course_id AND 
+						(agenda.end_date >= '".api_get_utc_datetime(date("Y-m-d H:i:s"))."' OR (agenda.end_date LIKE '".date("Y-m-d")."%' AND agenda.all_day='1'))
+                    ORDER BY agenda.start_date ASC
+					";
         } else {
             $visibilityCondition = " ip.visibility='1' AND";
-            $where_condition = " ( ip.to_user_id = $user_id OR ip.to_group_id='0' ) AND ";
+            $where_condition = " ( ip.to_user_id = $user_id OR ip.to_group_id='0' OR ip.insert_user_id = $user_id ) AND ";
 
             $sql = "SELECT DISTINCT agenda.*
                     FROM $tlb_course_agenda agenda INNER JOIN $tbl_property ip
@@ -539,7 +890,9 @@ class AppWebService extends WSAPP
                         agenda.c_id = $course_id AND
                         ip.c_id = $course_id AND
                         agenda.session_id = $session_id AND
-                        ip.id_session = $session_id
+						(agenda.end_date >= '".api_get_utc_datetime(date("Y-m-d H:i:s"))."' OR (agenda.end_date LIKE '".date("Y-m-d")."%' AND agenda.all_day='1'))
+                        $where_session
+					ORDER BY agenda.start_date ASC
                     ";
         }
 
@@ -549,6 +902,7 @@ class AppWebService extends WSAPP
             
             while ($row = Database::fetch_array($result, 'ASSOC')) {
 				$results[] = array(
+				   'iid' => $row['iid'],
                    'c_id' => $row['c_id'],
                    'a_id' => $row['id'],
                    'title' => $row['title'],
@@ -573,35 +927,50 @@ class AppWebService extends WSAPP
 	 */
     public function getForums($course_id, $user_id, $session_id = 0)
     {	
-		$courseInfo = CourseManager::get_course_information_by_id($course_id);
+		$courseInfo = api_get_course_info_by_id($course_id);
+		//$courseInfo = CourseManager::get_course_information_by_id($course_id);
 		$course_code = $courseInfo['code'];
+		
+		/* LOGIN */
+		$chamiloUser = api_get_user_info($user_id);
+		$_user['user_id'] = $chamiloUser['user_id'];
+		$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+		$_user['uidReset'] = true;
+		Session::write('_user', $_user);
+		$uidReset = true;
+		$logging_in = true;
+		Event::event_login($_user['user_id']);
+		
+		/* Fin login */
 		Login::init_user($user_id, true);
 		Login::init_course($course_code, true);
-		
+
 		/* TRACKING */
-		//event_access_tool(TOOL_FORUM);
-		global $TABLETRACK_ACCESS;
+		eventAccessTool(TOOL_FORUM);
+		
+		//global $TABLETRACK_ACCESS;
+		$table_access = Database::get_main_table(track_e_access);
 		$id_session    = 0;
 		$tool          = Database::escape_string(TOOL_FORUM);
 		$reallyNow     = api_get_utc_datetime();
 
-		$sql = "INSERT INTO ".$TABLETRACK_ACCESS."
+		$sql = "INSERT INTO ".$table_access."
         			(access_user_id,
-        			 access_cours_code,
+        			 c_id,
         			 access_tool,
         			 access_date,
         			 access_session_id
         			 )
         		VALUES
         			(".$user_id.",".// Don't add ' ' around value, it's already done.
-        			"'".$course_code."' ,
+        			"'".$course_id."' ,
         			'".$tool."',
         			'".$reallyNow."',
         			'".$id_session."')";
         Database::query($sql);
-		
+
 		$forum_list = get_forums();
-		
+
 		if (is_array($forum_list)) {
 			 foreach ($forum_list as $key => $value) {
                 $last_post_info_of_forum = get_last_post_information($key, $course_id);
@@ -612,7 +981,7 @@ class AppWebService extends WSAPP
         } else {
             $forum_list = array();
         }
-		
+
 		$table_categories = Database :: get_course_table(TABLE_FORUM_CATEGORY);
         $table_item_property = Database :: get_course_table(TABLE_ITEM_PROPERTY);
 		$sql = "SELECT *
@@ -640,8 +1009,19 @@ class AppWebService extends WSAPP
 	 *
 	 */
     public function  getThreads($c_id, $forum_id){
-		$courseInfo = CourseManager::get_course_information_by_id($c_id);
+		$courseInfo = api_get_course_info_by_id($c_id);
+		//$courseInfo = CourseManager::get_course_information_by_id($c_id);
 		$course_code = $courseInfo['code'];
+		/* LOGIN */
+		$chamiloUser = api_get_user_info($user_id);
+		$_user['user_id'] = $chamiloUser['user_id'];
+		$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+		$_user['uidReset'] = true;
+		Session::write('_user', $_user);
+		$uidReset = true;
+		$logging_in = true;
+		//Event::event_login($_user['user_id']);
+		/* Fin login */
 		Login::init_user($user_id, true);
 		Login::init_course($course_code, true);
 		
@@ -668,12 +1048,24 @@ class AppWebService extends WSAPP
     public function  getPosts($c_id, $forum_id, $thread_id){
 		global $_configuration;
 		$ruta = $_configuration['root_web'];
-				
-		$courseInfo = CourseManager::get_course_information_by_id($c_id);
+		
+		$courseInfo = api_get_course_info_by_id($c_id);		
+		//$courseInfo = CourseManager::get_course_information_by_id($c_id);
 		$course_code = $courseInfo['code'];
+		/* LOGIN */
+		$chamiloUser = api_get_user_info($user_id);
+		$_user['user_id'] = $chamiloUser['user_id'];
+		$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+		$_user['uidReset'] = true;
+		Session::write('_user', $_user);
+		$uidReset = true;
+		$logging_in = true;
+		//Event::event_login($_user['user_id']);
+		/* Fin login */
 		Login::init_user($user_id, true);
 		Login::init_course($course_code, true);
-		$post_list = get_posts($thread_id);
+		$post_list = getPosts($thread_id);
+
 		foreach ($post_list as $key => $value) {
 			$post_list[$key]['date'] = api_convert_and_format_date($value['post_date']);
 			$post_list[$key]['post_text'] = str_replace('src="/','src="'.$ruta,$value['post_text']);
@@ -703,22 +1095,34 @@ class AppWebService extends WSAPP
 	}
 	
 	public function createThread($c_id, $forum_id, $title, $text, $notice, $user_id){
+		/* LOGIN */
+		$chamiloUser = api_get_user_info($user_id);
+		$_user['user_id'] = $chamiloUser['user_id'];
+		$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+		$_user['uidReset'] = true;
+		Session::write('_user', $_user);
+		$uidReset = true;
+		$logging_in = true;
+		//Event::event_login($_user['user_id']);
+		/* Fin login */
 		Login::init_user($user_id, true);
-		Login::init_course($c_id, true);
-		
+		//Login::init_course($c_id, true);
+
 		$table_threads = Database :: get_course_table(TABLE_FORUM_THREAD);
     	$table_posts = Database :: get_course_table(TABLE_FORUM_POST);
 		
 		$course_id = $c_id;
-		$courseInfo = CourseManager::get_course_information_by_id($course_id);
-		$user = UserManager::get_user_info_by_id($user_id);
+		$courseInfo = api_get_course_info_by_id($c_id);	
+		//$courseInfo = CourseManager::get_course_information_by_id($course_id);
+		//$user = UserManager::get_user_info_by_id($user_id);
+		$user = api_get_user_info($user_id);
 		
 		$poster_name = $user['firstname'].' '.$user['lastname'];
 		$post_date = api_get_utc_datetime();
 		$visible = 1;
 		$clean_post_title = Database::escape_string(stripslashes($title));
 		$my_post_notification = isset($notice) ? $notice : null;
-		
+
 		$sql = "INSERT INTO $table_threads (c_id, thread_title, forum_id, thread_poster_id, thread_poster_name, thread_date, session_id)
                 VALUES (
                     ".$course_id.",
@@ -729,6 +1133,8 @@ class AppWebService extends WSAPP
                     '".Database::escape_string($post_date)."',0)";
         Database::query($sql);
         $last_thread_id = Database::insert_id();
+
+		$sql = "UPDATE $table_threads SET thread_id='".$last_thread_id."' WHERE iid='".$last_thread_id."'";
 
 		if ($last_thread_id) {
             api_item_property_update($courseInfo, TOOL_FORUM_THREAD, $last_thread_id, 'ForumThreadAdded', api_get_user_id());
@@ -749,6 +1155,9 @@ class AppWebService extends WSAPP
                 '".Database::escape_string($visible)."')";
         Database::query($sql);
         $last_post_id = Database::insert_id();
+	
+		$sql = "UPDATE $table_posts SET post_id='".$last_post_id."' WHERE iid='".$last_post_id."'";
+		Database::query($sql);
 		
 		if ($my_post_notification == 1) {
         	$table_notification = Database::get_course_table(TABLE_FORUM_NOTIFICATION);
@@ -756,13 +1165,12 @@ class AppWebService extends WSAPP
 			$sql = "SELECT * FROM $table_notification WHERE c_id = $course_id AND $database_field = '".Database::escape_string($last_thread_id)."' AND user_id = '".Database::escape_string($user_id)."'";
 			$result = Database::query($sql);
 			$total = Database::num_rows($result);
-		
+
 			if ($total <= 0) {
 				$sql = "INSERT INTO $table_notification (c_id, $database_field, user_id) VALUES (".$course_id.", '".Database::escape_string($last_thread_id)."','".Database::escape_string($user_id)."')";
 				$result = Database::query($sql);
 			} 
 		}
-
         // Now we have to update the thread table to fill the thread_last_post field (so that we know when the thread has been updated for the last time).
         $sql = "UPDATE $table_threads SET thread_last_post='".Database::escape_string($last_post_id)."'
                 WHERE c_id = $course_id AND thread_id='".Database::escape_string($last_thread_id)."'";
@@ -775,10 +1183,20 @@ class AppWebService extends WSAPP
 	}
 	
 	public function createPost($c_id, $forum_id, $thread_id, $title, $text, $notice, $user_id, $post_parent){
-		
+		/* LOGIN */
+		$chamiloUser = api_get_user_info($user_id);
+		$_user['user_id'] = $chamiloUser['user_id'];
+		$_user['status'] = (isset($chamiloUser['status']) ? $chamiloUser['status'] : 5);
+		$_user['uidReset'] = true;
+		Session::write('_user', $_user);
+		$uidReset = true;
+		$logging_in = true;
+		//Event::event_login($_user['user_id']);
+		/* Fin login */
 		Login::init_user($user_id, true);
 		$course_id = $c_id;
-		$_course = CourseManager::get_course_information_by_id($course_id);
+		$_course = api_get_course_info_by_id($c_id);	
+		//$_course = CourseManager::get_course_information_by_id($course_id);
 		$table_posts = Database :: get_course_table(TABLE_FORUM_POST);
 		$post_date = api_get_utc_datetime();
 		$my_post_notification = isset($notice) ? $notice : null;
@@ -800,6 +1218,8 @@ class AppWebService extends WSAPP
 						'".Database::escape_string($visible)."')";
 		Database::query($sql);
 		$new_post_id = Database::insert_id();
+		$sql = "UPDATE $table_posts SET post_id='".$new_post_id."' WHERE iid='".$new_post_id."'";
+		Database::query($sql);
 		$reply_info['new_post_id'] = $last_post_id;
 
 		// Update the thread.
@@ -822,88 +1242,5 @@ class AppWebService extends WSAPP
 		
 		return true;	
 	}
-	
-	
-	/**
-     * Get ranking of course
-     * @param int $c_id The id course
-     * @return array the ranking
-     */
-    public function getRanking($c_id)
-    {
-		global $_configuration;
-		$ruta = $_configuration['root_web'];
-				
-		$libpath = api_get_path(LIBRARY_PATH);
-		require_once $libpath.'course_description.lib.php';
-        
-		require_once __DIR__ . '/../../ranking/src/ranking.lib.php';
-		require_once __DIR__ . '/../../../main/inc/global.inc.php';
-		require_once __DIR__ . '/../../ranking/src/ranking_plugin.class.php';
-		
-		//api_protect_course_script(true);
-		$plugin = RankingPlugin::create();
-		$course_id = $c_id;
-		
-		//Se actualiza los resultados al entrar en esta página?
-		if($plugin->get('time_execution') == "true"){
-			//SI
-			//Por tiempo toca actualizar las puntuaciones?
-			if(checkTimeUpdate($plugin->get('time_refresh'),$course_id)){
-				//SI
-				//Borrar registros en la tabla de los usuarios/curso
-				DeleteCourseScore($course_id);
-				
-				//Recorrer usuario por usuario las puntuaciones en las herramientas habilitadas
-				AddScoreUsers($course_id);
-			}
-		}
-		
-		// Leer Datos y Mostrar tabla
-		$info_score = showScoreUser($course_id);
-		
-		return $info_score;
-    }
-	
-	public function getDetailsRanking($c_id, $user_id)
-	{
-		require_once __DIR__ . '/../../ranking/config.php';
-		require_once __DIR__ . '/../../ranking/src/ranking.lib.php';
-		
-		$plugin = RankingPlugin::create();
-		
-		$course_id = $c_id;
-		$tableScoreUsers = Database::get_main_table(TABLE_RANKING_SCORE_USERS);
-		$tableTools = Database::get_main_table(TABLE_RANKING_TOOLS);
-		
-		$sql = "SELECT tool, score, participations 
-				FROM $tableScoreUsers a LEFT JOIN $tableTools b ON a.tool_id=b.id 
-				WHERE user_id='".$user_id."' AND c_id='".$course_id."'
-				ORDER BY tool_id ASC;";
-				
-		$rs = Database::query($sql);
-		if(Database::num_rows($rs)>0){
-			$content = '<table class="table-striped" width="100%">';
-				$content .= '<tr class="row_odd">';
-					$content .= '<th class="bg-color">'.$plugin->get_lang('Tool').'</th>';
-					$content .= '<th class="ta-center bg-color">'.$plugin->get_lang('Score').'</th>';
-				$content .= '</tr>';
-			while ($row = Database::fetch_assoc($rs)) {
-				if($i%2 == 0){
-					$content .= '<tr class="row_even">';
-				}else{
-					$content .= '<tr class="row_odd">';
-				}
-				$i = $i + 1;
-				$content .= '<td class="ta-center">'.$plugin->get_lang($row['tool']).'</td>';
-				$content .= '<td class="ta-center">'.$row['score'].'</td>';
-				$content .= '</tr>';
-			}
-			$content .= '</table>';
-		}else{
-			$content = $plugin->get_lang('NoResult');
-		}
-		return $content;	
-	}
-	
+
 }

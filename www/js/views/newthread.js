@@ -14,6 +14,7 @@ define([
 			campusModel = this.model;
 			courseId = this.id;
 			forumId = this.options.forum_id;
+			console.log("initialize")
 		},
         events: {
             'submit #frm-new-thread': 'frmNewThreadOnSubmit'
@@ -55,7 +56,8 @@ define([
             }
 
             self.$('#btn-submit').prop('disabled', true);
-
+			
+			console.log(title +' '+ text +' '+ notice +' '+ course_id +' '+ forum_id);
 			var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
             var checkingForm = $.post(url, {
                 action: 'formNewThread',

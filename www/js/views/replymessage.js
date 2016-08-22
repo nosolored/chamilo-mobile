@@ -2,43 +2,41 @@ define([
     'jquery',
     'underscore',
     'backbone',
-    'text!template/newpost.html',
+    'text!template/replymessage.html',
     'views/alert'
-], function ($, _, Backbone, NewPostTemplate, AlertView) {
+], function ($, _, Backbone, ReplyMessageTemplate, AlertView) {
 	var campusModel = null;
-    var NewPostView = Backbone.View.extend({
+	var messageModel = null;
+	var messageId = 0;
+    var ReplyMessageView = Backbone.View.extend({
 		el: 'body',
-        template: _.template(NewPostTemplate),
+        template: _.template(ReplyMessageTemplate),
+		
 		initialize: function (options) {
 			this.options = options;
-			campusModel = this.model;
-			courseId = this.id;
-			forumId = this.options.forum_id;
-			threadId = this.options.thread_id;
-			title = this.options.title;
-			text = this.options.text;
-			poster = this.options.poster;
-			console.log("initialize")
+			$(this.el).unbind();
+			campusModel = this.options.campus;
+            messageId = this.id;
+			messageModel = this.model;
+			console.log("initialize");
+			console.log(campusModel);
 		},
         events: {
-            'submit #frm-new-post': 'frmNewPostOnSubmit'
+            'submit #frm-reply-message': 'frmReplyMessageOnSubmit'
         },
-        render: function () {
-            this.el.innerHTML = this.template({c_id: courseId, f_id: forumId, t_id: threadId, title: title, text: text, poster: poster});
-
+		render: function () {
+            this.el.innerHTML = this.template({messageId: messageModel.get("messageId"), sender: messageModel.get("sender"), subject: 'RE: '+messageModel.get("title"), content: messageModel.get("content")});
             return this;
         },
-        frmNewPostOnSubmit: function (e) {
+        frmReplyMessageOnSubmit: function (e) {
             e.preventDefault();
 
             var self = this;
 
             var title = self.$('#txt-title').val().trim(); 
             var text = self.$('#txt-text').val().trim();
-            var notice = self.$('#notice-email').val().trim();
-			var course_id = self.$('#course-id').val().trim();
-			var forum_id = self.$('#forum-id').val().trim();
-			var thread_id = self.$('#thread-id').val().trim();
+            var message_id = self.$('#message-id').val().trim();
+			var check_quote = self.$('#check_quote').is(":checked") ? 1 : 0;
 
             if (!title) {
                 new AlertView({
@@ -62,19 +60,17 @@ define([
 
             self.$('#btn-submit').prop('disabled', true);
 			
-			console.log(title +' '+ text +' '+ notice +' '+ course_id +' '+forum_id+' '+thread_id);
+			console.log(title +' '+ text +' '+message_id);
 			var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
             var checkingForm = $.post(url, {
-                action: 'formNewPost',
+                action: 'formReplyMessage',
 				username: campusModel.get('username'),
 				api_key: campusModel.get('apiKey'),
 				user_id: campusModel.get('user_id'),
                 title: title,
                 text: text,
-				notice: notice,
-				c_id: course_id,
-				f_id: forum_id,
-				t_id: thread_id
+				message_id: message_id,
+				check_quote: check_quote
             });
 
             $.when(checkingForm).done(function (response) {
@@ -90,7 +86,7 @@ define([
                     return;
                 }
 
-                 window.location.href = '#post/'+course_id+'/'+forum_id+'/'+thread_id;
+                 window.location.href = '#list-messages';
                 
             });
 
@@ -104,7 +100,8 @@ define([
                 self.$('#btn-submit').prop('disabled', false);
             });
         }
+		
     });
 
-    return NewPostView;
+    return ReplyMessageView;
 });
