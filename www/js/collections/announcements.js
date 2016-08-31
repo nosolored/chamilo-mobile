@@ -11,14 +11,10 @@ define([
             var self = this;
             var deferred = $.Deferred();
 
-            var announcementModel = new AnnouncementModel(attributes); //Crea un objeto (modelo) con los datos de un curso
-                console.log(announcementModel);
-				//console.log(attributes);
-				announcementModel.cid = parseInt("" + announcementModel.get("c_id") + "00" + announcementModel.get("a_id"));  
+            var announcementModel = new AnnouncementModel(attributes);
+				announcementModel.cid = announcementModel.get("iid");  
 				self.add(announcementModel);						
                 deferred.resolve();
-				console.log(announcementModel);
-
             return deferred.promise();
         }
     });

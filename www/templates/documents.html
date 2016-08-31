@@ -9,9 +9,9 @@
                     <span class="icon-bar"></span>
                 </button>
                 <% if (path_back == "empty") { %>
-                	<a id="btn-back-url" class="navbar-brand" href="#course/<%= c_id %>"><i class="glyphicon glyphicon-chevron-left"></i> <%= lang.documents %></a>
+                	<a id="btn-back-url" class="navbar-brand" href="#course/<%= c_id %>/<%= s_id %>"><i class="glyphicon glyphicon-chevron-left"></i> <%= lang.documents %></a>
             	<% }else{ %>
-                	<a id="btn-back-url" class="navbar-brand" href="#documents/<%= c_id %>/back/<%= path_back_id %>"><i class="glyphicon glyphicon-chevron-left"></i> <%= lang.back %></a>
+                	<a id="btn-back-url" class="navbar-brand" href="#documents/<%= c_id %>/<%= s_id %>/back/<%= path_back_id %>"><i class="glyphicon glyphicon-chevron-left"></i> <%= lang.back %></a>
                 <% } %>
             </div>
 
@@ -47,18 +47,18 @@
                     <td class="text-center">
                         <!-- <a href="#documents/<%= c_id %>/<%= documents[i]['path'] %>"> -->
                         <% if (documents[i]['filetype'] == "folder"){ %>
-                        	<a href="#documents/<%= c_id %>/<%= i %>">
+                        	<a href="#documents/<%= c_id %>/<%= s_id %>/<%= i %>">
                         <% } else { %>
-                        	<a id="<% print(documents[i]['filename']); %>" class="link-file" href="<%= base %>&c_id=<%= c_id %>&id=<%= documents[i]['id'] %>">
+                        	<a id="<% print(documents[i]['filename']); %>" class="link-file" href="<%= base %>&c_id=<%= c_id %>&s_id=<%= s_id %>&id=<%= documents[i]['id'] %>">
                         <% } %>
                             <img src="img/documents/<% print(documents[i]['icon']); %>" />
                         </a>
                     </td>
                     <td style="padding-left:5px;">
                     	<% if (documents[i]['filetype'] == "folder"){ %>
-                        	<a class="format-link-document" href="#documents/<%= c_id %>/<%= i %>">
+                        	<a class="format-link-document" href="#documents/<%= c_id %>/<%= s_id %>/<%= i %>">
                         <% } else { %>
-                        	<a id="<% print(documents[i]['filename']); %>" class="format-link-document link-file" href="<%= base %>&c_id=<%= c_id %>&id=<%= documents[i]['id'] %>">
+                        	<a id="<% print(documents[i]['filename']); %>" class="format-link-document link-file" href="<%= base %>&c_id=<%= c_id %>&s_id=<%= s_id %>&id=<%= documents[i]['id'] %>">
                         <% } %>
                             <% print(documents[i]['title']); %>
                         </a>
@@ -73,4 +73,4 @@
             </div>
         <% } %>
     </section>
-</div>
+</div

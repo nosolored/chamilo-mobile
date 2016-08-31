@@ -32,7 +32,7 @@ function onBackKeyDown(e) {
   //console.log(e);
   e.preventDefault();
   var url_back = $("#btn-back-url").prop("href");
-  console.log(url_back);
+  //console.log(url_back);
   if(url_back != ""){
 	  var res = url_back.split("#");
 	  if( res[res.length-1] == "exit"){
@@ -47,7 +47,7 @@ function onBackKeyDown(e) {
 	  }
   }else{
 	  var url = '#'; 
-	  console.log(url); 
+	  //console.log(url); 
 	  window.location.href = url;
   }
   //navigator.app.backHistory();

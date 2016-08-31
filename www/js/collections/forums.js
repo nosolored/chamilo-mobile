@@ -11,10 +11,10 @@ define([
             var deferred = $.Deferred();
 
             var forumModel = new ForumModel(attributes);
-				forumModel.cid = parseInt("" + forumModel.get("c_id") + "000" + forumModel.get("forum_id"));  
+				forumModel.cid = forumModel.get("iid");  
 				self.add(forumModel);
                 deferred.resolve();
-
+			console.log(forumModel);
             return deferred.promise();
         }
     });

@@ -8,7 +8,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a id="btn-back-url" class="navbar-brand" href="#post/<%= c_id %>/<%= f_id %>/<%= t_id %>"><i class="glyphicon glyphicon-chevron-left"></i><%= lang.Response %></a>
+                <a id="btn-back-url" class="navbar-brand" href="#post/<%= c_id %>/<%= s_id %>/<%= f_id %>/<%= t_id %>"><i class="glyphicon glyphicon-chevron-left"></i><%= lang.Response %></a>
             </div>
 
             <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -26,6 +26,7 @@
 <div class="container">
 	<section id="main_content">
         <form action="#" id="frm-new-post" method="post">
+            <input type="hidden" name="session-id" id="session-id" value="<%= s_id %>">
             <input type="hidden" name="course-id" id="course-id" value="<%= c_id %>">
             <input type="hidden" name="forum-id" id="forum-id" value="<%= f_id %>">
             <input type="hidden" name="thread-id" id="thread-id" value="<%= t_id %>">

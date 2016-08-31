@@ -92,7 +92,8 @@ define([
 			$(this.el).unbind();
             
 			campusModel = this.model;
-			courseId = this.id;
+			courseId = this.options.courseId;
+			sessionId = this.options.sessionId;
 			forumId = this.options.forum_id;
 			threadId = this.options.thread_id;
 			postsCollection = this.collection;
@@ -110,7 +111,7 @@ define([
         },
         render: function () {
 			thread_title = infoModel.get('thread_title');
-            this.el.innerHTML = this.template({collection: postsCollection.toJSON(), c_id: courseId, f_id: forumId, t_id: threadId, t_title: thread_title, base: base});
+            this.el.innerHTML = this.template({collection: postsCollection.toJSON(), c_id: courseId, s_id: sessionId, f_id: forumId, t_id: threadId, t_title: thread_title, base: base});
 			return this;
         },
         events: {

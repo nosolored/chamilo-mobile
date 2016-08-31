@@ -26,6 +26,7 @@ define([
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
 			c_id: courseId,
+			s_id: sessionId,
 			path: path
         });
 
@@ -33,8 +34,9 @@ define([
 			if (!response.status) {
                 return;
             }
-			console.log(response);
+			
 			documentsModel.set({"c_id": courseId});
+			documentsModel.set({"s_id": sessionId});
 			documentsModel.set({"path": path});
 			documentsModel.set({"base": campusModel.get('url') + '/plugin/chamilo_app/download.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey')});
 			if(path_back.length > 0){
@@ -46,7 +48,7 @@ define([
 				documentsModel.set({"path_back": "empty"});
 			}
 			documentsModel.set({"documents": response.documents});
-			documentsModel.cid = courseId;
+			documentsModel.cid = parseInt(""+courseId+'000'+sessionId);
 			
             if (response.documents.length === 0) {
                 new AlertView({
@@ -68,16 +70,18 @@ define([
 
 			$(this.el).unbind();
             campusModel = this.model;
-			courseId = this.id;
+			courseId = this.options.courseId;
+			sessionId = this.options.sessionId;
+
+			
 			if(this.options.path_id == "root" || this.options.path_id == null){
 				path = '/';
 			}else if(this.options.path_id == "back"){
-				path = path_back.pop();	
+				path = path_back.pop();
 			}else{
 				var docu = documentsModel.get("documents");
 				path_back.push(path);
 				path = docu[this.options.path_id]['path'];
-	
 			}
 			console.log("initialize")
 		

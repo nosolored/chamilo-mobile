@@ -30,5 +30,95 @@
 </header>
 
 <div class="container">
-    <div class="list-group" id="courses-list"></div>
+    <!--<div class="list-group" id="courses-list"></div>-->
+    <% for (var i = 0; i < list_courses.length; i++) { %>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="course-items"> 
+                    <div class="row">
+                        <div class="col-md-2">
+                            <a href="#course/<% print(list_courses[i]['id']); %>/0" class="thumbnail">
+                                <img src="<% print(list_courses[i]['course_image']); %>">
+                            </a>
+                        </div>
+                        <div class="col-md-10 ">
+                            <h5 class="course-items-title">
+                                <a href="#course/<% print(list_courses[i]['id']); %>/0">
+                                	<% print(list_courses[i]['title']); %>
+                                </a>&nbsp;
+                            </h5> 
+                            <p class="course-items-teachers">
+                                <img src="img/teacher.png">
+                                <a href="#course/<% print(list_courses[i]['id']); %>/0">
+                                	<% print(list_courses[i]['teacher']); %>
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <% } %>
+    
+    <% for (var i = 0; i < list_sessions.length; i++) { %>
+        <% if( _.some([list_sessions[i]['session_category_id']])) { %>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <img class="image-session-category" width="48" height="48" src="img/sessions_category.png">
+                        </div>
+                        <div class="col-md-10">
+                            <h4 class="title"><% print(list_sessions[i]['session_category_name']); %></h4>
+                            <!--<div class="subtitle-session"></div>-->
+                        </div>
+                    </div>
+        <% } %>
+        
+        <% for (var j = 0; j < list_sessions[i].sessions.length; j++) { %>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <p>
+                        <img width="32" height="32" src="img/window_list.png">
+                        <% print(list_sessions[i].sessions[j]['session_name']); %>
+                    </p>
+                </div>
+                <div class="sessions panel-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="subtitle-session">
+                                <em class="fa fa-clock-o"></em> 
+                                <em class="session-clock"> 
+                                	<%= lang.FromDate %> <% print(list_sessions[i].sessions[j]['access_start_date']); %> <%= lang.toDate %> <% print(list_sessions[i].sessions[j]['access_end_date']); %>
+                                </em>
+                            </div>
+                            <div class="sessions-items">
+                                <% for (var k = 0; k < list_sessions[i].sessions[j].courses.length; k++) { %>
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            <a class="thumbnail" href="#course/<% print(list_sessions[i].sessions[j].courses[k]['id']); %>/<% print(list_sessions[i].sessions[j]['session_id']); %>">
+                                                <img src="<% print(list_sessions[i].sessions[j].courses[k]['course_image']); %>">
+                                            </a>
+                                        </div>
+                                        <div class="col-md-10">
+                                            <h5 class="session-items-title">
+                                            	<a href="#course/<% print(list_sessions[i].sessions[j].courses[k]['id']); %>/<% print(list_sessions[i].sessions[j]['session_id']); %>">
+                                                	<% print(list_sessions[i].sessions[j].courses[k]['title']); %>
+                                                </a>&nbsp;</h5>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+        
+        <% if( _.some([list_sessions[i]['session_category_id']])) { %>
+        	</div>
+            </div>
+        <% } %>
+        
+    <% } %>
 </div>

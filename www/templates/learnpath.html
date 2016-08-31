@@ -8,7 +8,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a id="btn-back-url" class="navbar-brand" href="#course/<%= c_id %>/<%= s_id %>"><i class="glyphicon glyphicon-chevron-left"></i> <%= lang.description %></a>
+                <a id="btn-back-url" class="navbar-brand" href="#course/<%= c_id %>/<%= s_id %>"><i class="glyphicon glyphicon-chevron-left"></i> <%= lang.learnpath %></a>
             </div>
 
             <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -26,9 +26,22 @@
 
 <div class="container">
 	<section id="main_content">
-        <% for (var i = 0; i < descriptions.length; i++) { %>
-        	<div class="sectiontitle"><% print(descriptions[i]['title']); %></div>
-            <div class="sectioncomment"><% print(descriptions[i]['content']); %></div>
+    	<% if (learnpath.length > 0) { %>
+        	<% for (var i = 0; i < learnpath.length; i++) { %>
+            	<h4><% print(learnpath[i]['category']); %></h4>
+                <table class="table-striped" width="100%">
+                <tr><th>Título</th><th class="text-center">Progreso</th></tr>
+                <% for (var j = 0; j < learnpath[i]['lp_list'].length; j++) { %>
+                    <tr>
+                    <td><a href="<%= base %>&url=<% print(learnpath[i]['lp_list'][j]['url_start']); %>">
+                    		<% print(learnpath[i]['lp_list'][j]['title']); %>
+                        </a>
+                    </td>
+                    <td class="text-center"><% print(learnpath[i]['lp_list'][j]['dsp_progress']); %>%</td>
+                    </tr>
+                <% } %>
+                </table>
+            <% } %>
         <% } %>
     </section>
 </div>

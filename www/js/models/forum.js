@@ -4,7 +4,9 @@ define([
 ], function (DB, Backbone) {
     var ForumModel = Backbone.Model.extend({
         defaults: {
+			iid: 0,
             c_id: 0,
+			s_id: 0,
 			forum_id: 0,
             title: '',
 			id_category: 0,

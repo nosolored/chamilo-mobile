@@ -8,7 +8,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a id="btn-back-url" class="navbar-brand cut_header" href="#my-courses"><i class="glyphicon glyphicon-chevron-left"></i> <%= title %></a>
+                <a id="btn-back-url" class="navbar-brand cut_header" href="#my-courses"><i class="glyphicon glyphicon-chevron-left"></i><%= title %></a>
             </div>
 
             <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -26,65 +26,90 @@
 
 <div class="container" id="course_tools">
     <div class="row">
-    	<div class="col-xs-6 col-md-3 course-tool">
-        	<div class="big_icon">
-        		<a class="" href="#description/<%= c_id %>">
-                    <img class="center-block" src="img/info.png" alt="Description">
-            	</a>
-                <div class="content">
-					<h5><a class="" href="#description/<%= c_id %>"><%= lang.description %></a></h5>
+    	<% if( section['course_description'] == "1" ) { %>
+            <div class="col-xs-6 col-md-3 course-tool">
+                <div class="big_icon">
+                    <a class="" href="#description/<%= c_id %>/<%= s_id %>">
+                        <img class="center-block" src="img/info.png" alt="Description">
+                    </a>
+                    <div class="content">
+                        <h5><a class="" href="#description/<%= c_id %>/<%= s_id %>"><%= lang.description %></a></h5>
+                    </div>
                 </div>
-        	</div>
-        </div>
-        <div class="col-xs-6 col-md-3 course-tool">
-            <div class="big_icon">
-        		<a class="" href="#documents/<%= c_id %>/root">
-                    <img class="center-block" src="img/documents.png" alt="Documents">
-            	</a>
-                <div class="content">
-					<h5><a class="" href="#documents/<%= c_id %>/root"><%= lang.documents %></a></h5>
+            </div>
+        <% } %>
+        <% if( section['calendar_event'] == "1" ) { %>
+            <div class="col-xs-6 col-md-3 course-tool">
+                <div class="big_icon">
+                    <a class="" href="#agenda/<%= c_id %>/<%= s_id %>">
+                        <img class="center-block" src="img/agenda.png" alt="Agenda">
+                    </a>
+                    <div class="content">
+                        <h5><a class="" href="#agenda/<%= c_id %>/<%= s_id %>"><%= lang.agenda %></a></h5>
+                    </div>
                 </div>
-        	</div>
-        </div>
-   		<div class="col-xs-6 col-md-3 course-tool">
-        	<div class="big_icon">
-        		<a class="" href="#announcements/<%= c_id %>">
-                    <img class="center-block" src="img/valves.png" alt="Announcement">
-            	</a>
-                <div class="content">
-					<h5><a class="" href="#announcements/<%= c_id %>"><%= lang.announcement %></a></h5>
+            </div>
+        <% } %>
+        <% if( section['document'] == "1" ) { %>
+            <div class="col-xs-6 col-md-3 course-tool">
+                <div class="big_icon">
+                    <a class="" href="#documents/<%= c_id %>/<%= s_id %>/root">
+                        <img class="center-block" src="img/documents.png" alt="Documents">
+                    </a>
+                    <div class="content">
+                        <h5><a class="" href="#documents/<%= c_id %>/<%= s_id %>/root"><%= lang.documents %></a></h5>
+                    </div>
                 </div>
-        	</div>
-        </div>
-        <div class="col-xs-6 col-md-3 course-tool">
-        	<div class="big_icon">
-        		<a class="" href="#agenda/<%= c_id %>">
-                    <img class="center-block" src="img/agenda.png" alt="Agenda">
-            	</a>
-                <div class="content">
-					<h5><a class="" href="#agenda/<%= c_id %>"><%= lang.agenda %></a></h5>
+            </div>
+   		<% } %>
+        <% if( section['learnpath'] == "1" ) { %>
+            <div class="col-xs-6 col-md-3 course-tool">
+                <div class="big_icon">
+                    <a class="" href="#learnpath/<%= c_id %>/<%= s_id %>">
+                        <img class="center-block" src="img/scorms.png" alt="learnpath">
+                    </a>
+                    <div class="content">
+                        <h5><a class="" href="#learnpath/<%= c_id %>/<%= s_id %>"><%= lang.learnpath %></a></h5>
+                    </div>
                 </div>
-        	</div>
-        </div>
-        <div class="col-xs-6 col-md-3 course-tool">
-        	<div class="big_icon">
-        		<a class="" href="#forum/<%= c_id %>">
-                    <img class="center-block" src="img/forum.png" alt="Forum">
-            	</a>
-                <div class="content">
-					<h5><a class="" href="#forum/<%= c_id %>"><%= lang.forum %></a></h5>
+            </div>
+        <% } %>
+        <% if( section['announcement'] == "1" ) { %>
+            <div class="col-xs-6 col-md-3 course-tool">
+                <div class="big_icon">
+                    <a class="" href="#announcements/<%= c_id %>/<%= s_id %>">
+                        <img class="center-block" src="img/valves.png" alt="Announcement">
+                    </a>
+                    <div class="content">
+                        <h5><a class="" href="#announcements/<%= c_id %>/<%= s_id %>"><%= lang.announcement %></a></h5>
+                    </div>
                 </div>
-        	</div>
-        </div>
-        <div class="col-xs-6 col-md-3 course-tool">
-        	<div class="big_icon">
-        		<a class="" href="#notebook/<%= c_id %>">
-                    <img class="center-block" src="img/notebook.png" alt="Notebook">
-            	</a>
-                <div class="content">
-					<h5><a class="" href="#notebook/<%= c_id %>"><%= lang.notebook %></a></h5>
+            </div>
+        <% } %>
+        
+        <% if( section['forum'] == "1" ) { %>
+            <div class="col-xs-6 col-md-3 course-tool">
+                <div class="big_icon">
+                    <a class="" href="#forum/<%= c_id %>/<%= s_id %>">
+                        <img class="center-block" src="img/forum.png" alt="Forum">
+                    </a>
+                    <div class="content">
+                        <h5><a class="" href="#forum/<%= c_id %>/<%= s_id %>"><%= lang.forum %></a></h5>
+                    </div>
                 </div>
-        	</div>
-        </div>
+            </div>
+        <% } %>
+        <% if( section['notebook'] == "1" ) { %>
+            <div class="col-xs-6 col-md-3 course-tool">
+                <div class="big_icon">
+                    <a class="" href="#notebook/<%= c_id %>/<%= s_id %>">
+                        <img class="center-block" src="img/notebook.png" alt="Notebook">
+                    </a>
+                    <div class="content">
+                        <h5><a class="" href="#notebook/<%= c_id %>/<%= s_id %>"><%= lang.notebook %></a></h5>
+                    </div>
+                </div>
+            </div>
+        <% } %>
     </div>
 </div>

@@ -2,46 +2,39 @@ define([
     'jquery',
     'underscore',
     'backbone',
-    'text!template/newpost.html',
+    'text!template/newnotebook.html',
     'views/alert'
-], function ($, _, Backbone, NewPostTemplate, AlertView) {
+], function ($, _, Backbone, NewNotebookTemplate, AlertView) {
 	var campusModel = null;
-    var NewPostView = Backbone.View.extend({
+    var NewNotebookView = Backbone.View.extend({
 		el: 'body',
-        template: _.template(NewPostTemplate),
+        template: _.template(NewNotebookTemplate),
 		initialize: function (options) {
 			this.options = options;
-			campusModel = this.model;
+			$(this.el).unbind();
+            campusModel = this.model;
 			courseId = this.options.courseId;
 			sessionId = this.options.sessionId;
-			forumId = this.options.forum_id;
-			threadId = this.options.thread_id;
-			title = this.options.title;
-			text = this.options.text;
-			poster = this.options.poster;
 			console.log("initialize")
 		},
         events: {
-            'submit #frm-new-post': 'frmNewPostOnSubmit'
+            'submit #frm-new-notebook': 'frmNewNotebookOnSubmit'
         },
         render: function () {
-            this.el.innerHTML = this.template({c_id: courseId, s_id: sessionId, f_id: forumId, t_id: threadId, title: title, text: text, poster: poster});
+            this.el.innerHTML = this.template({c_id: courseId, s_id: sessionId});
 
             return this;
         },
-        frmNewPostOnSubmit: function (e) {
+        frmNewNotebookOnSubmit: function (e) {
             e.preventDefault();
 
             var self = this;
 
             var title = self.$('#txt-title').val().trim(); 
             var text = self.$('#txt-text').val().trim();
-            var notice = self.$('#notice-email').val().trim();
-			var course_id = self.$('#course-id').val().trim();
+           	var course_id = self.$('#course-id').val().trim();
 			var session_id = self.$('#session-id').val().trim();
-			var forum_id = self.$('#forum-id').val().trim();
-			var thread_id = self.$('#thread-id').val().trim();
-
+			
             if (!title) {
                 new AlertView({
                     model: {
@@ -64,19 +57,17 @@ define([
 
             self.$('#btn-submit').prop('disabled', true);
 			
-			console.log(title +' '+ text +' '+ notice +' '+ course_id +' '+ session_id +' '+forum_id+' '+thread_id);
+			console.log(title +' '+ text +' '+ course_id +' '+ session_id);
 			var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
             var checkingForm = $.post(url, {
-                action: 'formNewPost',
+                action: 'formNewNotebook',
 				username: campusModel.get('username'),
 				api_key: campusModel.get('apiKey'),
 				user_id: campusModel.get('user_id'),
                 title: title,
                 text: text,
-				notice: notice,
 				c_id: course_id,
-				f_id: forum_id,
-				t_id: thread_id
+				s_id: session_id
             });
 
             $.when(checkingForm).done(function (response) {
@@ -92,7 +83,7 @@ define([
                     return;
                 }
 
-                 window.location.href = '#post/'+course_id+'/'+session_id+'/'+forum_id+'/'+thread_id;
+                 window.location.href = '#notebook/'+course_id+'/'+session_id;
                 
             });
 
@@ -108,5 +99,5 @@ define([
         }
     });
 
-    return NewPostView;
+    return NewNotebookView;
 });

@@ -13,28 +13,18 @@ define([
 ) {
     var campusModel = null;
 	var courseId = 0;
+	var sessionId = 0;
 	var descriptionModel = new DescriptionModel();
 
   var loadDescription = function () {
-	  console.log("funcion loadDescription");
-	  console.log(window.navigator.onLine);
-        /*
-		if (!window.navigator.onLine) {
-            new AlertView({
-                model: {
-                    message: window.lang.notOnLine
-                }
-            });
-            return;
-        }
-		*/
-
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+	    console.log("funcion loadDescription");
+	    var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getDescription = $.post(url, {
             action: 'getDescription',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-			c_id: courseId
+			c_id: courseId,
+			s_id: sessionId
         });
 
         $.when(getDescription).done(function (response) {
@@ -44,8 +34,9 @@ define([
             }
 			
 			descriptionModel.set({"c_id": courseId});
+			descriptionModel.set({"s_id": sessionId});
 			descriptionModel.set({"descriptions": response.descriptions});
-			descriptionModel.cid = courseId;
+			descriptionModel.cid = parseInt(""+courseId+'000'+sessionId);
 			
             if (response.descriptions.length === 0) {
                 new AlertView({
@@ -61,18 +52,20 @@ define([
     var DescriptionView = Backbone.View.extend({
         el: 'body',
         template: _.template(DescriptionTemplate),
-        initialize: function () {
+        initialize: function (options) {
+			this.options = options;
 			$(this.el).unbind();
-            campusModel = this.model;
-			courseId = this.id;
+            
+			campusModel = this.model;
+			courseId = this.options.courseId;
+			sessionId = this.options.sessionId;
+
 			console.log("initialize")
-			console.log(courseId);
 		
             loadDescription();
             descriptionModel.on('change', this.render, this);
         },
         render: function () {
-			console.log(descriptionModel);
             this.el.innerHTML = this.template(descriptionModel.toJSON());
 			return this;
         }

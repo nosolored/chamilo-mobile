@@ -8,7 +8,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a id="btn-back-url" class="navbar-brand" href="#course/<%= c_id %>"><i class="glyphicon glyphicon-chevron-left"></i> <%= lang.forum %></a>
+                <a id="btn-back-url" class="navbar-brand" href="#course/<%= c_id %>/<%= s_id %>"><i class="glyphicon glyphicon-chevron-left"></i> <%= lang.forum %></a>
             </div>
 
             <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -39,7 +39,7 @@
                         <% } %>
                         <tr>
                             <td style="padding: 0 10px;">
-                            	<a href="#thread/<%= collection[i]['c_id'] %>/<%= collection[i]['forum_id'] %>">
+                            	<a href="#thread/<%= collection[i]['c_id'] %>/<%= s_id %>/<%= collection[i]['forum_id'] %>">
                                 	<% print(collection[i]['title']); %>
                                 </a>
                             </td>

@@ -84,6 +84,7 @@ hr {
 
 .format-link-document{
 	font-size: 1.2em;
+	margin-left: 0px;
 	font-weight: normal;
 	text-align: center;	
 }
@@ -130,18 +131,6 @@ hr {
 	margin-bottom: 0px;
 }
 
-.position-podium{
-	position:relative;
-	margin-bottom: 40px;
-}
-
-.photo-podium{
-	border: 5px double #ccc;
-	border-radius:10px;
-	background: #fff;
-	position:absolute;	
-}
-
 .panel-default .panel-heading {
     background-color: #ecf0f1;
     border-bottom-color: #ecf0f1;
@@ -166,7 +155,34 @@ hr {
     margin-bottom: 20px;
     text-align: center;
 }
+.course-items .course-items-session {
+    font-size: 12px;
+}
+.course-items .course-items-title {
+    font-size: 1.2em;
+	text-decoration: none;
+	margin: 5px 0px;
+}
+.course-items-title a, .session-items-title a {
+	text-decoration: none;
+	color: #333;
+}
+.course-items-teachers a{
+	font-size: 0.9em;
+	color: #bbbbbb;	
+}
+.sessions-items{
+	margin-top:5px;
+}
+.session-clock{
+	font-size:0.8em;
+}
 
+@media (max-width: 768px){
+	.image-session-category{
+		display:none;
+	}
+}
 /* Small devices (tablets, 768px and up) */
 @media (min-width: 768px) {
     .alert-container .tooltip-inner {

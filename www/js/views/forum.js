@@ -19,7 +19,6 @@ define([
   
     var loadForums = function () {
 	    console.log("funcion loadForums");
-	    //console.log(forumsCollection);
 		
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getForums = $.post(url, {
@@ -27,27 +26,25 @@ define([
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
 			user_id: campusModel.get('user_id'),
-			c_id: courseId
+			c_id: courseId,
+			s_id: sessionId
         });
 
         $.when(getForums).done(function (response) {
-			//console.log(response);
             if (!response.status) {
                 return;
             }
 			var forums = response.forums.info_forum; 
 			cat_forum = response.forums.info_category;
-			//console.log(cat_forum);
-			
-            //forums.forEach(function (forumData) {
 			for( i in forums ){
 				var forumData = forums[i];
 				//comprobamos si existe
-				//console.log(forumData);
-				var cid = parseInt("" + forumData.c_id + "000" + forumData.forum_id);
+				var cid = forumData.iid;
 				if(forumsCollection.get(cid) == null){ 
 					forumsCollection.create({
+						iid: parseInt(forumData.iid),
 						c_id: parseInt(forumData.c_id),
+						s_id: parseInt(forumData.session_id),
 						forum_id: parseInt(forumData.forum_id),
 						title: forumData.forum_title,
 						id_category: parseInt(forumData.forum_category),
@@ -86,13 +83,16 @@ define([
     var ForumsView = Backbone.View.extend({
         el: 'body',
         template: _.template(ForumsTemplate),
-		initialize: function () {
+		initialize: function (options) {
 			forumsCollection.unbind();
 			forumsCollection.reset();
 			
+			this.options = options;
 			$(this.el).unbind();
             campusModel = this.model;
-			courseId = this.id;
+			courseId = this.options.courseId;
+			sessionId = this.options.sessionId;
+			
 			console.log("initialize")
 
 		 	loadForums();
@@ -100,8 +100,8 @@ define([
             forumsCollection.on('change', this.render, this);
         },
         render: function () {
-			//console.log(forumsCollection);
-            this.el.innerHTML = this.template({collection: forumsCollection.toJSON(), c_id: courseId, category: cat_forum});
+
+            this.el.innerHTML = this.template({collection: forumsCollection.toJSON(), c_id: courseId, s_id: sessionId, category: cat_forum});
 			return this;
         },
         events: {

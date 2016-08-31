@@ -19,19 +19,7 @@ define([
 
 
   var loadAnnouncements = function () {
-	  console.log("funcion Announcements");
-	  	/*
-        if (!window.navigator.onLine) {
-            new AlertView({
-                model: {
-                    message: window.lang.notOnLine
-                }
-            });
-            return;
-        }
-		*/
-		
-		console.log(announcementsCollection);
+	    console.log("funcion Announcements");
 		
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getAnnouncements = $.post(url, {
@@ -39,39 +27,34 @@ define([
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
 			user_id: campusModel.get('user_id'),
-			c_id: courseId
+			c_id: courseId,
+			s_id: sessionId
         });
 
         $.when(getAnnouncements).done(function (response) {
-			console.log(response);
             if (!response.status) {
                 return;
             }
 
             response.announcements.forEach(function (announcementData) {
-				//comprobamos si existe
-				if(announcementsCollection.get(announcementData.id) == null){
+				if(announcementsCollection.get(announcementData.iid) == null){
 				    announcementsCollection.create({
-						c_id: parseInt(announcementData.c_id),
+						c_id: courseId,
+						s_id: sessionId,
 						a_id: parseInt(announcementData.a_id),
+						iid: parseInt(announcementData.iid),
 						title: announcementData.title,
 						content: announcementData.content,
 						last_edit: announcementData.last_edit,
 						teacher: announcementData.teacher
 					});
 				}else{
-					// actualizar modelo
-					console.log("actualizar modelo");
-					var announcement = announcementsCollection.get(announcementData.id);
-					console.log(announcement);
+					var announcement = announcementsCollection.get(announcementData.iid);
 					announcement.set({"title": announcementData.title});
 					announcement.set({"content": announcementData.content});
 					announcement.set({"last_edit": announcementData.last_edit});
 					announcement.set({"teacher": announcementData.teacher});
-					
-					
 					announcementsCollection.set(announcement,{remove: false});
-					console.log(announcement);
 				}
             });
 
@@ -89,15 +72,19 @@ define([
     var AnnouncementsView = Backbone.View.extend({
         el: 'body',
         template: _.template(AnnouncementsTemplate),
-        initialize: function () {
+        initialize: function (options) {
+			this.options = options;
 			$(this.el).unbind();
-            campusModel = this.model;
+            
+			campusModel = this.model;
 			announcementsCollection = this.collection;
-			courseId = this.id;
-			console.log("initialize")
-			//console.log(campusModel);
+			courseId = this.options.courseId;
+			sessionId = this.options.sessionId;
+			announcementsCollection.unbind();
+			announcementsCollection.reset();
 			
-            loadAnnouncements();
+			console.log("initialize")
+			loadAnnouncements();
 
             announcementsCollection.on('add', this.renderAnnouncement, this);
 			announcementsCollection.on('change', this.renderAnnouncement2, this);
@@ -105,7 +92,7 @@ define([
         render: function () {
 			this.el.innerHTML = this.template();
 			this.$el.find('#announcements-list').html('');
-			this.$el.find('#btn-back-url').prop('href','#course/'+courseId);
+			this.$el.find('#btn-back-url').prop('href','#course/'+courseId+'/'+sessionId);
             announcementsCollection.each(this.renderAnnouncement, this);
 
             return this;
@@ -129,15 +116,9 @@ define([
         },
         announcementsUpdateOnClick: function (e) {
             e.preventDefault();
-			console.log(announcementsCollection);
-			
+		
             loadAnnouncements();
 			$(".navbar-toggle").trigger( "click" );
-			
-			
-			
-			//console.log(coursesCollection);
-			//Backbone.history.loadUrl(Backbone.history.fragment);
         }
     });
 

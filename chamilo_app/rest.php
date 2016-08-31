@@ -21,6 +21,7 @@ $username = isset($_POST['username']) ? Security::remove_XSS($_POST['username'])
 $apiKey = isset($_POST['api_key']) ? Security::remove_XSS($_POST['api_key']) : null;
 $user_id = isset($_POST['user_id']) ? Security::remove_XSS($_POST['user_id']) : null;
 $c_id = isset($_POST['c_id']) ? Security::remove_XSS($_POST['c_id']) : null;
+$s_id = isset($_POST['s_id']) ? Security::remove_XSS($_POST['s_id']) : 0;
 $list = isset($_POST['list']) ? Security::remove_XSS($_POST['list']) : null;
 $path = isset($_POST['path']) ? Security::remove_XSS($_POST['path']) : null;
 $forum_id = isset($_POST['f_id']) ? Security::remove_XSS($_POST['f_id']) : null;
@@ -182,9 +183,13 @@ switch ($action) {
 		if (AppWebService::isValidApiKey($username, $apiKey)) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
-            $courses = $webService->getCoursesList($user_id);
-	     $json = array(
+            
+			$courses = $webService->getCoursesList($user_id);
+			$sessions = $webService->getSessionsList($user_id);
+
+			$json = array(
                 'status' => true,
+				'user_id' => $user_id,
                 'courses' => $courses,
 				'sessions' => $sessions
             );
@@ -218,10 +223,11 @@ switch ($action) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
 
-            $webService->registerAccessCourse($c_id, $user_id);
+            $info = $webService->registerAccessCourse($c_id, $user_id, $s_id);
 
             $json = array(
-                'status' => true
+                'status' => true,
+                'info' => $info
             );
         } else {
             $json = array(
@@ -235,11 +241,29 @@ switch ($action) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
 
-            $descriptions = $webService->getDescription($c_id, $username);
+            $descriptions = $webService->getDescription($c_id, $username, $s_id);
 
             $json = array(
                 'status' => true,
                 'descriptions' => $descriptions
+            );
+        } else {
+            $json = array(
+                'status' => false
+            );
+        }
+        break;
+		
+	case 'getLearnpath':
+		if (AppWebService::isValidApiKey($username, $apiKey)) {
+            $webService = new AppWebService();
+            $webService->setApiKey($apiKey);
+
+            $learnpaths = $webService->getLearnpaths($c_id, $user_id, $s_id);
+
+            $json = array(
+                'status' => true,
+                'learnpaths' => $learnpaths
             );
         } else {
             $json = array(
@@ -253,11 +277,33 @@ switch ($action) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
 
-            $notebooks = $webService->getNotebook($c_id, $username);
+            $notebooks = $webService->getNotebook($c_id, $username, $s_id);
 			$json = array(
                 'status' => true,
                 'notebooks' => $notebooks
             );
+        } else {
+            $json = array(
+                'status' => false
+            );
+        }
+        break;
+		
+	case 'formNewNotebook':
+		if (AppWebService::isValidApiKey($username, $apiKey)) {
+            $webService = new AppWebService();
+            $webService->setApiKey($apiKey);
+            
+			$notebook = $webService->createNotebook($c_id, $title, $text, $user_id, $s_id);
+			if($notebook!==false){
+				$json = array(
+					'status' => true
+				);
+			}else{
+				$json = array(
+					'status' => false
+				);
+			}
         } else {
             $json = array(
                 'status' => false
@@ -270,7 +316,7 @@ switch ($action) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
 
-            $documents = $webService->getDocuments($c_id, $path, $user_id);
+            $documents = $webService->getDocuments($c_id, $path, $user_id, $s_id);
 
             $json = array(
                 'status' => true,
@@ -289,7 +335,7 @@ switch ($action) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
 
-            $announcements = $webService->getAnnouncements($c_id, $user_id);
+            $announcements = $webService->getAnnouncements($c_id, $user_id, $s_id);
 			if($announcements!==false){
 				$json = array(
 					'status' => true,
@@ -312,7 +358,7 @@ switch ($action) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
 
-            $events = $webService->getCourseEvents($c_id, $user_id);
+            $events = $webService->getCourseEvents($c_id, $user_id, $s_id);
 			if($events!==false){
 				$json = array(
 					'status' => true,
@@ -335,7 +381,7 @@ switch ($action) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
 
-            $forums = $webService->getForums($c_id, $user_id);
+            $forums = $webService->getForums($c_id, $user_id, $s_id);
 			if($forums!==false){
 				$json = array(
 					'status' => true,
@@ -404,7 +450,7 @@ switch ($action) {
             $webService = new AppWebService();
             $webService->setApiKey($apiKey);
             
-			$posts = $webService->createThread($c_id, $forum_id, $title, $text, $notice, $user_id);
+			$posts = $webService->createThread($c_id, $forum_id, $title, $text, $notice, $user_id, $s_id);
 			if($posts!==false){
 				$json = array(
 					'status' => true

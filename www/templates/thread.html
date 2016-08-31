@@ -8,7 +8,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a id="btn-back-url" class="navbar-brand" href="#forum/<%= c_id %>"><i class="glyphicon glyphicon-chevron-left"></i> Temas</a>
+                <a id="btn-back-url" class="navbar-brand" href="#forum/<%= c_id %>/<%= s_id %>"><i class="glyphicon glyphicon-chevron-left"></i> Temas</a>
             </div>
 
             <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -30,7 +30,7 @@
         	<div class="sectiontitle" style="padding-top:5px;">
             	<%= f_title %>
                 <span style="float:right">
-                	<a href="#new_thread/<%= c_id %>/<%= f_id %>"><img src="img/forum/new_thread.png" style="margin-top:-5px;" /></a>
+                	<a href="#new_thread/<%= c_id %>/<%= s_id %>/<%= f_id %>"><img src="img/forum/new_thread.png" style="margin-top:-5px;" /></a>
             	</span>
                 <div class="clearfix"></div>
             </div>
@@ -44,7 +44,7 @@
                     <% } %>
                     <tr>
                         <td style="padding: 0 10px;">
-                            <a href="#post/<%= collection[i]['c_id'] %>/<%= collection[i]['forum_id'] %>/<%= collection[i]['thread_id'] %>">
+                            <a href="#post/<%= collection[i]['c_id'] %>/<%= s_id %>/<%= collection[i]['forum_id'] %>/<%= collection[i]['thread_id'] %>">
                                 <% print(collection[i]['title']); %>
                             </a>
                         </td>

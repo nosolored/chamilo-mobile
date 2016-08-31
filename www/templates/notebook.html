@@ -8,7 +8,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a id="btn-back-url" class="navbar-brand" href="#course/<%= c_id %>"><i class="glyphicon glyphicon-chevron-left"></i> <%= lang.notebook %></a>
+                <a id="btn-back-url" class="navbar-brand" href="#course/<%= c_id %>/<%= s_id %>"><i class="glyphicon glyphicon-chevron-left"></i> <%= lang.notebook %></a>
             </div>
 
             <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -25,8 +25,15 @@
 </header>
 
 <div class="container">
-	<section id="main_content">
-    	<% for (var i = 0; i < notebooks.length; i++) { %>
+	<div class="sectiontitle" style="padding-top:5px;">
+        <span style="float:right">
+            <a href="#new_notebook/<%= c_id %>/<%= s_id %>"><img src="img/new_note.png" style="margin-top:-5px;" /></a>
+        </span>
+        <div class="clearfix"></div>
+    </div>
+    
+    <section id="main_content">
+       	<% for (var i = 0; i < notebooks.length; i++) { %>
         	<div class="panel panel-default">
         	<div class="panel-heading">
             	<h3 class="panel-title"><% print(notebooks[i]['title']); %></h3>

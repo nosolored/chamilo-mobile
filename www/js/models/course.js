@@ -5,13 +5,9 @@ define([
     var CourseModel = Backbone.Model.extend({
         defaults: {
             c_id: 0,
-			code: '',
+			s_id: 0,
             title: '',
-			directory: '',
-			url_picture: '',
-			course_image: '',
-            teacher: '',
-			url: ''
+			section: []
         }
     });
 

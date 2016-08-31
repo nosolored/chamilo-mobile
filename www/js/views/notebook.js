@@ -13,28 +13,18 @@ define([
 ) {
     var campusModel = null;
 	var courseId = 0;
+	var sessionId = 0;
 	var notebookModel = new NotebookModel();
 
   var loadNotebook = function () {
 	  console.log("funcion loadNotebook");
-	  console.log(window.navigator.onLine);
-        /*
-		if (!window.navigator.onLine) {
-            new AlertView({
-                model: {
-                    message: window.lang.notOnLine
-                }
-            });
-            return;
-        }
-		*/
-
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getNotebook = $.post(url, {
             action: 'getNotebook',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
 			c_id: courseId,
+			s_id: sessionId,
 			user_id: campusModel.get('user_id')
         });
 
@@ -43,10 +33,10 @@ define([
             if (!response.status) {
                 return;
             }
-			
+			notebookModel.cid = parseInt(""+courseId+'000'+sessionId);
 			notebookModel.set({"c_id": courseId});
+			notebookModel.set({"s_id": sessionId});
 			notebookModel.set({"notebooks": response.notebooks});
-			notebookModel.cid = courseId;
 			
             if (response.notebooks.length === 0) {
                 new AlertView({
@@ -62,18 +52,22 @@ define([
     var NotebookView = Backbone.View.extend({
         el: 'body',
         template: _.template(NotebookTemplate),
-        initialize: function () {
+        initialize: function (options) {
+			//notebookModel.unbind();
+			this.options = options;
 			$(this.el).unbind();
-            campusModel = this.model;
-			courseId = this.id;
+			
+			notebookModel.unbind();
+            
+			campusModel = this.model;
+			courseId = this.options.courseId;
+			sessionId = this.options.sessionId;
+			
 			console.log("initialize")
-			console.log(courseId);
-		
-            loadNotebook();
+			loadNotebook();
             notebookModel.on('change', this.render, this);
         },
         render: function () {
-			console.log(notebookModel);
             this.el.innerHTML = this.template(notebookModel.toJSON());
 			return this;
         }

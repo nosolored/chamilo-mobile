@@ -36,6 +36,7 @@ define([
             if (!response.status) {
                 return;
             }
+			console.log(response);
 			forum_title = response.data.forum_title;
 			infoModel.set("forum_title", forum_title);		
             response.data.threads.forEach(function (threadData) {
@@ -81,11 +82,10 @@ define([
 			threadsCollection.unbind();
 			threadsCollection.reset();
 			this.options = options;
-			
 			$(this.el).unbind();
-            
 			campusModel = this.model;
-			courseId = this.id;
+			courseId = this.options.courseId;
+			sessionId = this.options.sessionId;
 			forumId = this.options.forum_id;
 			console.log("initialize")
 
@@ -96,7 +96,7 @@ define([
         },
         render: function () {
 			forum_title = infoModel.get('forum_title');
-			this.el.innerHTML = this.template({collection: threadsCollection.toJSON(), c_id: courseId, f_id: forumId, f_title: forum_title});
+			this.el.innerHTML = this.template({collection: threadsCollection.toJSON(), c_id: courseId, s_id: sessionId, f_id: forumId, f_title: forum_title});
 			return this;
         },
         events: {
