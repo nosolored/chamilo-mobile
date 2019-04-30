@@ -22,13 +22,17 @@ define([
         frmLoginOnSubmit: function (e) {
             e.preventDefault();
 
+            var options = { dimBackground: true };
+            SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
+
             var self = this;
 
-            var hostName = self.$('#txt-hostname').val().trim(); //trim() quita los espacios en blanco de al principio y final de la cadena
+            var hostName = self.$('#txt-hostname').val().trim();
             var username = self.$('#txt-username').val().trim();
             var password = self.$('#txt-password').val().trim();
 
             if (!hostName) {
+                SpinnerPlugin.activityStop();
                 new AlertView({
                     model: {
                         message: window.lang.enterTheDomain
@@ -39,6 +43,7 @@ define([
             }
 
             if (!username) {
+                SpinnerPlugin.activityStop();
                 new AlertView({
                     model: {
                         message: window.lang.enterTheUsername
@@ -49,6 +54,7 @@ define([
             }
 
             if (!password) {
+                SpinnerPlugin.activityStop();
                 new AlertView({
                     model: {
                         message: window.lang.enterThePassword
@@ -75,15 +81,19 @@ define([
                     });
 
                     self.$('#btn-submit').prop('disabled', false);
+                    SpinnerPlugin.activityStop();
 
                     return;
                 }
-
+                
+                self.$('body').prop('style', '');
+                
                 var campusModel = new CampusModel({
                     url: hostName,
                     username: username,
                     apiKey: response.userInfo.apiKey,
-					user_id: response.userInfo.user_id
+                    user_id: response.userInfo.user_id,
+                    gcmSenderId: response.gcmSenderId
                 });
                 var savingCampus = campusModel.save();
 
@@ -98,6 +108,7 @@ define([
                         }
                     });
 
+                    SpinnerPlugin.activityStop();
                     self.$('#btn-submit').prop('disabled', false);
                 });
             });
@@ -109,6 +120,7 @@ define([
                     }
                 });
 
+                SpinnerPlugin.activityStop();
                 self.$('#btn-submit').prop('disabled', false);
             });
         },

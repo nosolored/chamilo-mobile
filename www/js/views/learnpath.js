@@ -34,7 +34,7 @@ define([
             }
 			learnpathModel.set({"c_id": courseId});
 			learnpathModel.set({"s_id": sessionId});
-			learnpathModel.set({"base": campusModel.get('url') + '/plugin/chamilo_app/learnpath.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey')});
+			learnpathModel.set({"base": campusModel.get('url') + 'plugin/chamilo_app/learnpath.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey')});
 			learnpathModel.set({"learnpath": response.learnpaths});
 			learnpathModel.cid = parseInt(""+courseId+'000'+sessionId);
 			

@@ -1,24 +1,29 @@
 define([
     'underscore',
     'backbone',
+    'collections/descriptions',
 	'models/description',
     'text!template/description.html',
     'views/alert'
 ], function (
     _,
     Backbone,
+    DescriptionsCollection,
 	DescriptionModel,
     DescriptionTemplate,
     AlertView
 ) {
     var campusModel = null;
-	var courseId = 0;
+    var descriptionsCollection = new DescriptionsCollection();
+    var descriptionModel = new DescriptionModel();
+    var courseId = 0;
 	var sessionId = 0;
-	var descriptionModel = new DescriptionModel();
 
-  var loadDescription = function () {
-	    console.log("funcion loadDescription");
-	    var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+    var loadDescription = function () {
+        var options = { dimBackground: true };
+        SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
+
+        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getDescription = $.post(url, {
             action: 'getDescription',
             username: campusModel.get('username'),
@@ -28,17 +33,28 @@ define([
         });
 
         $.when(getDescription).done(function (response) {
-			//console.log(response);
             if (!response.status) {
                 return;
             }
-			
-			descriptionModel.set({"c_id": courseId});
-			descriptionModel.set({"s_id": sessionId});
-			descriptionModel.set({"descriptions": response.descriptions});
-			descriptionModel.cid = parseInt(""+courseId+'000'+sessionId);
-			
-            if (response.descriptions.length === 0) {
+
+            var description = descriptionsCollection.findWhere({c_id: courseId, s_id: sessionId});
+
+            if (description == null) {
+                descriptionsCollection.create({
+                    c_id: courseId,
+                    s_id: sessionId,
+                    descriptions: response.descriptions,
+                })
+            } else {
+                if (!isEqual(description.get("descriptions"), response.descriptions)) {
+                    description.set({"descriptions": response.descriptions});
+                    descriptionsCollection.set(description,{remove: false});
+                }
+            }
+
+            SpinnerPlugin.activityStop();
+
+			if (response.descriptions.length === 0) {
                 new AlertView({
                     model: {
                         message: window.lang.noDescription
@@ -46,27 +62,57 @@ define([
                 });
                 return;
             }
-		});
+		})
+		.fail(function() {
+            SpinnerPlugin.activityStop();
+
+            new AlertView({
+                model: {
+                    message: window.lang.noConnectionToServer
+                }
+            });
+
+            return;
+        });
     };
 
     var DescriptionView = Backbone.View.extend({
         el: 'body',
         template: _.template(DescriptionTemplate),
         initialize: function (options) {
+            // Reset event
+            descriptionsCollection.unbind();
+
 			this.options = options;
 			$(this.el).unbind();
-            
-			campusModel = this.model;
+            campusModel = this.model;
 			courseId = this.options.courseId;
 			sessionId = this.options.sessionId;
 
-			console.log("initialize")
-		
-            loadDescription();
-            descriptionModel.on('change', this.render, this);
-        },
+			// Call data remote function
+			var networkState = navigator.connection.type;
+            if (networkState == Connection.NONE) {
+                window.setTimeout(function () {
+                    new AlertView({
+                        model: {
+                            message: window.lang.notOnLine
+                        }
+                    });
+                }, 1000);
+            } else {
+                loadDescription();
+            }
+
+			descriptionsCollection.on('add', this.render, this);
+			descriptionsCollection.on('change', this.render, this);
+			descriptionsCollection.on('remove', this.render, this);
+		},
         render: function () {
-            this.el.innerHTML = this.template(descriptionModel.toJSON());
+            var descriptionItem = descriptionsCollection.findWhere({c_id: courseId, s_id: sessionId});
+            if (descriptionItem != null) {
+                this.el.innerHTML = this.template(descriptionItem.toJSON());
+            }
+
 			return this;
         }
     });

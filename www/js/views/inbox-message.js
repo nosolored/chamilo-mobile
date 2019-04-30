@@ -10,11 +10,8 @@ define([
         render: function () {
             this.el.setAttribute('href', '#message/' + this.model.cid);
 			this.el.setAttribute('id', 'message' + this.model.cid);
-
             var template = this.template(this.model.toJSON());
-
             this.el.innerHTML = template;
-
             return this;
         }
     });

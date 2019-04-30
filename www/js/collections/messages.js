@@ -13,7 +13,7 @@ define([
             var messageModel = new MessageModel(attributes); //Crea un objeto (modelo) con los datos de un mensaje
             var saveMessaModel = messageModel.save();		 //Guarda ese mensaje en la base de datos y asigna un cid (id modelo)
 
-			console.log(messageModel);
+			//console.log(messageModel);
 
             $.when(saveMessaModel).done(function () {
                 self.add(messageModel);						// Añade el objeto (modelo) a la coleccion

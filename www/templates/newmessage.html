@@ -1,6 +1,7 @@
 <header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container">
         <div class="container-fluid">
+           <img src="img/icon_head.png" style="float:left;" />
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
                     <span class="sr-only">Toggle navigation</span>
@@ -23,7 +24,7 @@
         </div>
     </div>
 </header>
-<div class="container">
+<div class="container" style="margin-top: 20px;">
 	<section id="main_content">
         <form action="#" id="frm-new-message" method="post">
                         
@@ -47,7 +48,8 @@
             <fieldset>
                 <legend for="txt-text"><%= lang.message %>:</legend>
                 <div class="form-group">
-                     <textarea rows="5"name="txt-text" id="txt-text" required class="form-control"></textarea>
+                    <div id="txt-text" class="editable" contenteditable="true" style="min-height:4em;"></div>
+                    <!-- <textarea rows="5"name="txt-text" id="txt-text-old" required class="form-control"></textarea>-->
                 </div>
             </fieldset>
             

@@ -2,22 +2,27 @@ define([
     'jquery',
     'backbone',
     'collections/courses',
-    //'collections/messages',
     'models/campus',
     'models/message',
+    'models/outmessage',
     'models/post',
     'views/login',
     'views/inbox',
+    'views/outbox',
     'views/message',
+    'views/outmessage',
     'views/replymessage',
     'views/newmessage',
-//    'views/outbox',
     'views/logout',
     'views/alert',
     'views/home',
     'views/courses',
+    'views/inscription',
+    'views/catalog',
     'views/course',
+    'collections/descriptions',
     'views/description',
+    'views/link',
     'views/notebook',
     'views/newnotebook',
     'views/documents',
@@ -31,51 +36,62 @@ define([
     'views/newthread',
     'views/newpost',
     'collections/posts',
+    'views/ranking',
+    'views/details-ranking',
     'views/profile',
     'views/learnpath'
 ], function (
-    $,
-    Backbone,
-    CoursesCollection,
-    //MessagesCollection,
-    CampusModel,
-    MessageModel,
-    PostModel,
-    LoginView,
-    InboxView,
-    MessageView,
-    ReplyMessageView,
-    NewMessageView,
-//    OutboxView,
-    LogoutView,
-    AlertView,
-    HomeView,
-    CoursesView,
-    CourseView,
-    DescriptionView,
-    NotebookView,
-    NewNotebookView,
-    DocumentView,
-    AnnouncementsCollection,
-    AnnouncementsView,
-    AnnouncementView,
-    AgendaView,
-    ForumView,
-    ThreadView,
-    PostView,
-    NewThreadView,
-    NewPostView,
-    PostsCollection,
-    ProfileView,
-    LearnpathView
+        $,
+        Backbone,
+        CoursesCollection,
+        CampusModel,
+        MessageModel,
+        OutmessageModel,
+        PostModel,
+        LoginView,
+        InboxView,
+        OutboxView,
+        MessageView,
+        OutmessageView,
+        ReplyMessageView,
+        NewMessageView,
+        LogoutView,
+        AlertView,
+        HomeView,
+        CoursesView,
+        InscriptionView,
+        CatalogView,
+        CourseView,
+        DescriptionsCollection,
+        DescriptionView,
+        LinkView,
+        NotebookView,
+        NewNotebookView,
+        DocumentView,
+        AnnouncementsCollection,
+        AnnouncementsView,
+        AnnouncementView,
+        AgendaView,
+        ForumView,
+        ThreadView,
+        PostView,
+        NewThreadView,
+        NewPostView,
+        PostsCollection,
+        RankingView,
+        DetailsRankingView,
+        ProfileView,
+        LearnpathView
 ) {
     var Router = Backbone.Router.extend({
         routes: {
             '': 'showIndex',
             'my-courses': 'showListCourses',
+            'inscription': 'showInscription',
             'course/:course_id/:session_id': 'showCourse',
             'description/:course_id/:session_id': 'showDescription',
             'learnpath/:course_id/:session_id': 'showLearnpath',
+            'link/:course_id/:session_id': 'showLink',
             'notebook/:course_id/:session_id': 'showNotebook',
             'new_notebook/:course_id/:session_id': 'showNewNotebook',
             'documents/:course_id/:session_id/:path': 'showDocuments',
@@ -85,9 +101,10 @@ define([
             'agenda/:course_id/:session_id': 'showAgenda',
             'list-messages': 'showListMessages',
             'message/:id': 'showMessage',
+            'outmessage/:id': 'showOutMessage',
             'reply_message/:id': 'showReplyMessage',
             'new-message': 'showNewMessage',
-//            'outbox': 'showOutbox',
+            'outbox': 'showOutbox',
             'forum/:course_id/:session_id': 'showForum',
             'thread/:course_id/:session_id/:f_id': 'showThreads',
             'post/:course_id/:session_id/:f_id/:t_id': 'showPosts',
@@ -96,24 +113,63 @@ define([
             'new_post/:course_id/:session_id/:f_id/:t_id': 'showNewPost',
             'reply_post/:course_id/:session_id/:f_id/:t_id/:post_id': 'showReplyPost',
             'reply_quote/:course_id/:session_id/:f_id/:t_id/:post_id': 'showQuotePost',
+            'ranking/:course_id/:session_id': 'showRanking',
+            'details-ranking/:course_id/:session_id/:u_id': 'showDetailsRanking',
+            'course-catalog': 'showCourseCatalog',
             'logout': 'showLogout'
         }
     });
 
     var campusModel = new CampusModel();
     var postModel = new PostModel();
-    var coursesCollection = new CoursesCollection();
+    var descriptionsCollections = new DescriptionsCollection();
     var announcementsCollection = new AnnouncementsCollection();
     var postsCollection = new PostsCollection();
-    //var messagesCollection = new MessagesCollection();
+    Router.coursesCollection = new CoursesCollection();
 
     var showIndex = function () {
         console.log("showIndex");
         var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
-            var homeView = new HomeView();
+            /* Push code */
+            var gcmSenderId = campusModel.get('gcmSenderId');
+            if (gcmSenderId) {
+                pushNotification = window.PushNotification.init({
+                    android: {
+                        senderID: gcmSenderId
+                    },
+                    ios: {
+                        alert: 'true',
+                        badge: 'true',
+                        sound: 'true'
+                    },
+                    windows: {}
+                });
+                pushNotification.on('error', function (e) {
+                    console.log('Error');
+                    console.log(e);
+                });
+                pushNotification.on('registration', function (data) {
+                    var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+                    $.post(url, {
+                      action: 'gcm_id',
+                      registration_id: data.registrationId,
+                      username: campusModel.get('username'),
+                      api_key: campusModel.get('apiKey')
+                    });
+                });
+                pushNotification.on('notification', function (data) {
+                    console.log('Notification');
+                    console.log(data);
+                });    
+            }
+            /* End push code */
+            var homeView = new HomeView({
+                model: campusModel
+            });
             homeView.render()
+            navigator.splashscreen.hide();
         });
 
         $.when(getCampusData).fail(function () {
@@ -121,20 +177,47 @@ define([
 
             document.body.innerHTML = '';
             document.body.appendChild(loginView.render().el);
+            navigator.splashscreen.hide();
         });
     };
     
     var showListCourses = function() {
         console.log("showListCourses");
-         var getCampusData = campusModel.getData();
+        var getCampusData = campusModel.getData();
+
+       $.when(getCampusData).done(function () {
+           var coursesView = new CoursesView({
+               model: campusModel,
+               collection: Router.coursesCollection //coursesCollection
+           });
+
+           coursesView.render();
+       });
+   };
+    
+    var showInscription = function() {
+        console.log("showInscription");
+        var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
-            var coursesView = new CoursesView({
-                model: campusModel,
-                collection: coursesCollection
+            var inscriptionView = new InscriptionView({
+                model: campusModel
             });
 
-            coursesView.render();
+            inscriptionView.render();
+        });
+    }
+    
+    var showCourseCatalog = function() {
+        console.log("showCourseCatalog");
+        var getCampusData = campusModel.getData();
+
+        $.when(getCampusData).done(function () {
+            var catalogView = new CatalogView({
+                model: campusModel
+            });
+
+            catalogView.render();
         });
     };
     
@@ -147,6 +230,18 @@ define([
                 model:campusModel
             });
             inboxView.render();
+        });
+    };
+
+    var showOutbox = function() {
+        console.log("showOutbox");
+        var getCampusData = campusModel.getData();
+            
+        $.when(getCampusData).done(function () {
+            var outboxView = new OutboxView({
+                model:campusModel
+            });
+            outboxView.render();
         });
     };
     
@@ -174,7 +269,8 @@ define([
                 //model: courseModel,
                 model: campusModel,
                 courseId: courseId,
-                sessionId: sessionId
+                sessionId: sessionId,
+                collection: Router.coursesCollection
             });
             courseView.render();
         });
@@ -257,7 +353,42 @@ define([
             });
         });
     };
-    
+
+    var showLink = function (courseId, sessionId){
+        console.log("showLink");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+
+            return;
+        }
+        
+        var getCampusData = campusModel.getData();
+
+        $.when(getCampusData).done(function () {
+            //var courseModel = new CourseModel();
+            var linkView = new LinkView({
+                model: campusModel,
+                courseId: courseId,
+                sessionId: sessionId
+            });
+            linkView.render();
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        });
+    };
+
     var showNotebook = function (courseId, sessionId){
         console.log("showNotebook");
         courseId = parseInt(courseId);
@@ -275,8 +406,6 @@ define([
         var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
-            //var courseModel = new CourseModel();
-            console.log(campusModel);
             var notebookView = new NotebookView({
                 model: campusModel,
                 courseId: courseId,
@@ -386,6 +515,7 @@ define([
             $.when(getMessageData).done(function () {
                 var messageView = new MessageView({
                     model: messageModel,
+                    campus:campusModel,
                     id: messageId
                 });
 
@@ -409,7 +539,55 @@ define([
             });
         });
     };
-    
+
+    var showOutMessage = function (messageId) {
+        console.log("showOutMessage");
+        messageId = parseInt(messageId);
+
+        if (!messageId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedMessage
+                }
+            });
+
+            return;
+        }
+
+        var getCampusData = campusModel.getData();
+
+        $.when(getCampusData).done(function () {
+            var outmessageModel = new OutmessageModel();
+            var getMessageData = outmessageModel.getData(messageId);
+            console.log(messageId);
+            $.when(getMessageData).done(function () {
+                var outmessageView = new OutmessageView({
+                    model: outmessageModel,
+                    campus:campusModel,
+                    id: messageId
+                });
+
+                outmessageView.render();
+            });
+
+            $.when(getMessageData).fail(function () {
+                new AlertView({
+                    model: {
+                        message: window.lang.messageDoesNotExists
+                    }
+                });
+            });
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        });
+    };
+
     var showReplyMessage = function (messageId){
         console.log("showReplyMessage");
         messageId = parseInt(messageId);
@@ -468,19 +646,7 @@ define([
             newMessageView.render();
         });
     };
-/*
-    var showOutbox = function() {
-        console.log("showOutbox");
-        var getCampusData = campusModel.getData();
-            
-        $.when(getCampusData).done(function () {
-            var outboxView = new OutboxView({
-                model:campusModel
-            });
-            outboxView.render();
-        });
-    };
-*/    
+
     var showAnnouncements = function (courseId, sessionId){
         console.log("showAnnouncement");
         courseId = parseInt(courseId);
@@ -584,16 +750,16 @@ define([
     
     var showProfile = function() {
         console.log("showProfile");
-         var getCampusData = campusModel.getData();
+        var getCampusData = campusModel.getData();
 
-        $.when(getCampusData).done(function () {
-            var profileView = new ProfileView({
-                model: campusModel
-            });
+       $.when(getCampusData).done(function () {
+           var profileView = new ProfileView({
+               model: campusModel
+           });
 
-            profileView.render();
-        });
-    };
+           profileView.render();
+       });
+   };
     
     var showLogout = function () {
         console.log("showLogout");
@@ -888,14 +1054,88 @@ define([
         });
     };
     
+    var showRanking = function (courseId, sessionId){
+        console.log("showRanking");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+
+            return;
+        }
+        
+        var getCampusData = campusModel.getData();
+
+        $.when(getCampusData).done(function () {
+            //var courseModel = new CourseModel();
+            var rankingView = new RankingView({
+                model: campusModel,
+                courseId: courseId,
+                sessionId: sessionId
+            });
+            rankingView.render();
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        });
+    };
+    
+    var showDetailsRanking = function (courseId, sessionId, userId){
+        console.log("showDetailsRanking");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        userId = parseInt(userId);
+            
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+            return;
+        }
+        
+        var getCampusData = campusModel.getData();
+
+        $.when(getCampusData).done(function () {
+            var detailsRankingView = new DetailsRankingView({
+                model: campusModel,
+                courseId: courseId,
+                sessionId: sessionId,
+                user_id: userId
+            });
+            detailsRankingView.render();
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        });
+    };
+    
     return {
         initialize: function () {
             var router = new Router;
             router.on('route:showIndex', showIndex);
             router.on('route:showListCourses', showListCourses);
             router.on('route:showCourse', showCourse);
+            router.on('route:showInscription', showInscription);
             router.on('route:showDescription', showDescription);
             router.on('route:showLearnpath', showLearnpath);
+            router.on('route:showLink', showLink);
             router.on('route:showNotebook', showNotebook);
             router.on('route:showNewNotebook', showNewNotebook);
             router.on('route:showAnnouncements', showAnnouncements);
@@ -904,9 +1144,10 @@ define([
             router.on('route:showDocuments', showDocuments);
             router.on('route:showListMessages', showListMessages);
             router.on('route:showMessage', showMessage);
+            router.on('route:showOutMessage', showOutMessage);
             router.on('route:showReplyMessage', showReplyMessage);
             router.on('route:showNewMessage', showNewMessage);
-            //router.on('route:showOutbox', showOutbox);
+            router.on('route:showOutbox', showOutbox);
             router.on('route:showForum', showForum);
             router.on('route:showThreads', showThreads);
             router.on('route:showPosts', showPosts);
@@ -915,7 +1156,10 @@ define([
             router.on('route:showReplyPost', showReplyPost);
             router.on('route:showQuotePost', showQuotePost);
             router.on('route:showProfile', showProfile);
+            router.on('route:showRanking', showRanking);
             router.on('route:showLogout', showLogout);
+            router.on('route:showDetailsRanking', showDetailsRanking);
+            router.on('route:showCourseCatalog', showCourseCatalog);
 
             Backbone.history.start();
         }

@@ -16,8 +16,10 @@ define([
 	var sessionId = 0;
 	var notebookModel = new NotebookModel();
 
-  var loadNotebook = function () {
-	  console.log("funcion loadNotebook");
+	var loadNotebook = function () {
+	    var options = { dimBackground: true };
+        SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
+
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getNotebook = $.post(url, {
             action: 'getNotebook',
@@ -29,15 +31,18 @@ define([
         });
 
         $.when(getNotebook).done(function (response) {
-			//console.log(response);
             if (!response.status) {
+                SpinnerPlugin.activityStop();
                 return;
             }
+
 			notebookModel.cid = parseInt(""+courseId+'000'+sessionId);
 			notebookModel.set({"c_id": courseId});
 			notebookModel.set({"s_id": sessionId});
 			notebookModel.set({"notebooks": response.notebooks});
-			
+
+			SpinnerPlugin.activityStop();
+
             if (response.notebooks.length === 0) {
                 new AlertView({
                     model: {
@@ -46,25 +51,47 @@ define([
                 });
                 return;
             }
-		});
+		})
+		.fail(function() {
+            SpinnerPlugin.activityStop();
+
+            new AlertView({
+                model: {
+                    message: window.lang.noConnectionToServer
+                }
+            });
+
+            return;
+        });
     };
 
     var NotebookView = Backbone.View.extend({
         el: 'body',
         template: _.template(NotebookTemplate),
         initialize: function (options) {
-			//notebookModel.unbind();
 			this.options = options;
 			$(this.el).unbind();
-			
+
 			notebookModel.unbind();
-            
+
 			campusModel = this.model;
 			courseId = this.options.courseId;
 			sessionId = this.options.sessionId;
-			
-			console.log("initialize")
-			loadNotebook();
+
+			// Call data remote function
+            var networkState = navigator.connection.type;
+            if (networkState == Connection.NONE) {
+                window.setTimeout(function () {
+                    new AlertView({
+                        model: {
+                            message: window.lang.notOnLine
+                        }
+                    });
+                }, 1000);
+            } else {
+                loadNotebook();
+            }
+
             notebookModel.on('change', this.render, this);
         },
         render: function () {
