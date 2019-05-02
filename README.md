@@ -7,7 +7,7 @@ Instalación
 Primero, clonar este repositorio
 
 ```
-git clone git@github.com:nosolored/chamilo-mobile.git
+git clone https://github.com/nosolored/chamilo-mobile.git
 cd chamilo-mobile
 ```
 
