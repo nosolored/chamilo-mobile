@@ -21,7 +21,6 @@ cordova plugin add cordova-plugin-device
 cordova plugin add cordova-plugin-dialogs
 cordova plugin add cordova-plugin-file
 cordova plugin add cordova-plugin-filechooser
-cordova plugin add cordova-plugin-file-downloader -> Por ahora no se está usando
 cordova plugin add cordova-plugin-filepath
 cordova plugin add cordova-plugin-file-transfer
 cordova plugin add cordova-plugin-inappbrowser
