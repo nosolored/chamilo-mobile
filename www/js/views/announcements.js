@@ -17,10 +17,10 @@ define([
 	var courseId = 0;
     var announcementsCollection = null;
 
+    var loadAnnouncements = function () {
+        var options = { dimBackground: true };
+        SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
-  var loadAnnouncements = function () {
-	    console.log("funcion Announcements");
-		
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getAnnouncements = $.post(url, {
             action: 'getAnnouncementsList',
@@ -33,6 +33,7 @@ define([
 
         $.when(getAnnouncements).done(function (response) {
             if (!response.status) {
+                SpinnerPlugin.activityStop();
                 return;
             }
 
@@ -57,6 +58,8 @@ define([
 					announcementsCollection.set(announcement,{remove: false});
 				}
             });
+            
+            SpinnerPlugin.activityStop();
 
             if (response.announcements.length === 0) {
                 new AlertView({
@@ -66,7 +69,18 @@ define([
                 });
                 return;
             }
-		});
+		})
+		.fail(function() {
+            SpinnerPlugin.activityStop();
+
+            new AlertView({
+                model: {
+                    message: window.lang.noConnectionToServer
+                }
+            });
+
+            return;
+        });
     };
 
     var AnnouncementsView = Backbone.View.extend({
@@ -75,16 +89,27 @@ define([
         initialize: function (options) {
 			this.options = options;
 			$(this.el).unbind();
-            
+
 			campusModel = this.model;
 			announcementsCollection = this.collection;
 			courseId = this.options.courseId;
 			sessionId = this.options.sessionId;
 			announcementsCollection.unbind();
 			announcementsCollection.reset();
-			
-			console.log("initialize")
-			loadAnnouncements();
+
+			// Call data remote function
+            var networkState = navigator.connection.type;
+            if (networkState == Connection.NONE) {
+                window.setTimeout(function () {
+                    new AlertView({
+                        model: {
+                            message: window.lang.notOnLine
+                        }
+                    });
+                }, 1000);
+            } else {
+                loadAnnouncements();
+            }
 
             announcementsCollection.on('add', this.renderAnnouncement, this);
 			announcementsCollection.on('change', this.renderAnnouncement2, this);

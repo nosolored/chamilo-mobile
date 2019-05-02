@@ -4,7 +4,7 @@ define([
     'collections/messages',
     'views/inbox-message',
     'text!template/inbox.html',
-	'models/message',
+    'models/message',
     'views/alert'
 ], function (
     _,
@@ -12,17 +12,15 @@ define([
     MessagesCollection,
     InboxMessageView,
     InboxTemplate,
-	MessageModel,
+    MessageModel,
     AlertView
 ) {
     var campusModel = null;
     var messagesCollection = new MessagesCollection();
 
     var loadMessages = function () {
-		console.log("##### ENTRO EN LOADMESSAGES #####");
-		console.log(window.navigator.onLine);
         /*
-		if (!window.navigator.onLine) {
+        if (!window.navigator.onLine) {
             new AlertView({
                 model: {
                     message: window.lang.notOnLine
@@ -30,37 +28,29 @@ define([
             });
             return;
         }
-		*/
-		
-		//console.log(messagesCollection);
-		
-		var listId = '';
-		messagesCollection.each(function(model){
-			listId += listId ? '-' : '';
-			listId += model.get('messageId');
-		});
-		//console.log("listado de id de mensajes");
-		//console.log(listId);
-		
+        */
+        
+        var listId = '';
+        messagesCollection.each(function(model){
+            listId += listId ? '-' : '';
+            listId += model.get('messageId');
+        });
+        
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getMessages = $.post(url, {
             action: 'getNewMessages',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
             last: campusModel.get('lastMessage'),
-			list: listId
+            list: listId
         });
-		
-		//console.log(getMessages);
 
         $.when(getMessages).done(function (response) {
             if (!response.status) {
                 return;
             }
-			
-			//console.log(response);
-			
-			//Add new messages
+            
+            //Add new messages
             response.messages.forEach(function (messageData) {
                 messagesCollection.create({
                     messageId: parseInt(messageData.id),
@@ -70,16 +60,16 @@ define([
                     hasAttachment: messageData.hasAttachments,
                     sendDate: messageData.sendDate,
                     //url: messageData.platform.messagingTool
-					url: campusModel.get('url') + '/plugin/chamilo_app/inbox.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey') + '&user_id=' + campusModel.get('user_id') + '&message_id=' + parseInt(messageData.id)
+                    url: campusModel.get('url') + '/plugin/chamilo_app/inbox.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey') + '&user_id=' + campusModel.get('user_id') + '&message_id=' + parseInt(messageData.id),
+                    read: messageData.status
                 });
             });
-			
-			//Remove messages
-			response.remove_messages.forEach(function (messageId) {
-				console.log(messageId);
-				messagesCollection.removeDB(messageId);
-			});
-			
+            
+            //Remove messages
+            response.remove_messages.forEach(function (messageId) {
+                messagesCollection.removeDB(messageId);
+            });
+            
 
             if (response.messages.length === 0) {
                 new AlertView({
@@ -98,20 +88,8 @@ define([
             });
         });
     };
-	
-	var loadAllMessages = function () {
-        /*
-		if (!window.navigator.onLine) {
-			console.log(window.navigator.onLine);
-            new AlertView({
-                model: {
-                    message: window.lang.notOnLine
-                }
-            });
-            return;
-        }
-		*/
-
+    
+    var loadAllMessages = function () {
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getMessages = $.post(url, {
             action: 'getAllMessages',
@@ -133,7 +111,8 @@ define([
                     hasAttachment: messageData.hasAttachments,
                     sendDate: messageData.sendDate,
                     //url: messageData.platform.messagingTool
-					url: campusModel.get('url') + '/plugin/chamilo_app/inbox.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey') + '&user_id=' + campusModel.get('user_id') + '&message_id=' + parseInt(messageData.id)
+                    url: campusModel.get('url') + '/plugin/chamilo_app/inbox.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey') + '&user_id=' + campusModel.get('user_id') + '&message_id=' + parseInt(messageData.id),
+                    read: messageData.status
                 });
             });
 
@@ -159,30 +138,28 @@ define([
         el: 'body',
         template: _.template(InboxTemplate),
         initialize: function () {
-			console.log("entro en initialize del inbox.js");
-			$(this.el).unbind();
-			messagesCollection.unbind();
-			
+            $(this.el).unbind();
+            messagesCollection.unbind();
+            messagesCollection.reset();
             campusModel = this.model;
 
-            var fetchMessages = messagesCollection.fetch();
+            var fetchMessages = messagesCollection.fetch(); //Obtener de la base de datos los mensajes guardados
 
             $.when(fetchMessages).done(function(){
-				if(messagesCollection.length == 0){
-					loadAllMessages();
-				}else{
-					loadMessages();
-				}
-			});
-			
+                if(messagesCollection.length == 0){
+                    loadAllMessages();
+                }else{
+                    loadMessages();
+                }
+            });
+            
             messagesCollection.on('add', this.renderMessageAdd, this);
-			messagesCollection.on('remove', this.renderMessageRemove, this);
-			
-			this.render();
+            messagesCollection.on('remove', this.renderMessageRemove, this);
+            
+            this.render();
         },
         render: function () {
             this.el.innerHTML = this.template();
-			//console.log(messagesCollection);
             messagesCollection.each(this.renderMessage, this);
 
             return this;
@@ -194,26 +171,26 @@ define([
 
             this.$el.find('#messages-list').append(inboxMessageView.render().el);
         },
-		renderMessageAdd: function (messageModel) {
+        renderMessageAdd: function (messageModel) {
             var inboxMessageView = new InboxMessageView({
                 model: messageModel
             });
-			//this.$el.find('#message'+messageModel.cid).remove();
+            //this.$el.find('#message'+messageModel.cid).remove();
             this.$el.find('#messages-list').append(inboxMessageView.render().el);
         },
-		renderMessageRemove: function (messageModel) {
-			this.$el.find('#message'+messageModel.cid).remove();
+        renderMessageRemove: function (messageModel) {
+            this.$el.find('#message'+messageModel.cid).remove();
         },
         events: {
             'click #messages-update': 'messagesUpdateOnClick'
         },
         messagesUpdateOnClick: function (e) {
             e.preventDefault();
-			loadMessages();
-			$(".navbar-toggle").trigger( "click" );
+            loadMessages();
+            $(".navbar-toggle").trigger( "click" );
         }
 
-	});
+    });
 
     return InboxView;
 });

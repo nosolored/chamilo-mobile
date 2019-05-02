@@ -1,2 +1,6 @@
 platforms/
+extra/
 plugins/
+node_modules/
+google-services.json
+package.json

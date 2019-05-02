@@ -1,8 +1,9 @@
 define({
     name: 'chamilo-messaging',
-    version: 4,
+    version: 5,
     TABLE_ACCOUNT: 'account',
     TABLE_MESSAGE: 'message',
+    TABLE_MESSAGE_OUT: 'message_out',
     conx: null,
     setUp: function () {
         var deferred = $.Deferred();
@@ -27,8 +28,13 @@ define({
 			accountStore.createIndex('user_id', 'user_id', {
                 unique: true
             });
+			accountStore.createIndex('gcmSenderId', 'gcmSenderId', {
+                unique: true
+            });
             accountStore.createIndex('lastMessage', 'lastMessage');
             accountStore.createIndex('lastCheckDate', 'lastCheckDate');
+            accountStore.createIndex('lastOutmessage', 'lastOutmessage');
+            accountStore.createIndex('lastCheckOutDate', 'lastCheckOutDate');
 
 			if (database.objectStoreNames.contains(self.TABLE_MESSAGE)){
 		        database.deleteObjectStore(self.TABLE_MESSAGE);
@@ -47,6 +53,23 @@ define({
             messageStore.createIndex('content', 'content');
             messageStore.createIndex('url', 'url');
 			messageStore.createIndex('read', 'read');
+
+			if (database.objectStoreNames.contains(self.TABLE_MESSAGE_OUT)){
+                database.deleteObjectStore(self.TABLE_MESSAGE_OUT);
+            }
+
+            var messageStore = database.createObjectStore(self.TABLE_MESSAGE_OUT, {
+                autoIncrement: true
+            });
+            messageStore.createIndex('messageId', 'messageId', {
+                unique: true
+            });
+            messageStore.createIndex('title', 'title');
+            messageStore.createIndex('sender', 'sender');
+            messageStore.createIndex('hasAttachment', 'hasAttachment');
+            messageStore.createIndex('sendDate', 'sendDate');
+            messageStore.createIndex('content', 'content');
+            messageStore.createIndex('url', 'url');
         };
 
         dbRequest.onsuccess = function (e) {

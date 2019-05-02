@@ -18,7 +18,7 @@ define([
 
             window.setTimeout(function () {
                 document.body.removeChild(self.el);
-            }, 3000);
+            }, 4000);
         }
     });
 

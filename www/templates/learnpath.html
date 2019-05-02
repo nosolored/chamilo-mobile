@@ -28,6 +28,9 @@
 	<section id="main_content">
     	<% if (learnpath.length > 0) { %>
         	<% for (var i = 0; i < learnpath.length; i++) { %>
+                <% if (learnpath[i]['lp_list'].length == 0) { 
+                    continue;
+                } %>
             	<h4><% print(learnpath[i]['category']); %></h4>
                 <table class="table-striped" width="100%">
                 <tr><th>Título</th><th class="text-center">Progreso</th></tr>

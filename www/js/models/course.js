@@ -7,7 +7,8 @@ define([
             c_id: 0,
 			s_id: 0,
             title: '',
-			section: []
+			section: [],
+			icons: [],
         }
     });
 

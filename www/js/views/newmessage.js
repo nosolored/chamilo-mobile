@@ -12,7 +12,6 @@ define([
         template: _.template(NewMessageTemplate),
 		
 		initialize: function (options) {
-			console.log("entro en initialize del newmessage.js");
 			$(this.el).unbind();
             campusModel = this.model;
 		},
@@ -25,7 +24,6 @@ define([
             return this;
         },
 		frmSearchUser: function (e) {
-			console.log("evento cambiar");
 			var self = this;
 			var user_search = self.$('#search-user').val().trim(); 
 			if(user_search.length > 2){
@@ -61,13 +59,12 @@ define([
 				var texto = '';
 				$("#box-select-user").html(texto);
 			}
-			
 		},
         frmNewMessageOnSubmit: function (e) {
             e.preventDefault();
 
             var self = this;
-			
+
 			var list_user = []
 			$("input[name='remite[]']:checked").each(function ()
 			{
@@ -75,8 +72,8 @@ define([
 			});
 
             var title = self.$('#txt-title').val().trim(); 
-            var text = self.$('#txt-text').val().trim();
-			
+            var text = self.$('#txt-text').html();
+
 			if(list_user.length === 0){
 				new AlertView({
                     model: {
@@ -86,7 +83,7 @@ define([
 
                 return;
 			}
-			
+
             if (!title) {
                 new AlertView({
                     model: {
@@ -108,8 +105,7 @@ define([
             }
 
             self.$('#btn-submit').prop('disabled', true);
-			
-			console.log(title +' '+ text +' '+list_user);
+
 			var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
             var checkingForm = $.post(url, {
                 action: 'formNewMessage',

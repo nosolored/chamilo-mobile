@@ -28,10 +28,10 @@
     </div>
 </header>
 
-<div class="container">
+<div class="container" style="margin-top: 20px;">
 	<section id="main_content">
     	<% if (documents.length > 0) { %>
-            <table class="table-striped" width="100%">
+            <table class="table data_table" width="100%">
                 <tr class="row_odd">
                     <th class="format-link-document">Tipo</th>
                     <th class="format-link-document">Nombre</th>
@@ -51,7 +51,7 @@
                         <% } else { %>
                         	<a id="<% print(documents[i]['filename']); %>" class="link-file" href="<%= base %>&c_id=<%= c_id %>&s_id=<%= s_id %>&id=<%= documents[i]['id'] %>">
                         <% } %>
-                            <img src="img/documents/<% print(documents[i]['icon']); %>" />
+                            <img src="img/icons/22/<% print(documents[i]['icon']); %>" />
                         </a>
                     </td>
                     <td style="padding-left:5px;">

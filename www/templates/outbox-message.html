@@ -1,0 +1,9 @@
+<h6 class="list-group-item-heading"><%= title %></h6>
+<% if (hasAttachment) { %>
+<span class="badge" title="<%= lang.hasAttachments %>">
+    <i class="glyphicon glyphicon-paperclip"></i>
+</span>
+<% } %>
+<p class="list-group-item-text">
+    <%= sender  %>
+</p>
