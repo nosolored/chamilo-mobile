@@ -19,7 +19,7 @@ define([
 	var infoModel = new InfoModel();
   
     var loadThreads = function () {
-	    console.log("funcion loadThreads");
+	    //console.log("funcion loadThreads");
 	    
 		var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getForums = $.post(url, {
@@ -36,7 +36,7 @@ define([
             if (!response.status) {
                 return;
             }
-			console.log(response);
+			//console.log(response);
 			forum_title = response.data.forum_title;
 			infoModel.set("forum_title", forum_title);		
             response.data.threads.forEach(function (threadData) {
@@ -49,16 +49,24 @@ define([
 						thread_id: parseInt(threadData.thread_id),
 						replies: parseInt(threadData.thread_replies),
 						views: threadData.thread_views,
-						last_poster: threadData.firstname+ ' '+threadData.lastname,
-						last_post_date: threadData.last_post_date
+						thread_poster_name: threadData.thread_poster_name,
+						last_post_date: threadData.last_post_date,
+						last_poster: threadData.last_post_name,
+						insert_date: threadData.insert_date,
+						iconnotify: threadData.iconnotify,
+						image: threadData.image
 					});
 				}else{
 					var thread = threadsCollection.get(cid);
 					thread.set({"title": threadData.thread_title});
 					thread.set({"replies": threadData.thread_replies});
 					thread.set({"views": threadData.thread_views});
+					thread.set({"thread_poster_name": threadData.thread_poster_name})
 					thread.set({"last_post_date": threadData.last_post_date});
 					thread.set({"last_poster": threadData.last_poster});
+					thread.set({"insert_date": threadData.insert_date});
+					thread.set({"iconnotify": threadData.iconnotify});
+					thread.set({"image": threadData.image});
 					threadsCollection.set(thread,{remove: false});
 				}
             });
@@ -87,7 +95,7 @@ define([
 			courseId = this.options.courseId;
 			sessionId = this.options.sessionId;
 			forumId = this.options.forum_id;
-			console.log("initialize")
+			//console.log("initialize")
 
 		 	loadThreads();
 			threadsCollection.on('add', this.render, this);
@@ -100,13 +108,66 @@ define([
 			return this;
         },
         events: {
-            'click #thread-update': 'threadUpdateOnClick'
+            'click #thread-update': 'threadUpdateOnClick',
+            'click .notify': 'notifyUpdateOnClick'
         },
         threadUpdateOnClick: function (e) {
             e.preventDefault();
 			
             loadThreads();
 			$(".navbar-toggle").trigger( "click" );
+		},
+		notifyUpdateOnClick: function (e) {
+			e.preventDefault();
+			var forum_id = $("#forum_id").val();
+			var thread_id = e.currentTarget.id;
+			
+			var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+            var checkingNotify = $.post(url, {
+                action: 'setNotify',
+				username: campusModel.get('username'),
+				api_key: campusModel.get('apiKey'),
+				user_id: campusModel.get('user_id'),
+				f_id: forum_id,
+                t_id: thread_id
+            });
+
+            $.when(checkingNotify).done(function (response) {
+            	//console.log(response);
+                if (!response.status) {
+                    new AlertView({
+                        model: {
+                            message: window.lang.problemSave
+                        }
+                    });
+                    return;
+                }
+                
+                new AlertView({
+                    model: {
+                        message: response.message
+                    }
+                });
+                //console.log(response.id);
+                //console.log(self.$('#'+response.id).prop("src"));
+                var src = self.$('#'+response.id).attr("src");
+                if (src.indexOf("notification_mail_na") > 0) {
+                	self.$('#'+response.id).attr("src", "img/icons/22/notification_mail.png");
+                } else {
+                	self.$('#'+response.id).attr("src", "img/icons/22/notification_mail_na.png");
+                }
+                
+            });
+
+            $.when(checkingNotify).fail(function () {
+                new AlertView({
+                    model: {
+                        message: window.lang.noConnectionToServer
+                    }
+                });
+                //alert("No se ha podido configurar las notificaciones")
+            });
+			
 		}
     });
     return ThreadsView;

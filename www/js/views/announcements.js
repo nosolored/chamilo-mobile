@@ -118,6 +118,7 @@ define([
 			this.el.innerHTML = this.template();
 			this.$el.find('#announcements-list').html('');
 			this.$el.find('#btn-back-url').prop('href','#course/'+courseId+'/'+sessionId);
+			this.$el.find('#btn-logout-url').prop('href','#logout/'+courseId+'/'+sessionId);
             announcementsCollection.each(this.renderAnnouncement, this);
 
             return this;

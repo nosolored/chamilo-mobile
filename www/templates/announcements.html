@@ -1,6 +1,7 @@
 <header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container">
         <div class="container-fluid">
+            <a href="#"><img src="img/icon_head.png" style="float:left;" /></a>
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
                     <span class="sr-only">Toggle navigation</span>
@@ -21,7 +22,17 @@
                     </li>
                     -->
                     <li>
-                        <a href="#logout">
+                        <a href="#my-courses">
+                            <i class="glyphicon glyphicon-pencil"></i> <%= lang.courses %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#list-messages">
+                            <i class="glyphicon glyphicon-envelope"></i> <%= lang.messages %>
+                        </a>
+                    </li>
+                    <li>
+                        <a id="btn-logout-url" href="#logout/0/0">
                             <i class="glyphicon glyphicon-log-out"></i> <%= lang.singOut %>
                         </a>
                     </li>
@@ -31,6 +42,6 @@
     </div>
 </header>
 
-<div class="container">
+<div class="container" style="margin-top: 20px;">
     <div class="list-group" id="announcements-list"></div>
 </div>

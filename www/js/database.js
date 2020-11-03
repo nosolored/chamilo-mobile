@@ -1,9 +1,9 @@
 define({
     name: 'chamilo-messaging',
-    version: 5,
+    version: 6,
     TABLE_ACCOUNT: 'account',
     TABLE_MESSAGE: 'message',
-    TABLE_MESSAGE_OUT: 'message_out',
+	TABLE_MESSAGE_OUT: 'message_out',
     conx: null,
     setUp: function () {
         var deferred = $.Deferred();
@@ -33,7 +33,7 @@ define({
             });
             accountStore.createIndex('lastMessage', 'lastMessage');
             accountStore.createIndex('lastCheckDate', 'lastCheckDate');
-            accountStore.createIndex('lastOutmessage', 'lastOutmessage');
+			accountStore.createIndex('lastOutmessage', 'lastOutmessage');
             accountStore.createIndex('lastCheckOutDate', 'lastCheckOutDate');
 
 			if (database.objectStoreNames.contains(self.TABLE_MESSAGE)){
@@ -53,10 +53,10 @@ define({
             messageStore.createIndex('content', 'content');
             messageStore.createIndex('url', 'url');
 			messageStore.createIndex('read', 'read');
-
+			
 			if (database.objectStoreNames.contains(self.TABLE_MESSAGE_OUT)){
-                database.deleteObjectStore(self.TABLE_MESSAGE_OUT);
-            }
+		        database.deleteObjectStore(self.TABLE_MESSAGE_OUT);
+    		}
 
             var messageStore = database.createObjectStore(self.TABLE_MESSAGE_OUT, {
                 autoIncrement: true

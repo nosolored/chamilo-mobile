@@ -8,13 +8,23 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a id="btn-back-url" class="navbar-brand" href="#forum/<%= c_id %>/<%= s_id %>"><i class="glyphicon glyphicon-chevron-left"></i> Temas</a>
+                <a id="btn-back-url" class="navbar-brand" href="#forum/<%= c_id %>/<%= s_id %>"><i class="glyphicon glyphicon-chevron-left"></i> <%= lang.Topics %></a>
             </div>
 
             <div class="collapse navbar-collapse" id="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     <li>
-                        <a href="#logout">
+                        <a href="#my-courses">
+                            <i class="glyphicon glyphicon-pencil"></i> <%= lang.courses %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#list-messages">
+                            <i class="glyphicon glyphicon-envelope"></i> <%= lang.messages %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#logout/<%= c_id %>/<%= s_id %>">
                             <i class="glyphicon glyphicon-log-out"></i> <%= lang.singOut %>
                         </a>
                     </li>
@@ -23,8 +33,8 @@
         </div>
     </div>
 </header>
-<div class="container">
-	<section id="main_content">
+<div class="container" style="margin-top: 20px;">
+    <section id="main_content">
         <form action="#" id="frm-new-thread" method="post">
             <input type="hidden" name="session-id" id="session-id" value="<%= s_id %>">
             <input type="hidden" name="course-id" id="course-id" value="<%= c_id %>">
@@ -45,7 +55,7 @@
             </fieldset>
             
             <fieldset>
-                <label for="notice-email">Notificarme por e-mail cuando alguien responda</label>
+                <label for="notice-email"><%= lang.NotifyMeByEmail %></label>
                 <input type="checkbox" id="notice-email" value="1">
             </fieldset>
             

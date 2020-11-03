@@ -12,22 +12,43 @@ define([
         template: _.template(LoginTemplate),
         events: {
             'submit #frm-login': 'frmLoginOnSubmit',
-            'click #chk-password': 'chkPasswordOnCheck'
+            'click #chk-password': 'chkPasswordOnCheck',
+            'click #link-legal': 'goToLinkLegal',
+            'click #link-register': 'goToLinkRegister',
+            'click #link-lostPassword': 'goToLinkLostPassword'
         },
         render: function () {
             this.el.innerHTML = this.template();
-
             return this;
+        },
+        goToLinkLegal: function (e) {
+            e.preventDefault();
+            var options = "location=no,hardwareback=no,zoom=no";
+            var ref = window.open(encodeURI('https://www.campusiesrfa.com/plugin/chamilo_app/legal.php'), '_blank', options);
+        },
+        goToLinkRegister: function (e) {
+            e.preventDefault();
+            //var options = "location=no,hardwareback=no,zoom=no";
+            var messageBack = window.lang.BackToApp;
+            var options = "location=yes,hardwareback=no,zoom=no,hideurlbar=yes,hidenavigationbuttons=yes,toolbarcolor=#E21D24,closebuttoncolor=#FFFFFF,closebuttoncaption=< "+messageBack;
+            var ref = window.open(encodeURI('https://www.campusiesrfa.com/main/auth/inscription.php'), '_blank', options);
+        },
+        goToLinkLostPassword: function (e) {
+            e.preventDefault();
+            //var options = "location=no,hardwareback=no,zoom=no";
+            var messageBack = window.lang.BackToApp;
+            var options = "location=yes,hardwareback=no,zoom=no,hideurlbar=yes,hidenavigationbuttons=yes,toolbarcolor=#E21D24,closebuttoncolor=#FFFFFF,closebuttoncaption=< "+messageBack;
+            var ref = window.open(encodeURI('https://www.campusiesrfa.com/main/auth/lostPasswordApp.php'), '_blank', options);
         },
         frmLoginOnSubmit: function (e) {
             e.preventDefault();
-
+            
             var options = { dimBackground: true };
             SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
             var self = this;
 
-            var hostName = self.$('#txt-hostname').val().trim();
+            var hostName = self.$('#txt-hostname').val().trim(); //trim() quita los espacios en blanco de al principio y final de la cadena
             var username = self.$('#txt-username').val().trim();
             var password = self.$('#txt-password').val().trim();
 
@@ -85,6 +106,19 @@ define([
 
                     return;
                 }
+
+                if (response.userInfo.active != '1') {
+                    new AlertView({
+                        model: {
+                            message: window.lang.invalidAccount
+                        }
+                    });
+
+                    self.$('#btn-submit').prop('disabled', false);
+                    SpinnerPlugin.activityStop();
+
+                    return;
+                }
                 
                 self.$('body').prop('style', '');
                 
@@ -92,8 +126,8 @@ define([
                     url: hostName,
                     username: username,
                     apiKey: response.userInfo.apiKey,
-                    user_id: response.userInfo.user_id,
-                    gcmSenderId: response.gcmSenderId
+					user_id: response.userInfo.user_id,
+					gcmSenderId: response.gcmSenderId
                 });
                 var savingCampus = campusModel.save();
 

@@ -1,6 +1,7 @@
 <header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container">
         <div class="container-fluid">
+            <a href="#"><img src="img/icon_head.png" style="float:left;" /></a>
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
                     <span class="sr-only">Toggle navigation</span>
@@ -18,7 +19,17 @@
             <div class="collapse navbar-collapse" id="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     <li>
-                        <a href="#logout">
+                        <a href="#my-courses">
+                            <i class="glyphicon glyphicon-pencil"></i> <%= lang.courses %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#list-messages">
+                            <i class="glyphicon glyphicon-envelope"></i> <%= lang.messages %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#logout/<%= c_id %>/<%= s_id %>">
                             <i class="glyphicon glyphicon-log-out"></i> <%= lang.singOut %>
                         </a>
                     </li>
@@ -33,8 +44,8 @@
     	<% if (documents.length > 0) { %>
             <table class="table data_table" width="100%">
                 <tr class="row_odd">
-                    <th class="format-link-document">Tipo</th>
-                    <th class="format-link-document">Nombre</th>
+                    <th class="format-link-document"><%= lang.Type %></th>
+                    <th class="format-link-document"><%= lang.Name %></th>
                 </tr>
                
                 <% for (var i = 0; i < documents.length; i++) { 
@@ -47,18 +58,18 @@
                     <td class="text-center">
                         <!-- <a href="#documents/<%= c_id %>/<%= documents[i]['path'] %>"> -->
                         <% if (documents[i]['filetype'] == "folder"){ %>
-                        	<a href="#documents/<%= c_id %>/<%= s_id %>/<%= i %>">
+                            <a href="#documents/<%= c_id %>/<%= s_id %>/<%= i %>">
                         <% } else { %>
-                        	<a id="<% print(documents[i]['filename']); %>" class="link-file" href="<%= base %>&c_id=<%= c_id %>&s_id=<%= s_id %>&id=<%= documents[i]['id'] %>">
+                            <a id="<% print(documents[i]['filename']); %>" class="link-file" href="<%= base %>&c_id=<%= c_id %>&s_id=<%= s_id %>&id=<%= documents[i]['id'] %>" data-id="<%= documents[i]['id'] %>">
                         <% } %>
                             <img src="img/icons/22/<% print(documents[i]['icon']); %>" />
                         </a>
                     </td>
                     <td style="padding-left:5px;">
-                    	<% if (documents[i]['filetype'] == "folder"){ %>
-                        	<a class="format-link-document" href="#documents/<%= c_id %>/<%= s_id %>/<%= i %>">
+                        <% if (documents[i]['filetype'] == "folder"){ %>
+                            <a class="format-link-document" href="#documents/<%= c_id %>/<%= s_id %>/<%= i %>">
                         <% } else { %>
-                        	<a id="<% print(documents[i]['filename']); %>" class="format-link-document link-file" href="<%= base %>&c_id=<%= c_id %>&s_id=<%= s_id %>&id=<%= documents[i]['id'] %>">
+                            <a id="<% print(documents[i]['filename']); %>" class="format-link-document link-file" href="<%= base %>&c_id=<%= c_id %>&s_id=<%= s_id %>&id=<%= documents[i]['id'] %>" data-id="<%= documents[i]['id'] %>">
                         <% } %>
                             <% print(documents[i]['title']); %>
                         </a>
@@ -73,4 +84,4 @@
             </div>
         <% } %>
     </section>
-</div
+</div>

@@ -39,49 +39,75 @@ define([
     'views/ranking',
     'views/details-ranking',
     'views/profile',
-    'views/learnpath'
+    'views/learnpath',
+    'collections/works-main',
+    'collections/works',
+    'views/works-main',
+    'views/worklist',
+    'views/work-upload',
+    'views/work-view',
+    'views/work-new',
+    'views/work-edit',
+    'views/work-add-user',
+    'views/work-missing',
+    'views/work-students-list',
+    'views/work-edit-item',
+    'collections/messages'
 ], function (
-        $,
-        Backbone,
-        CoursesCollection,
-        CampusModel,
-        MessageModel,
-        OutmessageModel,
-        PostModel,
-        LoginView,
-        InboxView,
-        OutboxView,
-        MessageView,
-        OutmessageView,
-        ReplyMessageView,
-        NewMessageView,
-        LogoutView,
-        AlertView,
-        HomeView,
-        CoursesView,
-        InscriptionView,
-        CatalogView,
-        CourseView,
-        DescriptionsCollection,
-        DescriptionView,
-        LinkView,
-        NotebookView,
-        NewNotebookView,
-        DocumentView,
-        AnnouncementsCollection,
-        AnnouncementsView,
-        AnnouncementView,
-        AgendaView,
-        ForumView,
-        ThreadView,
-        PostView,
-        NewThreadView,
-        NewPostView,
-        PostsCollection,
-        RankingView,
-        DetailsRankingView,
-        ProfileView,
-        LearnpathView
+    $,
+    Backbone,
+    CoursesCollection,
+    CampusModel,
+    MessageModel,
+    OutmessageModel,
+    PostModel,
+    LoginView,
+    InboxView,
+    OutboxView,
+    MessageView,
+    OutmessageView,
+    ReplyMessageView,
+    NewMessageView,
+    LogoutView,
+    AlertView,
+    HomeView,
+    CoursesView,
+    InscriptionView,
+    CatalogView,
+    CourseView,
+    DescriptionsCollection,
+    DescriptionView,
+    LinkView,
+    NotebookView,
+    NewNotebookView,
+    DocumentView,
+    AnnouncementsCollection,
+    AnnouncementsView,
+    AnnouncementView,
+    AgendaView,
+    ForumView,
+    ThreadView,
+    PostView,
+    NewThreadView,
+    NewPostView,
+    PostsCollection,
+    RankingView,
+    DetailsRankingView,
+    ProfileView,
+    LearnpathView,
+    WorksMainCollection,
+    WorksCollection,
+    WorksMainView,
+    WorkListView,
+    WorkUploadView,
+    WorkViewView,
+    WorksFormNewView,
+    WorksFormEditView,
+    WorksAddUserView,
+    WorkMissingView,
+    WorksStudentsListView,
+    WorkEditItemView,
+    MessagesCollection
 ) {
     var Router = Backbone.Router.extend({
         routes: {
@@ -99,6 +125,16 @@ define([
             'announcements/:course_id/:session_id': 'showAnnouncements',
             'announcement/:id': 'showAnnouncement',
             'agenda/:course_id/:session_id': 'showAgenda',
+            'works_main/:course_id/:session_id': 'showWorksMain',
+            'work_list/:course_id/:session_id/:work_id': 'showWorkList',
+            'work-upload/:course_id/:session_id/:work_id': 'showWorkUpload',
+            'work-view/:course_id/:session_id/:work_id': 'showWorkView',
+            'work-edit-item/:course_id/:session_id/:work_id': 'showWorkEditItem',
+            'work-new/:course_id/:session_id': 'showWorkNewView',
+            'work-edit/:course_id/:session_id/:work_id': 'showWorkEditView',
+            'work-add-user/:course_id/:session_id/:work_id': 'showWorkAddUserView',
+            'work-missing/:course_id/:session_id/:work_id': 'showWorkMissingView',
+            'work-view-user/:course_id/:session_id': 'showWorkStudensListView',
             'list-messages': 'showListMessages',
             'message/:id': 'showMessage',
             'outmessage/:id': 'showOutMessage',
@@ -111,28 +147,34 @@ define([
             'profile': 'showProfile',
             'new_thread/:course_id/:session_id/:f_id': 'showNewThread',
             'new_post/:course_id/:session_id/:f_id/:t_id': 'showNewPost',
-            'reply_post/:course_id/:session_id/:f_id/:t_id/:post_id': 'showReplyPost',
-            'reply_quote/:course_id/:session_id/:f_id/:t_id/:post_id': 'showQuotePost',
+            'reply_post/:course_id/:session_id/:f_id/:t_id/:post_id/:iid': 'showReplyPost',
+            'reply_quote/:course_id/:session_id/:f_id/:t_id/:post_id/:iid': 'showQuotePost',
             'ranking/:course_id/:session_id': 'showRanking',
             'details-ranking/:course_id/:session_id/:u_id': 'showDetailsRanking',
             'course-catalog': 'showCourseCatalog',
-            'logout': 'showLogout'
+            'logout/:course_id/:session_id': 'showLogout'
         }
     });
 
     var campusModel = new CampusModel();
+    var messagesCollection = new MessagesCollection();
     var postModel = new PostModel();
     var descriptionsCollections = new DescriptionsCollection();
     var announcementsCollection = new AnnouncementsCollection();
     var postsCollection = new PostsCollection();
     Router.coursesCollection = new CoursesCollection();
+    Router.worksMainCollection = new WorksMainCollection();
+    Router.worksCollection = new WorksCollection();
 
     var showIndex = function () {
         console.log("showIndex");
+        window.sessionStorage.clear();
+
         var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
-            /* Push code */
+            $('.fondo-portada').css("background", '' );
+            /* Codigo de push */
             var gcmSenderId = campusModel.get('gcmSenderId');
             if (gcmSenderId) {
                 pushNotification = window.PushNotification.init({
@@ -162,9 +204,9 @@ define([
                 pushNotification.on('notification', function (data) {
                     console.log('Notification');
                     console.log(data);
-                });    
+                });
             }
-            /* End push code */
+            /* Fin código de push */
             var homeView = new HomeView({
                 model: campusModel
             });
@@ -173,6 +215,8 @@ define([
         });
 
         $.when(getCampusData).fail(function () {
+            var physicalScreenHeight = window.screen.height * window.devicePixelRatio;
+            $('.fondo-portada').css("background", 'linear-gradient(rgba(255,255,255,0.6), rgba(255,255,255,0.9)), url(img/custom/login/fondo_bg.jpg) repeat center top' );
             var loginView = new LoginView();
 
             document.body.innerHTML = '';
@@ -180,21 +224,21 @@ define([
             navigator.splashscreen.hide();
         });
     };
-    
+
     var showListCourses = function() {
         console.log("showListCourses");
         var getCampusData = campusModel.getData();
 
-       $.when(getCampusData).done(function () {
-           var coursesView = new CoursesView({
-               model: campusModel,
-               collection: Router.coursesCollection //coursesCollection
-           });
+        $.when(getCampusData).done(function () {
+            var coursesView = new CoursesView({
+                model: campusModel,
+                collection: Router.coursesCollection //coursesCollection
+            });
 
-           coursesView.render();
-       });
-   };
-    
+            coursesView.render();
+        });
+    };
+
     var showInscription = function() {
         console.log("showInscription");
         var getCampusData = campusModel.getData();
@@ -207,7 +251,7 @@ define([
             inscriptionView.render();
         });
     }
-    
+
     var showCourseCatalog = function() {
         console.log("showCourseCatalog");
         var getCampusData = campusModel.getData();
@@ -220,23 +264,29 @@ define([
             catalogView.render();
         });
     };
-    
+
     var showListMessages = function() {
         console.log("showListMessages");
         var getCampusData = campusModel.getData();
-            
+
         $.when(getCampusData).done(function () {
             var inboxView = new InboxView({
                 model:campusModel
             });
             inboxView.render();
+
+            /*
+            cordova.plugins.firebase.messaging.onMessage(function(payload) {
+                inboxView.reloadView();
+            });
+            */
         });
     };
 
     var showOutbox = function() {
         console.log("showOutbox");
         var getCampusData = campusModel.getData();
-            
+
         $.when(getCampusData).done(function () {
             var outboxView = new OutboxView({
                 model:campusModel
@@ -244,7 +294,7 @@ define([
             outboxView.render();
         });
     };
-    
+
     var showCourse = function (courseId, sessionId) {
         console.log("showCourse");
         courseId = parseInt(courseId);
@@ -258,13 +308,13 @@ define([
 
             return;
         }
-        
+
         var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
             //var courseModel = new CourseModel();
             //var courseModel = coursesCollection.get(courseId);
-            
+
             var courseView = new CourseView({
                 //model: courseModel,
                 model: campusModel,
@@ -283,7 +333,7 @@ define([
             });
         });
     };
-    
+
     var showDescription = function (courseId, sessionId){
         console.log("showDescription");
         courseId = parseInt(courseId);
@@ -297,7 +347,7 @@ define([
 
             return;
         }
-        
+
         var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
@@ -317,7 +367,7 @@ define([
             });
         });
     };
-    
+
     var showLearnpath = function (courseId, sessionId){
         console.log("showLearnpath");
         courseId = parseInt(courseId);
@@ -331,7 +381,7 @@ define([
 
             return;
         }
-        
+
         var getCampusData = campusModel.getData();
 
         $.when(getCampusData).done(function () {
@@ -353,7 +403,7 @@ define([
             });
         });
     };
-
+    
     var showLink = function (courseId, sessionId){
         console.log("showLink");
         courseId = parseInt(courseId);
@@ -388,7 +438,7 @@ define([
             });
         });
     };
-
+    
     var showNotebook = function (courseId, sessionId){
         console.log("showNotebook");
         courseId = parseInt(courseId);
@@ -539,7 +589,7 @@ define([
             });
         });
     };
-
+    
     var showOutMessage = function (messageId) {
         console.log("showOutMessage");
         messageId = parseInt(messageId);
@@ -587,7 +637,7 @@ define([
             });
         });
     };
-
+    
     var showReplyMessage = function (messageId){
         console.log("showReplyMessage");
         messageId = parseInt(messageId);
@@ -748,23 +798,487 @@ define([
         });
     };
     
-    var showProfile = function() {
-        console.log("showProfile");
+    var showWorksMain = function(courseId, sessionId) {
+        console.log("showWorksMain");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+
+            return;
+        }
+        var getCampusData = campusModel.getData();
+        var courseInfo = Router.coursesCollection.findWhere({c_id: courseId, s_id: sessionId});
+
+        $.when(getCampusData).done(function () {
+            var woksMainView = new WorksMainView({
+                model: campusModel,
+                courseId: courseId,
+                sessionId: sessionId,
+                statusUser: courseInfo.get('status_user'),
+                collection: Router.worksMainCollection
+            });
+            woksMainView.render();
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        }); 
+    }
+    
+    var showWorkNewView = function(courseId, sessionId) {
+        console.log("showWorkNewView");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+
+            return;
+        }
+        var getCampusData = campusModel.getData();
+        var courseInfo = Router.coursesCollection.findWhere({c_id: courseId, s_id: sessionId});
+
+        $.when(getCampusData).done(function () {
+            if (courseInfo.get('status_user') == "5") {
+                var woksMainView = new WorksMainView({
+                    model: campusModel,
+                    courseId: courseId,
+                    sessionId: sessionId,
+                    statusUser: courseInfo.get('status_user'),
+                    collection: Router.worksMainCollection
+                });
+                woksMainView.render();
+            } else {
+                var woksFormNewView = new WorksFormNewView({
+                    model: campusModel,
+                    courseId: courseId,
+                    sessionId: sessionId
+                });
+                woksFormNewView.render();
+            }
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        }); 
+    }
+
+    var showWorkEditView = function(courseId, sessionId, workId) {
+        console.log("showWorkEditView");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        workId = parseInt(workId);
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+
+            return;
+        }
+        var getCampusData = campusModel.getData();
+        var workMain = Router.worksMainCollection.findWhere({c_id: courseId, id: workId});
+        var courseInfo = Router.coursesCollection.findWhere({c_id: courseId, s_id: sessionId});
+
+        $.when(getCampusData).done(function () {
+            if (courseInfo.get('status_user') == "5") {
+                var woksMainView = new WorksMainView({
+                    model: campusModel,
+                    courseId: courseId,
+                    sessionId: sessionId,
+                    statusUser: courseInfo.get('status_user'),
+                    collection: Router.worksMainCollection
+                });
+                woksMainView.render();
+            } else {
+                var woksFormEditView = new WorksFormEditView({
+                    model: campusModel,
+                    courseId: courseId,
+                    sessionId: sessionId,
+                    workId: workId,
+                    workParent: workMain,
+                });
+                woksFormEditView.render();
+            }
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        }); 
+    }
+
+    var showWorkAddUserView = function(courseId, sessionId, workId) {
+        console.log("showWorkAddUserView");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        workId = parseInt(workId);
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+
+            return;
+        }
+        var getCampusData = campusModel.getData();
+        var courseInfo = Router.coursesCollection.findWhere({c_id: courseId, s_id: sessionId});
+
+        $.when(getCampusData).done(function () {
+            if (courseInfo.get('status_user') == "5") {
+                var woksMainView = new WorksMainView({
+                    model: campusModel,
+                    courseId: courseId,
+                    sessionId: sessionId,
+                    statusUser: courseInfo.get('status_user'),
+                    collection: Router.worksMainCollection
+                });
+                woksMainView.render();
+            } else {
+                var worksAddUserView = new WorksAddUserView({
+                    model: campusModel,
+                    courseId: courseId,
+                    sessionId: sessionId,
+                    workId: workId,
+                });
+                worksAddUserView.render();
+            }
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        }); 
+    }
+    
+    var showWorkMissingView = function(courseId, sessionId, workId) {
+        console.log("showWorkMissingView");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        workId = parseInt(workId);
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+
+            return;
+        }
+        var getCampusData = campusModel.getData();
+        var courseInfo = Router.coursesCollection.findWhere({c_id: courseId, s_id: sessionId});
+
+        $.when(getCampusData).done(function () {
+            if (courseInfo.get('status_user') == "5") {
+                var woksMainView = new WorksMainView({
+                    model: campusModel,
+                    courseId: courseId,
+                    sessionId: sessionId,
+                    statusUser: courseInfo.get('status_user'),
+                    collection: Router.worksMainCollection
+                });
+                woksMainView.render();
+            } else {
+                var workMissingView = new WorkMissingView({
+                    model: campusModel,
+                    courseId: courseId,
+                    sessionId: sessionId,
+                    workId: workId,
+                });
+                workMissingView.render();
+            }
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        }); 
+    }
+    
+    var showWorkStudensListView = function(courseId, sessionId) {
+        console.log("showWorkStudensListView");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+
+            return;
+        }
         var getCampusData = campusModel.getData();
 
-       $.when(getCampusData).done(function () {
-           var profileView = new ProfileView({
-               model: campusModel
-           });
+        $.when(getCampusData).done(function () {
+            var woksStudentsListView = new WorksStudentsListView({
+                model: campusModel,
+                courseId: courseId,
+                sessionId: sessionId
+            });
+            woksStudentsListView.render();
+        });
 
-           profileView.render();
-       });
-   };
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        }); 
+    }
     
-    var showLogout = function () {
-        console.log("showLogout");
-        var logoutView = new LogoutView();
+    var showWorkList = function(courseId, sessionId, workId) {
+        console.log("showWorkList");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        workId = parseInt(workId);
+        
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+            return;
+        }
+        
+        var getCampusData = campusModel.getData();
+        var courseInfo = Router.coursesCollection.findWhere({c_id: courseId, s_id: sessionId});
+        var workMain = Router.worksMainCollection.findWhere({c_id: courseId, id: workId});
 
+        $.when(getCampusData).done(function () {
+            var workListView = new WorkListView({
+                collection: Router.worksCollection,
+                model: campusModel,
+                courseId: courseId,
+                sessionId: sessionId,
+                workId: workId,
+                workParent: workMain,
+                statusUser: courseInfo.get('status_user'),
+            });
+            workListView.render();
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        });
+    }
+    
+    var showWorkUpload = function(courseId, sessionId, workId) {
+        console.log("showWorkUpload");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        workId = parseInt(workId);
+        
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+            return;
+        }
+        
+        var getCampusData = campusModel.getData();
+        var workMain = Router.worksMainCollection.findWhere({c_id: courseId, id: workId});
+
+        $.when(getCampusData).done(function () {
+            var workUploadView = new WorkUploadView({
+                model: campusModel,
+                courseId: courseId,
+                sessionId: sessionId,
+                workId: workId,
+                workParent: workMain
+            });
+            workUploadView.render();
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        });
+    }
+
+    var showWorkView = function(courseId, sessionId, workId) {
+        console.log("showWorkView");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        workId = parseInt(workId);
+        
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+            return;
+        }
+        
+        var getCampusData = campusModel.getData();
+        var courseInfo = Router.coursesCollection.findWhere({c_id: courseId, s_id: sessionId});
+        var work = Router.worksCollection.findWhere({c_id: courseId, id: workId});
+
+        $.when(getCampusData).done(function () {
+            var workViewView = new WorkViewView({
+                model: campusModel,
+                courseId: courseId,
+                sessionId: sessionId,
+                workId: workId,
+                workModel: work,
+                statusUser: courseInfo.get('status_user'),
+            });
+            workViewView.render();
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        });
+    }
+    
+    var showWorkEditItem = function(courseId, sessionId, workId) {
+        console.log("showWorkEditItem");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        workId = parseInt(workId);
+        
+        if (!courseId) {
+            new AlertView({
+                model: {
+                    message: window.lang.unspecifiedCourse
+                }
+            });
+            return;
+        }
+        
+        var getCampusData = campusModel.getData();
+        var courseInfo = Router.coursesCollection.findWhere({c_id: courseId, s_id: sessionId});
+        var work = Router.worksCollection.findWhere({c_id: courseId, id: workId});
+
+        $.when(getCampusData).done(function () {
+            if (courseInfo.get('status_user') == "5") {
+                var woksMainView = new WorksMainView({
+                    model: campusModel,
+                    courseId: courseId,
+                    sessionId: sessionId,
+                    statusUser: courseInfo.get('status_user'),
+                    collection: Router.worksMainCollection
+                });
+                woksMainView.render();
+            } else {
+                var workEditItemView = new WorkEditItemView({
+                    model: campusModel,
+                    courseId: courseId,
+                    sessionId: sessionId,
+                    workId: workId,
+                    workModel: work,
+                    statusUser: courseInfo.get('status_user'),
+                });
+                workEditItemView.render();
+            }
+        });
+
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        });
+    }
+    
+    var showProfile = function() {
+        console.log("showProfile");
+         var getCampusData = campusModel.getData();
+
+        $.when(getCampusData).done(function () {
+            var profileView = new ProfileView({
+                model: campusModel
+            });
+
+            profileView.render();
+        });
+    };
+    
+    var showLogout = function (courseId, sessionId) {
+        console.log("showLogout");
+        courseId = parseInt(courseId);
+        sessionId = parseInt(sessionId);
+        
+        var getCampusData = campusModel.getData();
+        
+        $.when(getCampusData).done(function () {
+            var logoutView = new LogoutView({
+                model: campusModel,
+                courseId: courseId,
+                sessionId: sessionId
+            });
+            //logoutView.render();
+            
+            document.body.innerHTML = '';
+            document.body.appendChild(logoutView.render().el);
+
+            var messageModel = new MessageModel();
+
+            var deleteCampus = campusModel.delete();
+            var deleteMessages = messageModel.delete();
+
+            $.when.apply($, [
+                deleteCampus,
+                deleteMessages
+            ]).then(function () {
+                Backbone.history.navigate('', true);
+            });
+        });
+        
+        $.when(getCampusData).fail(function () {
+            new AlertView({
+                model: {
+                    message: window.lang.youHaveNotLogged
+                }
+            });
+        });
+        
+        //var logoutView = new LogoutView({model: campusModel});
+        /*
         document.body.innerHTML = '';
         document.body.appendChild(logoutView.render().el);
 
@@ -779,6 +1293,7 @@ define([
         ]).then(function () {
             Backbone.history.navigate('', true);
         });
+        */
     };
     
     var showForum = function (courseId, sessionId){
@@ -954,7 +1469,8 @@ define([
                 thread_id: threadId,
                 title: '',
                 text: '',
-                poster: ''
+                poster: '',
+                post_id: null
             });
             newPostView.render();
         });
@@ -968,7 +1484,7 @@ define([
         });
     };
     
-    var showReplyPost = function (courseId, sessionId, forumId, threadId, postId){
+    var showReplyPost = function (courseId, sessionId, forumId, threadId, postId, iid){
         console.log("showNewPost");
         courseId = parseInt(courseId);
         sessionId = parseInt(sessionId);
@@ -986,7 +1502,7 @@ define([
         }
         
         var getCampusData = campusModel.getData();
-        var postModel = postsCollection.get(courseId+'0'+forumId+'0'+threadId+'0'+postId);
+        var postModel = postsCollection.get(iid);
 
         $.when(getCampusData).done(function () {
             var newPostView = new NewPostView({
@@ -997,7 +1513,8 @@ define([
                 thread_id: threadId,
                 title: 'Re: '+postModel.get('title'),
                 text: '',
-                poster: ''
+                poster: '',
+                post_id: postId
             });
             newPostView.render();
         });
@@ -1011,7 +1528,7 @@ define([
         });
     };
     
-    var showQuotePost = function (courseId, sessionId, forumId, threadId, postId){
+    var showQuotePost = function (courseId, sessionId, forumId, threadId, postId, iid){
         console.log("showQuotePost");
         courseId = parseInt(courseId);
         sessionId = parseInt(sessionId);
@@ -1029,7 +1546,7 @@ define([
         }
         
         var getCampusData = campusModel.getData();
-        var postModel = postsCollection.get(courseId+'0'+forumId+'0'+threadId+'0'+postId);
+        var postModel = postsCollection.get(iid);
 
         $.when(getCampusData).done(function () {
             var newPostView = new NewPostView({
@@ -1040,7 +1557,8 @@ define([
                 thread_id: threadId,
                 title: 'Re: '+postModel.get('title'),
                 text: postModel.get('text'),
-                poster: postModel.get('poster')
+                poster: postModel.get('poster'),
+                post_id: postId
             });
             newPostView.render();
         });
@@ -1125,7 +1643,7 @@ define([
             });
         });
     };
-    
+
     return {
         initialize: function () {
             var router = new Router;
@@ -1141,6 +1659,16 @@ define([
             router.on('route:showAnnouncements', showAnnouncements);
             router.on('route:showAnnouncement', showAnnouncement);
             router.on('route:showAgenda', showAgenda);
+            router.on('route:showWorksMain', showWorksMain);
+            router.on('route:showWorkList', showWorkList);
+            router.on('route:showWorkUpload', showWorkUpload);
+            router.on('route:showWorkView', showWorkView);
+            router.on('route:showWorkEditItem', showWorkEditItem);
+            router.on('route:showWorkNewView', showWorkNewView);
+            router.on('route:showWorkEditView', showWorkEditView);
+            router.on('route:showWorkAddUserView', showWorkAddUserView);
+            router.on('route:showWorkMissingView', showWorkMissingView);
+            router.on('route:showWorkStudensListView', showWorkStudensListView);
             router.on('route:showDocuments', showDocuments);
             router.on('route:showListMessages', showListMessages);
             router.on('route:showMessage', showMessage);

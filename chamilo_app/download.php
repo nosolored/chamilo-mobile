@@ -14,9 +14,7 @@ $s_id = isset($_GET['s_id']) ? Security::remove_XSS($_GET['s_id']) : 0;
 $document_id = isset($_GET['id']) ? Security::remove_XSS($_GET['id']) : null;
 
 if (AppWebService::isValidApiKey($username, $apiKey)) {
-
-	//$courseInfo = CourseManager::get_course_information_by_id($c_id);
-	$courseInfo = api_get_course_info_by_id($c_id);	
+    $courseInfo = api_get_course_info_by_id($c_id);	
 	$user_id = UserManager::get_user_id_from_username($username);
 	
 	/* LOGIN */
@@ -28,11 +26,12 @@ if (AppWebService::isValidApiKey($username, $apiKey)) {
 	$uidReset = true;
 	$logging_in = true;
 	//Event::event_login($_user['user_id']);
+	Event::eventLogin($_user['user_id']);
 	Login::init_user($user_id, true);
 	Login::init_course($courseInfo['code'], true);
-	if($s_id > 0){
+	if ($s_id > 0) {
 		$_SESSION['id_session'] = $s_id;
-	}else{
+	} else {
 		Session::erase('session_name');
 		Session::erase('id_session');
 	}

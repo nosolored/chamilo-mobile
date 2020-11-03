@@ -1,6 +1,6 @@
 <header class="navbar navbar-inverse navbar-fixed-top nav-shadow" role="navigation">
     <div class="container">
-        <img src="img/icon_head.png" style="float:left;" />
+        <a href="#"><img src="img/icon_head.png" style="float:left;" /></a>
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
                 <span class="sr-only">Toggle navigation</span>
@@ -16,16 +16,17 @@
         <div class="collapse navbar-collapse" id="navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
                  <li>
-                    <a id="item-num-messages" href="#list-messages">
-                    <% if (num_messages == "0"){ %>
-                        <span id="num_message_unread" style="display:none"><%= num_messages %></span>
-                    <% }else{ %>
+                    <a id="item-num-messages2" href="#list-messages">
+                    <% if (num_messages == "0") { %>
+                        <i class="glyphicon glyphicon-envelope"></i> <%= lang.messages %>
+                    <% } else { %>
+                        <i class="glyphicon glyphicon-envelope"></i> <%= lang.messages %>
                         <span id="num_message_unread"><%= num_messages %></span>
                     <% } %>
                     </a>
                 </li>
                 <li>
-                    <a href="#logout">
+                    <a href="#logout/0/0">
                         <i class="glyphicon glyphicon-log-out"></i> <%= lang.singOut %>
                     </a>
                 </li>
@@ -38,18 +39,18 @@
     <!--<div class="list-group" id="courses-list"></div>-->
     <div id="lst-courses" class="row">
     <% for (var i = 0; i < list_courses.length; i++) { %>
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+        <div class="col-xs-12 col-sm-6 col-md-4">
             <div class="thumbnail">
                 <a href="#course/<%= list_courses[i]['id'] %>/0">
-                    <img src="<%= list_courses[i]['urlPicture'] ? list_courses[i]['urlPicture'] : 'img/session_default.png' %>" alt="<%= list_courses[i]['title'] %>'s picture" class="img-responsive center-block img-course">
+                    <img src="<%= list_courses[i]['urlPicture'] ? list_courses[i]['urlPicture'] : 'img/course/session_default.png' %>" alt="<%= list_courses[i]['title'] %>'s picture" class="img-responsive center-block img-course">
                 </a>
                 <div class="caption description">
                     <a href="#course/<%= list_courses[i]['id'] %>/0">
                         <h3 class="title app-text-primary"><%= list_courses[i]['title'] %></h3>
                     </a>
-                    <div class="code app-text-secundary"><small><%= list_courses[i]['code'] %></small></div>
+                    <!-- <div class="code app-text-secundary"><small><%= list_courses[i]['code'] %></small></div> -->
                     <p class="teacher app-text-secundary"><%= list_courses[i]['teachers'] %></p>
-                    <a href="#course/<%= list_courses[i]['id'] %>/0" class="btn btn-raised btn-warning btn-block">
+                    <a href="#course/<%= list_courses[i]['id'] %>/0" class="btn btn-raised btn-primary btn-block">
                         <%= lang.goToCourse %> <span class="fa fa-arrow-circle-right" aria-hidden="true"></span>
                     </a>
                 </div>
@@ -77,8 +78,8 @@
                     </p>
                 </div>
                 <div class="panel-body">
-                    <p>
-                        <span class="fa fa-calendar" aria-hidden="true"></span>
+                	<p>
+                    	<span class="fa fa-calendar" aria-hidden="true"></span>
                         <%= lang.fromDateUntilDate(list_sessions[i].sessions[j]['accessStartDate'], list_sessions[i].sessions[j]['accessEndDate']) %>
                     </p>
                     <div class="row">
@@ -86,7 +87,7 @@
                             <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
                                 <div class="thumbnail">
                                     <a href="#course/<%= list_sessions[i].sessions[j].courses[k]['id'] %>/<%= list_sessions[i].sessions[j]['session_id'] %>">
-                                        <img src="<%= list_sessions[i].sessions[j].courses[k]['pictureUrl'] ? list_sessions[i].sessions[j].courses[k]['pictureUrl'] : 'img/session_default.png' %>" alt="<%= list_sessions[i].sessions[j].courses[k]['title'] %>'s picture" class="img-responsive center-block img-course">
+                                        <img src="<%= list_sessions[i].sessions[j].courses[k]['pictureUrl'] ? list_sessions[i].sessions[j].courses[k]['pictureUrl'] : 'img/course/session_default.png' %>" alt="<%= list_sessions[i].sessions[j].courses[k]['title'] %>'s picture" class="img-responsive center-block img-course">
                                     </a>
                                     <div class="caption description">
                                         <a href="#course/<%= list_sessions[i].sessions[j].courses[k]['id'] %>/<%= list_sessions[i].sessions[j]['session_id'] %>">

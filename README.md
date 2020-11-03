@@ -15,8 +15,6 @@ Añadir la plataforma Android y los plugins necesarios
 
 ```
 cordova platform add android
-cordova plugin add cordova-plugin-android-permissions
-cordova plugin add cordova-plugin-camera
 cordova plugin add cordova-plugin-device
 cordova plugin add cordova-plugin-dialogs
 cordova plugin add cordova-plugin-file
@@ -25,13 +23,17 @@ cordova plugin add cordova-plugin-filepath
 cordova plugin add cordova-plugin-file-transfer
 cordova plugin add cordova-plugin-inappbrowser
 cordova plugin add cordova-plugin-network-information
-cordova plugin add cordova-plugin-pdialog
 cordova plugin add cordova-plugin-screen-orientation
 cordova plugin add cordova-plugin-spinner
 cordova plugin add cordova-plugin-splashscreen
 cordova plugin add cordova-plugin-whitelist
 cordova plugin add cordova-plugin-zip
 cordova plugin add cordova-plugin-cache-clear
+cordova plugin add cordova-plugin-android-permissions
+cordova plugin add cordova-plugin-filechooser
+cordova plugin add cordova-plugin-filepath
+cordova plugin add cordova-plugin-pdialog
+cordova plugin add cordova-plugin-file-opener2
 
 ```
 

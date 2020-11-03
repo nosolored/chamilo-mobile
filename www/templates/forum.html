@@ -14,7 +14,17 @@
             <div class="collapse navbar-collapse" id="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     <li>
-                        <a href="#logout">
+                        <a href="#my-courses">
+                            <i class="glyphicon glyphicon-pencil"></i> <%= lang.courses %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#list-messages">
+                            <i class="glyphicon glyphicon-envelope"></i> <%= lang.messages %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#logout/<%= c_id %>/<%= s_id %>">
                             <i class="glyphicon glyphicon-log-out"></i> <%= lang.singOut %>
                         </a>
                     </li>
@@ -25,40 +35,60 @@
 </header>
 
 <div class="container">
-	<section id="main_content">
-    	<% for( j in category ){ %>
-        	<div class="sectiontitle"><% print(category[j]['cat_title']); %></div>
-        	<div class="sectioncomment">
-            	<% var candado = 0 %>
+    <div class="row">
+        <div class="col-xs-12 col-md-12">
+        <% for( j in category ){ %>
+            <div class="category-forum" id="category_<%= j %>">
+            <h3>
+                <img src="img/icons/32/forum_blue.png" />
+                <a href="#" class="disabled" title="<% print(category[j]['cat_title']); %>"><% print(category[j]['cat_title']); %></a>
+            </h3>
+            <div class="forum-description">
+                <% print(category[j]['cat_comment']); %>
+            </div>
+                <% var num_foros = 0 %>
                 <% for (var i = 0; i < collection.length; i++) { %>
-                    <% if ( collection[i]['id_category'] == category[j]['cat_id']){ %>
-                        <% if ( candado == "0" ){ %>
-                            <% candado = "1"; %>
-                            <table class="table-striped" width="100%">
-                            <tr><th>Foro</th><th>&nbsp;</th></tr>
-                        <% } %>
-                        <tr>
-                            <td style="padding: 0 10px;">
-                            	<a href="#thread/<%= collection[i]['c_id'] %>/<%= s_id %>/<%= collection[i]['forum_id'] %>">
-                                	<% print(collection[i]['title']); %>
-                                </a>
-                            </td>
-                            <td>
-                                Temas: <% print(collection[i]['threads']); %> <br />
-                                Mensajes: <% print(collection[i]['posts']); %> <br />
-		                        <% if (collection[i]['threads'] > 0 ) { %>
-                                    Último mensaje: <% print(collection[i]['last_post_date']); %> Publicado por <% print(collection[i]['last_poster']); %>
-                                <% } %>
-                            </td>
-                        </tr>
+                    <% if ( collection[i]['id_category'] == category[j]['cat_id']) { %>
+                        <% num_foros++; %>
+                        <div class="forum_display">
+                            <div class="panel panel-default forum">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <div class="number-post">
+                                                <a href="#thread/<%= collection[i]['c_id'] %>/<%= s_id %>/<%= collection[i]['forum_id'] %>" title="<% print(collection[i]['title']); %>">
+                                                    <img src="img/icons/forum_group.png" width="48px">
+                                                </a>
+                                                <p><%= lang.ForumTopics %>: <% print(collection[i]['threads']); %> </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-9">
+                                            <h3 class="title">
+                                              <img src="img/icons/32/forum_yellow.png" />
+                                              <a href="#thread/<%= collection[i]['c_id'] %>/<%= s_id %>/<%= collection[i]['forum_id'] %>" class=""><% print(collection[i]['title']); %></a>
+                                            </h3>
+                                            <% if (collection[i]['threads'] > 0 ) { %>
+                                                <div class="forum-date">
+                                                    <i class="fa fa-comments" aria-hidden="true"></i>
+                                                    <%= lang.LastMessage %>: <% print(collection[i]['last_post_date']); %> <%= lang.PublishedBy %> <% print(collection[i]['last_poster']); %>
+                                                </div>
+                                            <% } %>
+                                            <div class="description">
+                                                <% print(collection[i]['description']); %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     <% } %>
                 <% } %>
-                <% if ( candado == "1" ){ %>
-                    </table>
-                <% } else { %>
-                	No hay foros en esta categoría
+                
+                <% if ( num_foros == 0 ){ %>
+                    <span class="label label-warning"><%= NoForumInCategory %></span>
                 <% } %>
             </div>
         <% } %>
-    </section>
+        </div>
+    </div>
 </div>
