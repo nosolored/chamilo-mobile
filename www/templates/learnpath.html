@@ -14,7 +14,17 @@
             <div class="collapse navbar-collapse" id="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     <li>
-                        <a href="#logout">
+                        <a href="#my-courses">
+                            <i class="glyphicon glyphicon-pencil"></i> <%= lang.courses %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#list-messages">
+                            <i class="glyphicon glyphicon-envelope"></i> <%= lang.messages %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#logout/<%= c_id %>/<%= s_id %>">
                             <i class="glyphicon glyphicon-log-out"></i> <%= lang.singOut %>
                         </a>
                     </li>
@@ -31,16 +41,25 @@
                 <% if (learnpath[i]['lp_list'].length == 0) { 
                     continue;
                 } %>
-            	<h4><% print(learnpath[i]['category']); %></h4>
+                <% if (learnpath[i]['category'] != '') { %>
+                	<h4><% print(learnpath[i]['category']); %></h4>
+                <% } %>
                 <table class="table-striped" width="100%">
                 <tr><th>Título</th><th class="text-center">Progreso</th></tr>
                 <% for (var j = 0; j < learnpath[i]['lp_list'].length; j++) { %>
                     <tr>
-                    <td><a href="<%= base %>&url=<% print(learnpath[i]['lp_list'][j]['url_start']); %>">
+                    <td>
+                        <a class="link-learnpath" href="<%= base %>&url=<% print(learnpath[i]['lp_list'][j]['url_start']); %>">
                     		<% print(learnpath[i]['lp_list'][j]['title']); %>
                         </a>
                     </td>
-                    <td class="text-center"><% print(learnpath[i]['lp_list'][j]['dsp_progress']); %>%</td>
+                    <td>
+                        <div class="progress">
+                            <div id="progress_bar_value" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="<% print(learnpath[i]['lp_list'][j]['dsp_progress']); %>" aria-valuemin="0" aria-valuemax="100" style="width: <% print(learnpath[i]['lp_list'][j]['dsp_progress']); %>%;">
+                                <% print(learnpath[i]['lp_list'][j]['dsp_progress']); %>%
+                            </div>
+                        </div>
+                    </td>
                     </tr>
                 <% } %>
                 </table>

@@ -6,7 +6,8 @@ define([
             c_id: 0,
 			s_id: 0,
 			category: [],
-			links: []
+			links: [],
+			orden: []
 		}
     });
 

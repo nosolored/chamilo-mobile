@@ -10,7 +10,7 @@ define([
             var deferred = $.Deferred();
 
             var postModel = new PostModel(attributes);
-				postModel.cid = parseInt("" + postModel.get("c_id") + "0" + postModel.get("forum_id") + "0" + postModel.get("thread_id") + "0" + postModel.get("post_id"));  
+				postModel.cid = postModel.get("iid");  
 				self.add(postModel);
                 deferred.resolve();
 

@@ -1,46 +1,65 @@
 <?php
 use ChamiloSession as Session;
 
-function eventAccessTool($tool, $id_session = 0)
+function logoutPlatform($userId, $courseId = 0, $sessionId = 0) {
+    online_logout($userId, false);
+    
+    $logoutInfo = [
+        'uid' => $userId,
+        'cid' => $courseId,
+        'sid' => $sessionId,
+    ];
+    Event::courseLogout($logoutInfo);
+}
+
+function updateLogoutInLogin($userId) {
+    $tbl_track_login = Database::get_main_table(TABLE_STATISTIC_TRACK_E_LOGIN);
+    $sql = "SELECT login_id, login_date
+            FROM $tbl_track_login
+            WHERE
+                login_user_id='".$userId."'
+            ORDER BY login_date DESC
+            LIMIT 0,1";
+    
+    $q_last_connection = Database::query($sql);
+    if (Database::num_rows($q_last_connection) > 0) {
+        $now = api_get_utc_datetime();
+        $i_id_last_connection = Database::result($q_last_connection, 0, 'login_id');
+        
+        // is the latest logout_date still relevant?
+        $sql = "SELECT logout_date FROM $tbl_track_login
+                WHERE login_id = $i_id_last_connection";
+        $q_logout_date = Database::query($sql);
+        $res_logout_date = convert_sql_date(Database::result($q_logout_date, 0, 'logout_date'));
+        $lifeTime = api_get_configuration_value('session_lifetime');
+        
+        if ($res_logout_date < time() - $lifeTime) {
+            // it isn't, we should create a fresh entry
+            Event::eventLogin($userId);
+            // now that it's created, we can get its ID and carry on
+        } else {
+            $sql = "UPDATE $tbl_track_login SET logout_date = '$now'
+                    WHERE login_id = '$i_id_last_connection'";
+            Database::query($sql);
+        }
+        
+        $tableUser = Database::get_main_table(TABLE_MAIN_USER);
+        $sql = "UPDATE $tableUser SET last_login = '$now'
+                WHERE user_id = ".$userId;
+        Database::query($sql);
+    }
+}
+
+function registerAccessCourseFromApp() {
+    Event::accessCourse();
+    Event::eventCourseLoginUpdate(
+        api_get_course_int_id(),
+        api_get_user_id(),
+        api_get_session_id()
+    );
+}
+
+function registerAccessFromApp($tool)
 {
-	if (empty($tool)) {
-		return false;
-	}
-	$TABLETRACK_ACCESS = Database::get_main_table(TABLE_STATISTIC_TRACK_E_ACCESS);
-	//for "what's new" notification
-	$TABLETRACK_LASTACCESS = Database::get_main_table(TABLE_STATISTIC_TRACK_E_LASTACCESS);
-
-	$_course = api_get_course_info();
-	$courseId = api_get_course_int_id();
-	$id_session = api_get_session_id();
-	$tool = Database::escape_string($tool);
-	$reallyNow = api_get_utc_datetime();
-	$user_id = api_get_user_id();
-
-	// record information
-	// only if user comes from the course $_cid
-	//if( eregi($_configuration['root_web'].$_cid,$_SERVER['HTTP_REFERER'] ) )
-	//$pos = strpos($_SERVER['HTTP_REFERER'],$_configuration['root_web'].$_cid);
-	$coursePath = isset($_course['path']) ? $_course['path'] : null;
-	$params = array(
-			'access_user_id' => $user_id,
-			'c_id' => $courseId,
-			'access_tool' => $tool,
-			'access_date' => $reallyNow,
-			'access_session_id' => $id_session,
-			'user_ip' => api_get_real_ip()
-		);
-		Database::insert($TABLETRACK_ACCESS, $params);
-
-	// "what's new" notification
-	$sql = "UPDATE $TABLETRACK_LASTACCESS
-			SET access_date = '$reallyNow'
-			WHERE access_user_id = ".$user_id." AND c_id = '".$courseId."' AND access_tool = '".$tool."' AND access_session_id=".$id_session;
-	$result = Database::query($sql);
-	if (Database::affected_rows($result) == 0) {
-		$sql = "INSERT INTO $TABLETRACK_LASTACCESS (access_user_id, c_id, access_tool, access_date, access_session_id)
-				VALUES (".$user_id.", '".$courseId."' , '$tool', '$reallyNow', $id_session)";
-		Database::query($sql);
-	}
-	return 1;
+    Event::event_access_tool($tool);
 }

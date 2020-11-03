@@ -1,14 +1,15 @@
 define([
-    'database',
     'backbone'
-], function (DB, Backbone) {
+], function (Backbone) {
     var CourseModel = Backbone.Model.extend({
         defaults: {
             c_id: 0,
-			s_id: 0,
+            s_id: 0,
             title: '',
-			section: [],
-			icons: [],
+            visibility: [],
+            icons: [],
+            name: [],
+            status_user: 5
         }
     });
 

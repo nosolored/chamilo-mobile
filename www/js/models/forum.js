@@ -9,6 +9,7 @@ define([
 			s_id: 0,
 			forum_id: 0,
             title: '',
+            description: '',
 			id_category: 0,
 			order: 0,
 			threads: 0,

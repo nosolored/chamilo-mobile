@@ -14,7 +14,7 @@ define([
 				forumModel.cid = forumModel.get("iid");  
 				self.add(forumModel);
                 deferred.resolve();
-			console.log(forumModel);
+
             return deferred.promise();
         }
     });

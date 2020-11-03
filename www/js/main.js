@@ -18,11 +18,11 @@ document.addEventListener('deviceready', function () {
         window.lang = appLang;
 
         App.initialize();
-	});
+    });
 });
 
 document.addEventListener("backbutton", onBackKeyDown, false);
-		
+        
 function onBackKeyDown(e) {
     console.log(window.navigator.onLine);
     e.preventDefault();
@@ -110,4 +110,225 @@ var isEqual = function (value, other) {
 var strip = function (html) {
     var doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || "";
+}
+
+var goToDownload = function (assetURL, fileName) {
+    if (device.platform == "Android") {
+        var permissions = cordova.plugins.permissions;
+    
+        permissions.checkPermission(permissions.WRITE_EXTERNAL_STORAGE, function( status ) {
+            if ( !status.hasPermission ) {
+                permissions.requestPermission(permissions.WRITE_EXTERNAL_STORAGE, successPermission, errorPermission);
+            } else {
+                downloadFile();
+            }
+        });
+    
+        function errorPermission() {
+            navigator.notification.alert(
+                window.lang.NoPermission, 
+                function() {
+                    // Nothing
+                }, 
+                window.lang.NoticeTitleBar
+            );
+        }
+    
+        function successPermission( status ) {
+            if (!status.hasPermission) errorPermission();
+    
+            downloadFile();
+        }
+    }
+    
+    if (device.platform == "iOS") {
+        downloadFile();
+    }
+
+    function downloadFile() {
+        var storageLocation = "";
+        switch (device.platform) {
+
+            case "Android":
+                storageLocation = 'file:///storage/emulated/0/';
+                break;
+            case "iOS":
+                storageLocation = cordova.file.documentsDirectory;
+                break;
+
+        }
+
+        window.resolveLocalFileSystemURL(storageLocation, function(fileSystem) {
+            fileSystem.getDirectory('Download', {
+                create: true,
+                exclusive: false
+            }, function(dirEntry) {
+                dirEntry.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {
+                    //select method nativeURL: "file:///storage/emulated/0/Download/<file_name>"
+                    var localPath = fileEntry.nativeURL;
+
+                    // This plugin allows you to upload and download files.
+                    fileTransfer = new FileTransfer();
+
+                    if (device.platform == "Android") {
+                        // Initialize the progress dialog and set various parameters.
+                        cordova.plugin.pDialog.init({
+                            progressStyle : 'HORIZONTAL',
+                            title: window.lang.title_download,
+                            message : window.lang.message_download
+                        });
+    
+                        // Set the value of the progress bar when progressStyle is HORIZONTAL
+                        var percGlobal = 0;
+                        fileTransfer.onprogress = function(progressEvent) {
+                            if (progressEvent.lengthComputable) {
+                                var perc = Math.floor(progressEvent.loaded / progressEvent.total * 100);
+                                if (percGlobal < perc) {
+                                    percGlobal = perc;
+                                    cordova.plugin.pDialog.setProgress(perc); 
+                                }
+                            } else {
+                                console.log(progressEvent);
+                            }
+                        };
+                    }
+
+                    // Downloads a file from server.
+                    fileTransfer.download(assetURL, localPath, function(entry) {
+                        // Success download
+                        navigator.notification.alert(
+                            window.lang.successDownload, 
+                            function(r){
+                                if (device.platform == "Android") {
+                                    // Dismiss the progress dialog
+                                    cordova.plugin.pDialog.dismiss();
+                                }
+                                // Opens a URL in a new InAppBrowser instance
+                                window.resolveLocalFileSystemURL(localPath, successFile, failFile);
+
+                                function successFile(fileEntry) {
+                                    fileEntry.file(function (file) {
+                                        if (device.platform == "Android") {
+                                            /*
+                                            var mimeType = file.type;
+                                            if (mimeType == 'application/pdf' ||
+                                                mimeType == 'application/zip' ||
+                                                mimeType == 'application/octet-stream' ||
+                                                mimeType == 'application/x-zip-compressed' ||
+                                                mimeType == 'multipart/x-zip' ||
+                                                mimeType == 'application/x-rar-compressed' ||
+                                                mimeType == 'application/octet-stream'
+                                            ) {
+                                                // abrir con un visor de pdf
+                                                cordova.plugins.fileOpener2.open(
+                                                    localPath,
+                                                    file.type,
+                                                    {
+                                                        error: function(e) {
+                                                            console.log('Error status');
+                                                            console.log(e);
+                                                        },
+                                                        success: function() {
+                                                             console.log('file opened successfully');
+                                                        }
+                                                    }
+                                                );
+                                            } else {
+                                                window.open(localPath, '_blank', 'location=no,enableViewportScale=yes');
+                                            }
+                                            */
+                                            cordova.plugins.fileOpener2.open(
+                                                localPath,
+                                                file.type,
+                                                {
+                                                    error: function(e) {
+                                                        console.log('Error status');
+                                                        console.log(e);
+                                                    },
+                                                    success: function() {
+                                                         console.log('file opened successfully');
+                                                    }
+                                                }
+                                            );
+                                        }
+                                        
+                                        if (device.platform == "iOS") {
+                                            cordova.plugins.fileOpener2.open(
+                                                localPath,
+                                                file.type,
+                                                {
+                                                    error: function(e) {
+                                                        console.log('Error status');
+                                                        console.log(e);
+                                                    },
+                                                    success: function() {
+                                                        // console.log('file opened successfully');
+                                                    }
+                                                }
+                                            );
+                                        }
+                                    }, function (error) {
+                                        console.log(error.code);
+                                    });
+                                }
+
+                                function failFile(evt) {
+                                    console.log(evt.target.error.code);
+                                }
+                            }, 
+                            window.lang.NoticeTitleBar
+                        );
+                    }, function (error) {
+                        // Error download
+                        console.log(error);
+                        navigator.notification.alert(
+                            window.lang.NoDownloadAttachment, 
+                            function(){
+                                if (device.platform == "Android") {
+                                    // Dismiss the progress dialog.
+                                    cordova.plugin.pDialog.dismiss();
+                                }
+                            }, 
+                            window.lang.NoticeTitleBar
+                        );
+                    });
+                }, failLog);
+            }, failLog2);
+        },fail);
+
+        function failLog(error) {
+            console.log("failLog");
+            console.log(error);
+        }
+        
+        function failLog2(error) {
+            console.log("failLog2");
+            console.log(error);
+        }
+
+        function fail(e) {
+            var msg = '';
+            switch (e.code) {
+                case FileError.QUOTA_EXCEEDED_ERR:
+                    msg = 'QUOTA_EXCEEDED_ERR';
+                    break;
+                case FileError.NOT_FOUND_ERR:
+                    msg = 'NOT_FOUND_ERR';
+                    break;
+                case FileError.SECURITY_ERR:
+                    msg = 'SECURITY_ERR';
+                    break;
+                case FileError.INVALID_MODIFICATION_ERR:
+                    msg = 'INVALID_MODIFICATION_ERR';
+                    break;
+                case FileError.INVALID_STATE_ERR:
+                    msg = 'INVALID_STATE_ERR';
+                    break;
+                default:
+                    msg = 'Unknown Error';
+                    break;
+            };
+            console.log('Error: ' + msg);
+        }
+    }
 }

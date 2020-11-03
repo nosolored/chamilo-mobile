@@ -35,11 +35,13 @@ define([
                 SpinnerPlugin.activityStop();
                 return;
             }
+            
 			linkModel.cid = parseInt(""+courseId+'000'+sessionId);
 			linkModel.set({"c_id": courseId});
 			linkModel.set({"s_id": sessionId});
 			linkModel.set({"category": response.links.category});
 			linkModel.set({"links": response.links.links});
+			linkModel.set({"orden": response.links.orden});
 
 			SpinnerPlugin.activityStop();
 

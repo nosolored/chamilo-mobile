@@ -15,6 +15,8 @@ define([
     var inscriptionModel = new InscriptionModel();
 
     var loadCheckCondiction = function () {
+        console.log("loadCheckCondiction");
+        
         var options = { dimBackground: true };
         SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
           
@@ -27,6 +29,7 @@ define([
         });
 
         $.when(getCondictions).done(function (response) {
+            console.log(response);
             if (!response.status) {
                 return;
             }
@@ -42,6 +45,7 @@ define([
 		    SpinnerPlugin.activityStop();
 
 		}).fail(function() {
+		    console.log("fail");
             SpinnerPlugin.activityStop();
             new AlertView({
                 model: {

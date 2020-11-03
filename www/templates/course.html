@@ -1,100 +1,223 @@
-<header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+<header class="navbar navbar-inverse navbar-fixed-top navbar-expand-xl" role="navigation">
     <div class="container">
         <div class="container-fluid">
-            <img src="img/icon_head.png" style="float:left;" />
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a id="btn-back-url" class="navbar-brand cut_header" href="#my-courses"><i class="glyphicon glyphicon-chevron-left"></i><%= title %></a>
-            </div>
-            <div class="collapse navbar-collapse" id="navbar-collapse">
-                <ul class="nav navbar-nav navbar-right">
-                    <li>
-                        <a href="#logout">
-                            <i class="glyphicon glyphicon-log-out"></i> <%= lang.singOut %>
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            <a href="#"><img src="img/icon_head.png" style="float:left;" /></a>
+            <a id="btn-back-url" class="navbar-brand cut_header" href="#my-courses"><i class="glyphicon glyphicon-chevron-left"></i><%= title %></a>
         </div>
     </div>
 </header>
 
+<% var allow_custom_dir = "false"; %>
+<% var dir_course = "course"; %>
+<% if (allow_custom_dir == "true" ) { %>
+    <% var dir_course = "custom/course"; %>
+<% } %>
+
 <div class="container" id="course_tools" style="margin-top: 20px;">
     <div class="row">
-        <% if( visibility['course_description/'] == "1" ) { %>
-            <div class="col-xs-6 col-md-4 course-tool">
+        <% if( visibility['course_description/index.php'] == "1" || visibility['course_description/'] == "1" ) { %>
+            <div class="col-xs-12 col-sm-6 col-md-4 course-tool">
                 <a class="btn btn-raised btn-default btn-block" href="#description/<%= c_id %>/<%= s_id %>">
-                    <img class="center-block" src="img/info.png" alt="Description">
-                    <h5 class="title"><%= lang.description %></h5>
+                    <% if ( icons['course_description/index.php'] == "" || icons['course_description/'] == "" ) { %>
+                        <img class="center-block" src="img/<%= dir_course %>/info.png" alt="Description">
+                    <% } else { %>
+                        <% if (visibility['course_description/'] == "1") { %>
+                            <img class="center-block" src="<%= icons['course_description/'] %>" alt="Description" width="64" height="64">
+                        <% } else { %>
+                            <img class="center-block" src="<%= icons['course_description/index.php'] %>" alt="Description" width="64" height="64">
+                        <% } %>
+                    <% } %>
+                    <% if ( !_.isEmpty(name['course_description/'])) { %>
+                        <h5 class="title"><%= name['course_description/'] %></h5>
+                    <% } else if ( !_.isEmpty(name['course_description/index.php'])) { %>
+                        <h5 class="title"><%= name['course_description/index.php'] %></h5>
+                    <% } else { %>
+                        <h5 class="title"><%= lang.ToolCourseDescription %></h5>
+                    <% } %>
                 </a>
             </div>
         <% } %>
         <% if( visibility['calendar/agenda.php'] == "1" ) { %>
-            <div class="col-xs-6 col-md-4 course-tool">
+            <div class="col-xs-12 col-sm-6 col-md-4 course-tool">
                 <a class="btn btn-raised btn-default btn-block" href="#agenda/<%= c_id %>/<%= s_id %>">
-                    <img class="center-block" src="img/agenda.png" alt="Agenda">
-                    <h5 class="title"><%= lang.agenda %></h5>
+                    <% if ( icons['calendar/agenda.php'] == "" ) { %>
+                        <img class="center-block" src="img/<%= dir_course %>/agenda.png" alt="Agenda" width="64" height="64">
+                    <% } else { %>
+                        <img class="center-block" src="<%= icons['calendar/agenda.php'] %>" alt="Agenda" width="64" height="64">
+                    <% } %>
+                    <% if ( !_.isEmpty(name['calendar/agenda.php'])) { %>
+                        <h5 class="title"><%= name['calendar/agenda.php'] %></h5>
+                    <% } else { %>
+                        <h5 class="title"><%= lang.ToolCalendarEvent %></h5>
+                    <% } %>
                 </a>
             </div>
         <% } %>
         <% if( visibility['document/document.php'] == "1" ) { %>
-            <div class="col-xs-6 col-md-4 course-tool">
+            <div class="col-xs-12 col-sm-6 col-md-4 course-tool">
                 <a class="btn btn-raised btn-default btn-block" href="#documents/<%= c_id %>/<%= s_id %>/root">
-                    <img class="center-block" src="img/documents.png" alt="Documents">
-                    <h5 class="title"><%= lang.documents %></h5>
+                    <% if ( icons['document/document.php'] == "" ) { %>
+                        <img class="center-block" src="img/<%= dir_course %>/documents.png" alt="Documents" width="64" height="64">
+                    <% } else { %>
+                        <img class="center-block" src="<%= icons['document/document.php'] %>" alt="Documents" width="64" height="64">
+                    <% } %>
+                    <% if ( !_.isEmpty(name['document/document.php'])) { %>
+                        <h5 class="title"><%= name['document/document.php'] %></h5>
+                    <% } else { %>
+                        <h5 class="title"><%= lang.ToolDocument %></h5>
+                    <% } %>
                 </a>
             </div>
         <% } %>
-        <% if( visibility['lp/lp_controller.php'] == "1" ) { %>
-            <div class="col-xs-6 col-md-4 course-tool">
+        <% if( visibility['work/work.php'] == "1" ) { %>
+            <div class="col-xs-12 col-sm-6 col-md-4 course-tool">
+                <a class="btn btn-raised btn-default btn-block" href="#works_main/<%= c_id %>/<%= s_id %>">
+                    <% if ( icons['work/work.php'] == "" ) { %>
+                        <img class="center-block" src="img/<%= dir_course %>/works.png" alt="Works" width="64" height="64">
+                    <% } else { %>
+                        <img class="center-block" src="<%= icons['work/work.php'] %>" alt="Works" width="64" height="64">
+                    <% } %>
+                    <% if ( !_.isEmpty(name['work/work.php'])) { %>
+                        <h5 class="title"><%= name['work/work.php'] %></h5>
+                    <% } else { %>
+                        <h5 class="title"><%= lang.ToolStudentPublication %></h5>
+                    <% } %>
+                </a>
+            </div>
+        <% } %>
+        <% if( visibility['lp/lp_controller.php'] == "1" || visibility['newscorm/lp_controller.php'] == "1") { %>
+            <div class="col-xs-12 col-sm-6 col-md-4 course-tool">
                 <a class="btn btn-raised btn-default btn-block" href="#learnpath/<%= c_id %>/<%= s_id %>">
-                    <img class="center-block" src="img/scorms.png" alt="learnpath">
-                    <h5 class="title"><%= lang.learnpath %></h5>
+                    <% if ( visibility['newscorm/lp_controller.php'] == "1" && icons['newscorm/lp_controller.php'] != "") { %>
+                        <img class="center-block" src="<%= icons['newscorm/lp_controller.php'] %>" alt="learnpath" width="64" height="64">
+                    <% } else if ( visibility['lp/lp_controller.php'] == "1" && icons['lp/lp_controller.php'] != "") { %>
+                        <img class="center-block" src="<%= icons['lp/lp_controller.php'] %>" alt="learnpath" width="64" height="64">
+                    <% } else { %>
+                        <img class="center-block" src="img/<%= dir_course %>/scorms.png" alt="learnpath" width="64" height="64">
+                    <% } %>
+                    <% if ( !_.isEmpty(name['newscorm/lp_controller.php'] )) { %>
+                        <h5 class="title"><%= name['newscorm/lp_controller.php'] %></h5>
+                    <% } else if ( !_.isEmpty(name['lp/lp_controller.php'])) { %>
+                        <h5 class="title"><%= name['lp/lp_controller.php'] %></h5>
+                    <% } else { %>
+                        <h5 class="title"><%= lang.ToolLearnpath %></h5>
+                    <% } %>
+                    
+                </a>
+            </div>
+        <% } %>
+        <% if( visibility['exercise/exercise.php'] == "1" || visibility['exercice/exercice.php'] == "1" ) { %>
+            <div class="col-xs-12 col-sm-6 col-md-4 course-tool">
+                <a class="btn btn-raised btn-default btn-block" id="link-exercise" href="#exercise/<%= c_id %>/<%= s_id %>">
+                    <% if ( icons['exercise/exercise.php'] == "" || icons['exercice/exercice.php'] == "" ) { %>
+                        <img class="center-block" src="img/<%= dir_course %>/quiz.png" alt="quiz">
+                    <% } else { %>
+                        <% if (visibility['exercise/exercise.php'] == "1" ) { %>
+                            <img class="center-block" src="<%= icons['exercise/exercise.php'] %>" alt="quiz" width="64" height="64">
+                        <% } else { %>
+                            <img class="center-block" src="<%= icons['exercice/exercice.php'] %>" alt="quiz" width="64" height="64">
+                        <% } %>
+                    <% } %>
+                    <% if ( !_.isEmpty(name['exercise/exercise.php'] )) { %>
+                        <h5 class="title"><%= name['exercise/exercise.php'] %></h5>
+                    <% } else if ( !_.isEmpty(name['exercice/exercice.php'] )) { %>
+                        <h5 class="title"><%= name['exercice/exercice.php'] %></h5>
+                    <% } else { %>
+                        <h5 class="title"><%= lang.ToolQuiz %></h5>
+                    <% } %>
                 </a>
             </div>
         <% } %>
         <% if( visibility['announcements/announcements.php'] == "1" ) { %>
-            <div class="col-xs-6 col-md-4 course-tool">
+            <div class="col-xs-12 col-sm-6 col-md-4 course-tool">
                 <a class="btn btn-raised btn-default btn-block" href="#announcements/<%= c_id %>/<%= s_id %>">
-                    <img class="center-block" src="img/valves.png" alt="Announcement">
-                    <h5 class="title"><%= lang.announcement %></h5>
+                    <% if ( icons['announcements/announcements.php'] == "" ) { %>
+                        <img class="center-block" src="img/<%= dir_course %>/valves.png" alt="Announcement" width="64" height="64">
+                    <% } else { %>
+                        <img class="center-block" src="<%= icons['announcements/announcements.php'] %>" alt="Announcement" width="64" height="64">
+                    <% } %>
+                    <% if ( !_.isEmpty(name['announcements/announcements.php'] )) { %>
+                        <h5 class="title"><%= name['announcements/announcements.php'] %></h5>
+                    <% } else { %>
+                        <h5 class="title"><%= lang.ToolAnnouncement %></h5>
+                    <% } %>
                 </a>
             </div>
         <% } %>
         
         <% if( visibility['forum/index.php'] == "1" ) { %>
-            <div class="col-xs-6 col-md-4 course-tool">
+            <div class="col-xs-12 col-sm-6 col-md-4 course-tool">
                 <a class="btn btn-raised btn-default btn-block" href="#forum/<%= c_id %>/<%= s_id %>">
-                    <img class="center-block" src="img/forum.png" alt="Forum">
-                    <h5 class="title"><%= lang.forum %></h5>
+                    <% if ( icons['forum/index.php'] == "" ) { %>
+                        <img class="center-block" src="img/<%= dir_course %>/forum.png" alt="Forum" width="64" height="64">
+                    <% } else { %>
+                        <img class="center-block" src="<%= icons['forum/index.php'] %>" alt="Forum" width="64" height="64">
+                    <% } %>
+                    <% if ( !_.isEmpty(name['forum/index.php'])) { %>
+                        <h5 class="title"><%= name['forum/index.php'] %></h5>
+                    <% } else { %>
+                        <h5 class="title"><%= lang.ToolForum %></h5>
+                    <% } %>
                 </a>
             </div>
         <% } %>
         <% if( visibility['notebook/index.php'] == "1" ) { %>
-            <div class="col-xs-6 col-md-4 course-tool">
+            <div class="col-xs-12 col-sm-6 col-md-4 course-tool">
                 <a class="btn btn-raised btn-default btn-block" href="#notebook/<%= c_id %>/<%= s_id %>">
-                    <img class="center-block" src="img/notebook.png" alt="Notebook">
-                    <h5 class="title"><%= lang.notebook %></h5>
+                    <% if ( icons['notebook/index.php'] == "" ) { %>
+                        <img class="center-block" src="img/<%= dir_course %>/notebook.png" alt="Notebook" width="64" height="64">
+                    <% } else { %>
+                        <img class="center-block" src="<%= icons['notebook/index.php'] %>" alt="Notebook" width="64" height="64">
+                    <% } %>
+                    <% if ( !_.isEmpty(name['notebook/index.php'])) { %>
+                        <h5 class="title"><%= name['notebook/index.php'] %></h5>
+                    <% } else { %>
+                        <h5 class="title"><%= lang.ToolNotebook %></h5>
+                    <% } %>
+                </a>
+           </div>
+        <% } %>
+        <% if( visibility['survey/survey_list.php'] == "1" ) { %>
+            <div class="col-xs-12 col-sm-6 col-md-4 course-tool">
+                <a class="btn btn-raised btn-default btn-block" id="link-survey" href="#survey-list/<%= c_id %>/<%= s_id %>">
+                    <% if ( icons['survey/survey_list.php'] == "" ) { %>
+                        <img class="center-block" src="img/<%= dir_course %>/survey.png" alt="Survey" width="64" height="64">
+                    <% } else { %>
+                        <img class="center-block" src="<%= icons['survey/survey_list.php'] %>" alt="Survey" width="64" height="64">
+                    <% } %>
+                    <% if ( !_.isEmpty(name['survey/survey_list.php'])) { %>
+                        <h5 class="title"><%= name['survey/survey_list.php'] %></h5>
+                    <% } else { %>
+                        <h5 class="title"><%= lang.ToolSurvey %></h5>
+                    <% } %>
                 </a>
            </div>
         <% } %>
         <% if( visibility['link/link.php'] == "1" ) { %>
-            <div class="col-xs-6 col-md-4 course-tool">
+            <div class="col-xs-12 col-sm-6 col-md-4 course-tool">
                 <a class="btn btn-raised btn-default btn-block" href="#link/<%= c_id %>/<%= s_id %>">
-                    <img class="center-block" src="img/links.png" alt="Link">
-                    <h5 class="title"><%= lang.links %></h5>
+                    <% if ( icons['link/link.php'] == "" ) { %>
+                        <img class="center-block" src="img/<%= dir_course %>/links.png" alt="Link" width="64" height="64">
+                    <% } else { %>
+                        <img class="center-block" src="<%= icons['link/link.php'] %>" alt="Link" width="64" height="64">
+                    <% } %>
+                    <% if ( !_.isEmpty(name['link/link.php'])) { %>
+                        <h5 class="title"><%= name['link/link.php'] %></h5>
+                    <% } else { %>
+                        <h5 class="title"><%= lang.ToolLink %></h5>
+                    <% } %>
                 </a>
            </div>
         <% } %>
         <% if( visibility['ranking'] == "1" ) { %>
-            <div class="col-xs-6 col-md-4 course-tool">
+            <div class="col-xs-12 col-sm-6 col-md-4 course-tool">
                 <a class="btn btn-raised btn-default btn-block" href="#ranking/<%= c_id %>/<%= s_id %>">
-                    <img class="center-block" src="img/ranking.png" alt="Ranking">
+                    <% if ( icons['ranking'] == "" || !icons['ranking']) { %>
+                        <img class="center-block" src="img/<%= dir_course %>/ranking.png" alt="Ranking" width="64" height="64">
+                    <% } else { %>
+                        <img class="center-block" src="<%= icons['ranking'] %>" alt="Ranking" width="64" height="64">
+                    <% } %>
+                    
                     <h5 class="title"><%= lang.ranking %></h5>
                 </a>
             </div>

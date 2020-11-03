@@ -125,142 +125,58 @@ define([
         },
         documentDownloadOnClick: function (e) {
             e.preventDefault();
-
-			var assetURL = $(e.target).prop("href");
-			var fileName = $(e.target).prop("id");
-			var permissions = cordova.plugins.permissions;
-
-			permissions.checkPermission(permissions.WRITE_EXTERNAL_STORAGE, function( status ) {
-                if ( !status.hasPermission ) {
-                    permissions.requestPermission(permissions.WRITE_EXTERNAL_STORAGE, successPermission, errorPermission);
-                } else {
-                    downloadFile();
-                }
-            });
-
-            function errorPermission() {
-                navigator.notification.alert(
-                    window.lang.NoPermission, 
-                    function() {
-                        // Nothing
-                    }, 
-                    window.lang.NoticeTitleBar
-                );
+            console.log(e);
+            if (e.target.localName == "img") {
+                var assetURL = $(e.target).parent().prop("href");
+                var fileName = $(e.target).parent().prop("id");
+                var document_id = $(e.target).parent().attr("data-id");
+            } else {
+                var assetURL = $(e.target).prop("href");
+                var fileName = $(e.target).prop("id");
+                var document_id = $(e.target).attr("data-id");
             }
 
-            function successPermission( status ) {
-                if (!status.hasPermission) errorPermission();
+            if (fileName.indexOf(".html") != -1) {
+                var options = { dimBackground: true };
+                SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
+                
+                var assetURL = campusModel.get('url') + 
+                    '/plugin/chamilo_app/tool_access.php?' +
+                    'tool=document_html' +
+                    '&username=' + campusModel.get('username') +
+                    '&api_key=' + campusModel.get('apiKey') +
+                    '&user_id=' + campusModel.get('user_id') +
+                    '&course_id=' + courseId +
+                    '&session_id=' + sessionId +
+                    '&document_id=' + document_id;
 
-                downloadFile();
-            }
+                var messageBack = window.lang.BackToApp;
+                var options = "location=yes,hardwareback=no,zoom=yes,hideurlbar=yes,hidenavigationbuttons=yes,toolbarcolor=#3b6b78,closebuttoncolor=#FFFFFF,closebuttoncaption=< "+messageBack;
+                var inAppBrowserRef = cordova.InAppBrowser.open(assetURL, '_blank', options);
 
-            function downloadFile() {
-                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem) {
-                    fileSystem.root.getDirectory("Download", {create: true, exclusive: false}, function(dirEntry) {
-                        dirEntry.getFile(fileName, {create: true, exclusive: false}, function(fileEntry) {
-                            //select method nativeURL: "file:///storage/emulated/0/Download/<file_name>"
-                            var localPath = fileEntry.nativeURL;
+                inAppBrowserRef.addEventListener('loadstop', function(event) { SpinnerPlugin.activityStop(); });
+                inAppBrowserRef.addEventListener('exit', loadStopCallBack);
 
-                            // This plugin allows you to upload and download files.
-                            fileTransfer = new FileTransfer();
-
-                            // Initialize the progress dialog and set various parameters.
-                            cordova.plugin.pDialog.init({
-                                progressStyle : 'HORIZONTAL',
-                                title: window.lang.title_download,
-                                message : window.lang.message_download
-                            });
-
-                            // Set the value of the progress bar when progressStyle is HORIZONTAL
-                            var percGlobal = 0;
-                            fileTransfer.onprogress = function(progressEvent) {
-                                if (progressEvent.lengthComputable) {
-                                    var perc = Math.floor(progressEvent.loaded / progressEvent.total * 100);
-                                    if (percGlobal < perc) {
-                                        percGlobal = perc;
-                                        cordova.plugin.pDialog.setProgress(perc); 
+                function loadStopCallBack() {
+                    if (inAppBrowserRef != undefined) {
+                        var networkState = navigator.connection.type;
+                        if (networkState == Connection.NONE) {
+                            window.setTimeout(function () {
+                                new AlertView({
+                                    model: {
+                                        message: window.lang.notOnLine
                                     }
-                                } else {
-                                    console.log(progressEvent);
-                                }
-                            };
-
-                            // Downloads a file from server.
-                            fileTransfer.download(assetURL, localPath, function(entry) {
-                                // Success download
-                                navigator.notification.alert(
-                                    window.lang.successDownload, 
-                                    function(r) {
-                                        // Dismiss the progress dialog
-                                        cordova.plugin.pDialog.dismiss();
-                                        // Opens a URL in a new InAppBrowser instance
-                                        window.resolveLocalFileSystemURL(localPath, successFile, failFile);
-
-                                        function successFile(fileEntry) {
-                                            fileEntry.file(function (file) {
-                                                var mimeType = file.type;
-                                                if (mimeType == 'application/pdf') {
-                                                    // abrir con un visor de pdf
-                                                } else {
-                                                    window.open(localPath, '_blank', 'location=no,enableViewportScale=yes');
-                                                }                                        
-                                            }, function (error) {
-                                                console.log(error.code);
-                                            });
-                                        }
-
-                                        function failFile(evt) {
-                                            console.log(evt.target.error.code);
-                                        }
-                                    }, 
-                                    window.lang.NoticeTitleBar
-                                );
-                            }, function (error) {
-                                // Error download
-                                console.log(error);
-                                navigator.notification.alert(
-                                    window.lang.NoDownloadAttachment, 
-                                    function() {
-                                        // Dismiss the progress dialog.
-                                        cordova.plugin.pDialog.dismiss();
-                                    }, 
-                                    window.lang.NoticeTitleBar
-                                );
-                            });
-                        }, failLog);
-                    }, failLog);
-                },fail);
-
-                function failLog(error) {
-                    console.log(error);
+                                });
+                            }, 1000);
+                        } else {
+                            loadInfoCourse();
+                        }
+                    }
                 }
-
-                function fail(e) {
-                    var msg = '';
-                    switch (e.code) {
-                        case FileError.QUOTA_EXCEEDED_ERR:
-                            msg = 'QUOTA_EXCEEDED_ERR';
-                            break;
-                        case FileError.NOT_FOUND_ERR:
-                            msg = 'NOT_FOUND_ERR';
-                            break;
-                        case FileError.SECURITY_ERR:
-                            msg = 'SECURITY_ERR';
-                            break;
-                        case FileError.INVALID_MODIFICATION_ERR:
-                            msg = 'INVALID_MODIFICATION_ERR';
-                            break;
-                        case FileError.INVALID_STATE_ERR:
-                            msg = 'INVALID_STATE_ERR';
-                            break;
-                        default:
-                            msg = 'Unknown Error';
-                            break;
-                    };
-                    console.log('Error: ' + msg);
-                }
+            } else {
+                goToDownload(assetURL, fileName);
             }
-		}
+        }
     });
 
     return DocumentsView;

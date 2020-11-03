@@ -10,7 +10,8 @@ define([
             content: '',
             hasAttachment: false,
             sendDate: new Date(),
-            url: ''
+            url: '',
+			read: ''
         },
         save: function (attributes) {
             var deferred = $.Deferred();

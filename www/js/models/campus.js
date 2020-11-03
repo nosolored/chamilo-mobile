@@ -9,7 +9,8 @@ define([
             apiKey: '',
 			user_id: 0,
             lastMessage: 0,
-            lastCheckDate: new Date()
+            lastCheckDate: new Date(),
+			gcmSenderId: null
         },
         getData: function () {
             var self = this;
@@ -32,7 +33,8 @@ define([
                         apiKey: cursor.value.apiKey,
 						user_id: cursor.value.user_id,
                         lastMessage: cursor.value.lastMessage,
-                        lastCheckDate: cursor.value.lastCheckDate
+                        lastCheckDate: cursor.value.lastCheckDate,
+						gcmSenderId: cursor.value.gcmSenderId
                     });
 
                     deferred.resolve(e);

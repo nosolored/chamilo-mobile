@@ -14,7 +14,17 @@
             <div class="collapse navbar-collapse" id="navbar-collapse">
                 <ul class="nav navbar-nav navbar-right">
                     <li>
-                        <a href="#logout">
+                        <a href="#my-courses">
+                            <i class="glyphicon glyphicon-pencil"></i> <%= lang.courses %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#list-messages">
+                            <i class="glyphicon glyphicon-envelope"></i> <%= lang.messages %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#logout/<%= c_id %>/<%= s_id %>">
                             <i class="glyphicon glyphicon-log-out"></i> <%= lang.singOut %>
                         </a>
                     </li>
@@ -23,47 +33,81 @@
         </div>
     </div>
 </header>
-<div class="container">
-	<section id="main_content">
-        <form action="#" id="frm-new-post" method="post">
+<section id="content-section">
+    <div class="container"  style="margin-top: 20px;">
+        <form action="#" id="frm-new-post" method="post" class="form-horizontal" enctype="multipart/form-data">
             <input type="hidden" name="session-id" id="session-id" value="<%= s_id %>">
             <input type="hidden" name="course-id" id="course-id" value="<%= c_id %>">
             <input type="hidden" name="forum-id" id="forum-id" value="<%= f_id %>">
             <input type="hidden" name="thread-id" id="thread-id" value="<%= t_id %>">
+            <input type="hidden" name="post_id" id="post_id" value="<%= post_id %>">
             
             <fieldset>
-                <legend for="txt-title"><%= lang.title %>:</legend>
-                <div class="form-group">
-                    <input type="text" name="txt-title" id="txt-title" required class="form-control" value="<%= title %>" >
+                <div class="form-group ">
+                    <label for="thread_post_title" class="col-sm-2 control-label">
+                        <span class="form_required">*</span>
+                        <%= lang.title %>
+                    </label>
+                    <div class="col-sm-8">
+                        <input class="form-control require" name="txt-title" id="txt-title" type="text" value="<%= title %>"></div>
+                    <div class="col-sm-2"></div>
                 </div>
-            </fieldset>
-            
-            <fieldset>
-            	<% if( text != '') { %>
-                	<div style="margin: 5px;">
-                        <div style="font-size: 90%; font-style: italic;">Cita <%= poster %>:</div>
-                        <div style="color: #006600; font-size: 90%; font-style: italic; background-color: #FAFAFA; border: #D1D7DC 1px solid; padding: 3px;">
-                            <p><%= text %></p>
+                
+                <% if (text != '') { %>
+                    <div class="form-group">
+                        <label for="thread_SubmitPost" class="col-sm-2 control-label"></label>
+                        <div class="col-sm-8">
+                        <div style="margin: 5px;">
+                            <div style="font-size: 90%; font-style: italic;"><%= lang.Quote %> <%= poster %>:</div>
+                            <div style="color: #006600; font-size: 90%; font-style: italic; background-color: #FAFAFA; border: #D1D7DC 1px solid; padding: 3px;">
+                                <p><%= text %></p>
+                            </div>
                         </div>
+                        </div>
+                        <div class="col-sm-2"></div>
                     </div>
+                    <input type="hidden" name="quote_check" id="quote_check" value="1">
+                    <input type="hidden" name="quote" id="quote" value="<%= text %>" >
+                    <input type="hidden" name="poster" id="poster" value="<%= poster %>" >
+                <% } else { %>
+                    <input type="hidden" name="quote_check" id="quote_check" value="0">
+                    <input type="hidden" name="quote" id="quote" value="" >
+                    <input type="hidden" name="poster" id="poster" value="" >
                 <% } %>
-            </fieldset>
-            
-            <fieldset>
-                <legend for="txt-text"><%= lang.text %>:</legend>
-                <div class="form-group">
-                     <textarea rows="5"name="txt-text" id="txt-text" required class="form-control"></textarea>
+                
+            <div class="form-group">
+                <label for="thread_post_title" class="col-sm-2 control-label">
+                    <span class="form_required">*</span>
+                    <%= lang.text %>
+                </label>
+                <div class="col-sm-8">
+                    <textarea rows="5" name="txt-text" id="txt-text" required class="form-control"></textarea>
                 </div>
-            </fieldset>
+                <div class="col-sm-2"></div>
+            </div>    
+                     
+            <div class="form-group ">
+                <label for="user_upload" class="col-sm-2 control-label">
+                    <%= lang.Attach %>
+                </label>
+                <div class="col-sm-5">
+                    <input id="user_upload" type="button" value="<%= lang.SelectFile %>" /></div>
+                    <input type="hidden" name="upload_file" id="upload_file" />
+                <div class="col-sm-5" id="box_show_file"></div>
+            </div>
             
-            <fieldset>
+            <!-- 
                 <label for="notice-email"><%= lang.Notify %></label>
                 <input type="checkbox" id="notice-email" value="1">
-            </fieldset>
-            
+            -->
             <div class="form-group">
-                <button class="btn btn-primary btn-lg btn-block" id="btn-submit" type="submit"><%= lang.ResponsePost %></button>
+                <label for="thread_SubmitPost" class="col-sm-2 control-label">&nbsp;</label>
+                <div class="col-sm-8">
+                    <button class="btn btn-primary btn-lg btn-block" id="btn-submit" type="submit"><%= lang.ResponsePost %></button>
+                </div>
+                <div class="col-sm-2">&nbsp;</div>
             </div>
+            </fieldset>
         </form>
-    </section>
-</div>
+    </div>
+</section>

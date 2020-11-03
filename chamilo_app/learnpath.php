@@ -38,7 +38,10 @@ if (AppWebService::isValidApiKey($username, $apiKey)) {
     require $includePath.'/local.inc.php';
 
 	global $_configuration;
-    $ruta = $_configuration['root_web'];
+	$ruta = $_configuration['root_web'];
+	if ((strripos($ruta, '/') + 1) != strlen($ruta)) {
+	    $ruta = $ruta.'/';
+	}
 	$url_final = $ruta.'main/lp/lp_controller.php?'.$url;
 	header('Location:'.$url_final);
 } else {

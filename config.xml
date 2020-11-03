@@ -1,16 +1,13 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.chamilo.app" version="1.11.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="org.chamilo.app" version="1.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Chamilo Mobile</name>
     <description>
         Chamilo Mobile App is a multi-mobile-OS application that allows you access to Chamilo LMS's plattform.
     </description>
-    <author email="info@beeznest.com" href="https://beeznest.com">
-        BeezNest
-    </author>
     <author email="info@nosolored.com" href="https://www.nosolored.com">
         Nosolored
     </author>
-    <icon src="www/img/logo.png" />
+    <icon src="res/icon.png" />
     <content src="index.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
@@ -21,27 +18,34 @@
     <allow-intent href="geo:*" />
     <platform name="android">
         <allow-intent href="market:*" />
-        <preference name="android-targetSdkVersion" value="26" />
+        <preference name="android-targetSdkVersion" value="29" />
+        <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+        <resource-file src="res/drawable/notification_icon.png" target="app/src/main/res/drawable/notification_icon.png" />
+        <resource-file src="res/values/colors.xml" target="app/src/main/res/values/colors.xml" />
+        <config-file parent="/manifest/application" target="app/src/main/AndroidManifest.xml">
+            <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/notification_icon" />
+            <meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@color/notification_color" />
+        </config-file>
+        <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
+            <application android:usesCleartextTraffic="true" />
+        </edit-config>
+        <splash density="land-hdpi" src="res/screen/android/drawable-land-hdpi/screen.png" />
+        <splash density="land-ldpi" src="res/screen/android/drawable-land-ldpi/screen.png" />
+        <splash density="land-mdpi" src="res/screen/android/drawable-land-mdpi/screen.png" />
+        <splash density="land-xhdpi" src="res/screen/android/drawable-land-xhdpi/screen.png" />
+        <splash density="land-xxhdpi" src="res/screen/android/drawable-land-xxhdpi/screen.png" />
+        <splash density="land-xxxhdpi" src="res/screen/android/drawable-land-xxxhdpi/screen.png" />
+        <splash density="port-hdpi" src="res/screen/android/drawable-port-hdpi/screen.png" />
+        <splash density="port-ldpi" src="res/screen/android/drawable-port-ldpi/screen.png" />
+        <splash density="port-mdpi" src="res/screen/android/drawable-port-mdpi/screen.png" />
+        <splash density="port-xhdpi" src="res/screen/android/drawable-port-xhdpi/screen.png" />
+        <splash density="port-xxhdpi" src="res/screen/android/drawable-port-xxhdpi/screen.png" />
+        <splash density="port-xxxhdpi" src="res/screen/android/drawable-port-xxxhdpi/screen.png" />
+		<splash density="hdpi" src="res/screen/android/drawable-port-hdpi/screen.png" />
+        <splash density="ldpi" src="res/screen/android/drawable-port-ldpi/screen.png" />
+        <splash density="mdpi" src="res/screen/android/drawable-port-mdpi/screen.png" />
+        <splash density="xhdpi" src="res/screen/android/drawable-port-xhdpi/screen.png" />
+        <splash density="xxhdpi" src="res/screen/android/drawable-port-xxhdpi/screen.png" />
+        <splash density="xxxhdpi" src="res/screen/android/drawable-port-xxxhdpi/screen.png" />
     </platform>
-    <platform name="ios">
-        <allow-intent href="itms:*" />
-        <allow-intent href="itms-apps:*" />
-    </platform>
-    <plugin name="cordova-plugin-android-permissions" spec="~1.0.0" />
-    <plugin name="cordova-plugin-camera" spec="~4.0.3" />
-    <plugin name="cordova-plugin-dialogs" spec="~2.0.1" />
-    <plugin name="cordova-plugin-file" spec="~6.0.1" />
-    <plugin name="cordova-plugin-filechooser" spec="~1.2.0" />
-    <plugin name="cordova-plugin-filepath" spec="~1.5.1" />
-    <plugin name="cordova-plugin-file-transfer" spec="~1.7.1" />
-    <plugin name="cordova-plugin-inappbrowser" spec="~3.0.0" />
-    <plugin name="cordova-plugin-network-information" spec="~2.0.1" />
-    <plugin name="cordova-plugin-pdialog" spec="~2.0.1" />
-    <plugin name="cordova-plugin-screen-orientation" spec="~3.0.1" />
-    <plugin name="cordova-plugin-spinner" spec="~1.1.0" />
-    <plugin name="cordova-plugin-splashscreen" spec="~5.0.2" />
-    <plugin name="cordova-plugin-whitelist" spec="~1.3.3" />
-    <plugin name="cordova-plugin-zip" spec="~3.1.0" />
-    <plugin name="cordova-plugin-cache-clear" spec="~1.3.7" />
-    <engine name="android" spec="~7.1.4" />
 </widget>

@@ -16,10 +16,10 @@ define([
 	var cat_forum = '';
     var forumsCollection = new ForumsCollection();
 
-  
     var loadForums = function () {
-	    console.log("funcion loadForums");
-		
+        var options = { dimBackground: true };
+        SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
+
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getForums = $.post(url, {
             action: 'getForumsList',
@@ -32,21 +32,25 @@ define([
 
         $.when(getForums).done(function (response) {
             if (!response.status) {
+                SpinnerPlugin.activityStop();
                 return;
             }
 			var forums = response.forums.info_forum; 
 			cat_forum = response.forums.info_category;
+
 			for( i in forums ){
 				var forumData = forums[i];
 				//comprobamos si existe
+				//console.log(forumData);
 				var cid = forumData.iid;
-				if(forumsCollection.get(cid) == null){ 
+				if (forumsCollection.get(cid) == null) { 
 					forumsCollection.create({
 						iid: parseInt(forumData.iid),
 						c_id: parseInt(forumData.c_id),
 						s_id: parseInt(forumData.session_id),
 						forum_id: parseInt(forumData.forum_id),
 						title: forumData.forum_title,
+						description: forumData.forum_description,
 						id_category: parseInt(forumData.forum_category),
 						order: parseInt(forumData.forum_order),
 						threads: forumData.number_of_threads,
@@ -55,9 +59,10 @@ define([
 						last_poster: forumData.last_poster,
 						image: forumData.forum_image
 					});
-				}else{
+				} else {
 					var forum = forumsCollection.get(cid);
 					forum.set({"title": forumData.forum_title});
+					forum.set({"description": forumData.forum_description});
 					forum.set({"id_categoy": forumData.forum_category});
 					forum.set({"order": forumData.forum_order});
 					forum.set({"threads": forumData.number_of_threads});
@@ -69,6 +74,8 @@ define([
 				}
             };
 
+            SpinnerPlugin.activityStop();
+
             if (response.forums.length === 0) {
                 new AlertView({
                     model: {
@@ -77,7 +84,18 @@ define([
                 });
                 return;
             }
-		});
+		})
+		.fail(function() {
+            SpinnerPlugin.activityStop();
+
+            new AlertView({
+                model: {
+                    message: window.lang.noConnectionToServer
+                }
+            });
+
+            return;
+        });
     };
 
     var ForumsView = Backbone.View.extend({
@@ -93,26 +111,44 @@ define([
 			courseId = this.options.courseId;
 			sessionId = this.options.sessionId;
 			
-			console.log("initialize")
+			// Call data remote function
+            var networkState = navigator.connection.type;
+            if (networkState == Connection.NONE) {
+                window.setTimeout(function () {
+                    new AlertView({
+                        model: {
+                            message: window.lang.notOnLine
+                        }
+                    });
+                }, 1000);
 
-		 	loadForums();
+                SpinnerPlugin.activityStop();
+            } else {
+                loadForums();
+            }
+
 			forumsCollection.on('add', this.render, this);
             forumsCollection.on('change', this.render, this);
         },
         render: function () {
-
             this.el.innerHTML = this.template({collection: forumsCollection.toJSON(), c_id: courseId, s_id: sessionId, category: cat_forum});
 			return this;
         },
         events: {
-            'click #forum-update': 'forumUpdateOnClick'
+            'click #forum-update': 'forumUpdateOnClick',
+            'click a.disabled' : 'disabledLink'
         },
         forumUpdateOnClick: function (e) {
             e.preventDefault();
 			
 			loadForums();
 			$(".navbar-toggle").trigger( "click" );
+		},
+		disabledLink: function (e) {
+			e.preventDefault();
+			e.stopPropagation();
 		}
+        
     });
     return ForumsView;
 });

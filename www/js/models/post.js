@@ -13,7 +13,10 @@ define([
             poster: '',
 			date: '',
 			path: [],
-			filename: []
+			filename: [],
+			image: '',
+			indent_cnt: 0,
+			iid: 0
         }
     });
     return PostModel;

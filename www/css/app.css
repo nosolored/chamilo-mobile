@@ -1,3 +1,8 @@
+@font-face {
+  font-family: "Abel";
+  src: url("../font/Abel-Regular.ttf");
+}
+
 html {
   height: 100%;
   box-sizing: border-box;
@@ -13,6 +18,7 @@ body {
     position: relative;
     min-height: 100%;
     font-size: 1.7em;
+    font-family:"Abel";
 }
 hr {
     margin: 10px 0;
@@ -89,7 +95,7 @@ hr {
     margin-right: auto;
 }
 
-#txt-username, #txt-password{
+#txt-username, #txt-password, #txt-hostname{
     font-size: 1em;
     background: #fff;
     padding: 10px;
@@ -151,34 +157,34 @@ label {
   padding: 19px;
 }
 .social-profile-info{
-	width:100%;
+    width:100%;
 }
 .description{
     padding-top: 15px;
     padding-bottom: 15px;
 }
 h5.title{
-	color: #0b519c;
+    color: #444444;
 }
 .course-tool, .item-main-menu {
-	margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .img-course { height: 145px !important; }
 
 .description .title{
-    font-size: 1.5em;
-	margin: 0 auto;
-	height: 1.4em;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	line-height: 1.4;
-	overflow: hidden;
-	display: block;
-	display: -webkit-box;
-	-webkit-line-clamp: 2;
-	-webkit-box-orient: vertical;
-	max-width: 100%;
+    font-size: 1.2em;
+    margin: 0 auto;
+    height: 3.2em; /*1.4em;*/
+    text-overflow: ellipsis;
+    /*white-space: nowrap;*/
+    line-height: 1.4;
+    overflow: hidden;
+    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    max-width: 100%;
 }
 
 .description .title:hover, .description .teacher:hover, .description .code:hover  {
@@ -190,12 +196,12 @@ h5.title{
 }
 
 .description .teacher {
-	font-size: 1em;
-	height: 2.8em;
-	text-overflow: ellipsis;
+    font-size: 1em;
+    height: 1.6em;
+    text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-	
+    
 }
 .description .code {
     font-size: 12px;
@@ -260,7 +266,7 @@ strong {
   border: 2px solid #FFFFFF;
 }
 .cut_header{
-  width:auto;
+  width:230px;
   text-overflow:ellipsis;
   white-space:nowrap; 
   overflow:hidden; 
@@ -281,18 +287,18 @@ strong {
 }
 
 .message-info{
-	background: #125085;
-	font-size: 1.2em;
-	color: #fff;
-	padding: 10px;
-	border-radius: 5px;
+    background: #125085;
+    font-size: 1.2em;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
 }
 
 .format-link-document{
-	font-size: 1.2em;
-	margin-left: 0px;
-	font-weight: normal;
-	text-align: center;	
+    font-size: 1.2em;
+    margin-left: 0px;
+    font-weight: normal;
+    text-align: center;    
 }
 
 .progress {
@@ -357,14 +363,18 @@ strong {
 }
 
 .forum .title {
-	margin-top: 10px;
-	margin-bottom: 5px;
-	padding: 0;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    padding: 0;
     font-size: 18px;
 }
 
+.post-body {
+    word-wrap: break-word;
+}
+
 #frm-new-thread legend {
-	margin-bottom: 0px;
+    margin-bottom: 0px;
 }
 
 .box-comment-work {
@@ -375,15 +385,15 @@ strong {
 }
 
 .position-podium{
-	position:relative;
-	margin-bottom: 40px;
+    position:relative;
+    margin-bottom: 40px;
 }
 
 .photo-podium{
-	border: 5px double #ccc;
-	border-radius:10px;
-	background: #fff;
-	position:absolute;	
+    border: 5px double #ccc;
+    border-radius:10px;
+    background: #fff;
+    position:absolute;    
 }
 
 .panel-default .panel-heading {
@@ -415,40 +425,40 @@ strong {
 }
 .course-items .course-items-title {
     font-size: 1.2em;
-	text-decoration: none;
-	margin: 5px 0px;
+    text-decoration: none;
+    margin: 5px 0px;
 }
 .course-items-title a, .session-items-title a {
-	text-decoration: none;
-	color: #333;
+    text-decoration: none;
+    color: #333;
 }
 .course-items-teachers a{
-	font-size: 0.9em;
-	color: #bbbbbb;	
+    font-size: 0.9em;
+    color: #bbbbbb;    
 }
 .sessions-items{
-	margin-top:5px;
+    margin-top:5px;
 }
 .session-clock{
-	font-size:0.8em;
+    font-size:0.8em;
 }
 #item-num-messages{
-	padding:0;
-	margin-top: 15px;
-	margin-bottom: -5px;
+    padding:0 15px;
+    margin-top: 15px;
+    margin-bottom: -5px;
 }
 #num_message_unread {
-	background: #999;
-	margin-left: 10px;
-	border-radius: 20px;
-	display: block;
-	font-size: 1.2em;
-	padding: 5px;
-	color: white;
-	min-width: 40px;
-	text-align: center;
-	margin-top: 10px;
-	font-weight: bold;
+    /*background: #999;
+    margin-left: 10px;
+    border-radius: 20px;*/
+    display: inline-block;
+    font-size: 1.2em;
+    padding: 5px;
+    color: white;
+    /*min-width: 40px;*/
+    text-align: center;
+    /*margin-top: 10px;*/
+    font-weight: bold;
 }
 
 ul.navbar-right {
@@ -516,6 +526,7 @@ ul.navbar-right {
     margin-top: 20px;
     background:#FFF;
     border-top: 1px solid #999;
+    background-color: #FFFFFF;
 }
 .social-media{
     /*background: #FFF;*/
@@ -525,6 +536,7 @@ ul.navbar-right {
 .term-conditions {
     font-weight: 300;
     font-size: 1.1em;
+    color: #3b6b78;
 }
 #btn-submit.btn-login{
     background-color: #ffd500;
@@ -534,14 +546,17 @@ ul.navbar-right {
     margin-bottom: 30px;
 }
 @media (max-width: 768px){
-	.image-session-category{
-		display:none;
-	}
+    .image-session-category{
+        display:none;
+    }
 }
 /* Small devices (tablets, 768px and up) */
 @media (min-width: 768px) {
     .alert-container .tooltip-inner {
         max-width: 50%;
+    }
+    .cut_header{
+        width:640px !important;
     }
 }
 
@@ -549,6 +564,9 @@ ul.navbar-right {
 @media (min-width: 992px) {
     .alert-container .tooltip-inner {
         max-width: 30%;
+    }
+    .cut_header{
+        width:930px !important;
     }
 }
 
