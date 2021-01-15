@@ -1,0 +1,211 @@
+<header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="container-fluid">
+            <a href="#"><img src="img/icon_head.png" style="float:left;" /></a>
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a id="btn-back-url" class="navbar-brand" href="#works_main/<%= c_id %>/<%= s_id %>"><i class="glyphicon glyphicon-chevron-left"></i><%= lang.CreateAssignment  %></a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#my-courses">
+                            <i class="glyphicon glyphicon-pencil"></i> <%= lang.courses %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#list-messages">
+                            <i class="glyphicon glyphicon-envelope"></i> <%= lang.messages %>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#logout/<%= c_id %>/<%= s_id %>">
+                            <i class="glyphicon glyphicon-log-out"></i> <%= lang.singOut %>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+<section id="content-section" style="margin-top: 20px;">
+    <div class="container">
+        <form class="form-horizontal" action="#" method="post" name="form1" id="frm-new-work">
+        <fieldset>
+            <legend><%= lang.CreateAssignment %></legend>
+            <div class="form-group ">
+                <label for="new_dir" class="col-sm-2 control-label">
+                    <span class="form_required">*</span>
+                    <%= lang.AssignmentName %>
+                </label>
+                <div class="col-sm-8">
+                    <input class="form-control" name="new_dir" type="text" id="new_dir"></div>
+                <div class="col-sm-2"></div>
+            </div>
+            <div class="form-group ">
+                <label for="description" class="col-sm-2 control-label">
+                    <%= lang.description %>
+                </label>
+                <div class="col-sm-8">
+                    <div id="description" class="editable" contenteditable="true" style="min-height:5em;"></div>
+                    <!--<textarea id="description_old" name="description" rows="10" style="width:100%;"></textarea>-->
+                </div>
+                <div class="col-sm-2"></div>
+            </div>
+                
+            <div class="form-group">
+                <div class="col-sm-10 col-sm-offset-2">           
+                    <button id="advanced_params" type="button" class="btn btn-default advanced_options" aria-pressed="false">
+                        <em class="fa fa-bars"></em> <%= lang.AdvancedParameters %>
+                    </button>
+                </div>
+            </div>
+
+            <div id="advanced_params_options" style="display: none;">
+                <div class="form-group ">
+                    <label for="qualification" class="col-sm-2 control-label">
+                        <%= lang.QualificationNumeric %>
+                    </label>
+                    <div class="col-sm-8">
+                        <input class="form-control" name="qualification" type="text" id="qualification"></div>
+                    <div class="col-sm-2"></div>
+                </div>
+                <div class="form-group ">
+                    <label for="make_calification_id" class="col-sm-2 control-label"></label>
+                    <div class="col-sm-8">
+                        <div id="make_calification" class="checkbox">
+                        <label class="">
+                            <input id="make_calification_id" onclick="javascript: if(this.checked) { document.getElementById('option1').style.display='block';}else{document.getElementById('option1').style.display='none';}" name="make_calification" type="checkbox" value="1">
+                            <%= lang.MakeQualifiable %>
+                        </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"></div>
+                </div>
+                <div id="option1" style="display:none;">
+                    <div class="form-group ">
+                        <label for="category_id" class="col-sm-2 control-label  ">
+                            <%= lang.SelectGradebook %>
+                        </label>
+                        <div class="col-sm-8">
+                            <select class="selectpicker show-tick form-control" data-live-search="true" name="category_id" id="category_id" tabindex="-98">
+                            </select>
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                    <div class="form-group ">
+                        <label for="weight" class="col-sm-2 control-label">
+                            <%= lang.WeightInTheGradebook %>
+                        </label>
+                        <div class="col-sm-8">
+                            <input class="form-control" name="weight" type="text" id="weight">
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                </div>
+                <div class="form-group ">
+                    <label for="expiry_date" class="col-sm-2 control-label"></label>
+                    <div class="col-sm-8">
+                        <div id="enableExpiryDate" class="checkbox">
+                            <label class="">
+                                <input id="expiry_date" onclick="javascript: if(this.checked) { document.getElementById('option2').style.display='block';}else{document.getElementById('option2').style.display='none';}" name="enableExpiryDate" type="checkbox" value="1">
+                                <%= lang.EnableExpiryDate %>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"></div>
+                </div>
+                <div id="option2" style="display:none;">
+                    <div class="form-group ">
+                        <label for="expires_on" class="col-sm-2 control-label ">
+                            <%= lang.ExpiresAt %>
+                        </label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="datetime-local" id="expires_on" name="expires_on" value="">
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group ">
+                    <label for="end_date" class="col-sm-2 control-label"></label>
+                    <div class="col-sm-8">
+                        <div id="enableEndDate" class="checkbox">
+                            <label class="">
+                                <input id="end_date" onclick="javascript: if(this.checked) { document.getElementById('option3').style.display='block';}else{document.getElementById('option3').style.display='none';}" name="enableEndDate" type="checkbox" value="1">
+                                <%= lang.EnableEndDate %>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"></div>
+                </div>
+                <div id="option3" style="display:none;">
+                    <div class="form-group ">
+                        <label for="ends_on" class="col-sm-2 control-label ">
+                            <%= lang.EndsAt %>
+                        </label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="datetime-local" id="ends_on" name="ends_on" value="" >
+                        </div>
+                        <div class="col-sm-2"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group ">
+                    <label for="add_to_calendar" class="col-sm-2 control-label"></label>
+                    <div class="col-sm-8">
+                        <div id="add_to_calendar_div" class="checkbox">
+                            <label class="">
+                                <input name="add_to_calendar" type="checkbox" value="1" id="add_to_calendar">
+                                <%= lang.AddToCalendar %>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-2"></div>
+                </div>
+                
+                <div class="form-group ">
+                    <label for="allow_text_assignment" class="col-sm-2 control-label  ">
+                        <%= lang.DocumentType %>
+                    </label>
+                    <div class="col-sm-8">
+                        <select class="selectpicker show-tick form-control" data-live-search="true" name="allow_text_assignment" id="allow_text_assignment" tabindex="-98">
+                            <option value="0"><%= lang.AllowFileOrText %></option>
+                            <option value="1"><%= lang.AllowOnlyText %></option>
+                            <option value="2" selected="selected"><%= lang.AllowOnlyFiles %></option>
+                        </select>
+                    </div>
+                    <div class="col-sm-2"></div>
+                </div>
+            </div>
+            
+            <div class="form-group ">
+                <label for="submit" class="col-sm-2 control-label"></label>
+                <div class="col-sm-8">
+                    <button class=" btn btn-primary" name="submit" type="submit" id="submit">
+                        <em class="fa fa-plus"></em>
+                        <%= lang.CreateDirectory %>
+                    </button>
+                </div>
+                <div class="col-sm-2"></div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <span class="form_required">*</span> <small><%= lang.FieldRequired %></small>
+                </div>
+            </div>
+        </fieldset>
+
+        <input name="action" type="hidden" value="add" id="action">
+        <input name="item_id" type="hidden" value="0" id="item_id">
+        <input type="hidden" name="session_id" id="session_id" value="<%= s_id %>" />
+        <input type="hidden" name="course_id" id="course_id" value="<%= c_id %>" />
+        </form>
+    </div>
+</section>

@@ -21,25 +21,13 @@ define([
             this.el.innerHTML = this.template();
             return this;
         },
+        /*
         goToLinkLegal: function (e) {
             e.preventDefault();
             var options = "location=no,hardwareback=no,zoom=no";
-            var ref = window.open(encodeURI('https://www.campusiesrfa.com/plugin/chamilo_app/legal.php'), '_blank', options);
+            var ref = window.open(encodeURI('http://www.custom-domain.com/plugin/chamilo_app/legal.php'), '_blank', options);
         },
-        goToLinkRegister: function (e) {
-            e.preventDefault();
-            //var options = "location=no,hardwareback=no,zoom=no";
-            var messageBack = window.lang.BackToApp;
-            var options = "location=yes,hardwareback=no,zoom=no,hideurlbar=yes,hidenavigationbuttons=yes,toolbarcolor=#E21D24,closebuttoncolor=#FFFFFF,closebuttoncaption=< "+messageBack;
-            var ref = window.open(encodeURI('https://www.campusiesrfa.com/main/auth/inscription.php'), '_blank', options);
-        },
-        goToLinkLostPassword: function (e) {
-            e.preventDefault();
-            //var options = "location=no,hardwareback=no,zoom=no";
-            var messageBack = window.lang.BackToApp;
-            var options = "location=yes,hardwareback=no,zoom=no,hideurlbar=yes,hidenavigationbuttons=yes,toolbarcolor=#E21D24,closebuttoncolor=#FFFFFF,closebuttoncaption=< "+messageBack;
-            var ref = window.open(encodeURI('https://www.campusiesrfa.com/main/auth/lostPasswordApp.php'), '_blank', options);
-        },
+        */
         frmLoginOnSubmit: function (e) {
             e.preventDefault();
             

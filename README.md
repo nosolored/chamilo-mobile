@@ -7,7 +7,7 @@ Instalación
 Primero, clonar este repositorio
 
 ```
-git clone https://github.com/nosolored/chamilo-mobile.git
+git clone git@github.com:nosolored/chamilo-mobile.git
 cd chamilo-mobile
 ```
 
@@ -18,8 +18,6 @@ cordova platform add android
 cordova plugin add cordova-plugin-device
 cordova plugin add cordova-plugin-dialogs
 cordova plugin add cordova-plugin-file
-cordova plugin add cordova-plugin-filechooser
-cordova plugin add cordova-plugin-filepath
 cordova plugin add cordova-plugin-file-transfer
 cordova plugin add cordova-plugin-inappbrowser
 cordova plugin add cordova-plugin-network-information

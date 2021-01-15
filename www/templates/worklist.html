@@ -1,0 +1,216 @@
+<header class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="container-fluid">
+            <a href="#"><img src="img/icon_head.png" style="float:left;" /></a>
+            <a id="btn-back-url" class="navbar-brand cut_header" href="#works_main/<%= c_id %>/<%= s_id %>"><i class="glyphicon glyphicon-chevron-left"></i><%= title_parent %></a>
+        </div>
+    </div>
+</header>
+<section id="main_content" style="margin-top: 15px;">
+    <div class="container">
+       <% if (status == "1") { %>
+            <div id="toolbar-work" class="actions">
+            <div class="row">
+                <div class="col-sm-12">
+                    <!--
+                    <a href="#work-add-document/<%= c_id %>/<%= s_id %>/<%= id_parent %>">
+                        <img src="img/icons/32/new_document.png" />
+                    </a>
+                    -->
+                    <a href="#work-edit/<%= c_id %>/<%= s_id %>/<%= id_parent %>">
+                        <img src="img/icons/32/edit.png" />
+                    </a>
+                    <a href="#work-add-user/<%= c_id %>/<%= s_id %>/<%= id_parent %>">
+                        <img src="img/icons/32/addworkuser.png" />
+                    </a>
+                    <a href="#work-missing/<%= c_id %>/<%= s_id %>/<%= id_parent %>">
+                        <img src="img/icons/32/exercice_uncheck.png" />
+                    </a>
+                    <a href="#work-downloadfolder/<%= c_id %>/<%= s_id %>/<%= id_parent %>" id="download-folder">
+                        <img src="img/icons/32/save_pack.png" />
+                    </a>
+                    <!--
+                    <a href="#work-upload-corrections/<%= c_id %>/<%= s_id %>/<%= id_parent %>">
+                        <img src="img/icons/32/upload_package.png" />
+                    </a>
+                    -->
+                    <a href="#work-delete-corrections/<%= c_id %>/<%= s_id %>/<%= id_parent %>" class="btn btn-danger" id="delete_correction">
+                        <i class="fa fa-remove fa-fw" aria-hidden="true"></i>
+                        <%= lang.DeleteCorrections %>
+                    </a>
+                </div>
+                </div>
+                </div>
+            <% } else {
+                var end = Date.parse(ends_on.replace(" ", "T"));
+                var now = new Date();
+
+                if (now < end || ends_on == '-') { %>
+                <div id="toolbar-work" class="actions">
+                <div class="row">
+                <div class="col-sm-12 text-right">
+                    <a href="#work-upload/<%= c_id %>/<%= s_id %>/<%= id_parent %>" class="btn-toolbar">
+                        <img src="img/icons/32/upload_file.png" /><%= lang.SendWork %>
+                    </a>
+                </div>
+                </div>
+                </div>
+                <% } 
+            } 
+            %>
+            
+        <h3>
+            <img src="img/icons/32/work.png" />
+            <%= title_parent %>
+        </h3>
+        <div class="panel panel-default">
+            <div class="panel-heading"><h3 class="panel-title"><%= lang.description %></h3></div>
+            <div class="panel-body"><p><%= description_parent %></p></div>
+        </div>
+        
+        <%
+        if (status != "1") {
+            var exp = Date.parse(expires_on.replace(" ", "T"));
+            var end = Date.parse(ends_on.replace(" ", "T"));
+            var now = new Date();
+    
+            if (now > end) { %>
+                <div class="alert alert-danger"><%= lang.EndDateAlreadyPassed  %></div>
+            <% } else {
+                if (now > exp) { %>
+                    <div class="alert alert-warning"><%= lang.ExpiryDateAlreadyPassed %></div>
+                <% }
+            }
+        } %>
+        
+        <% if (status == "1") { %>
+            <table class="table data_table" width="100%">
+            <tr>
+            <th><%= lang.FullUserName %></th>
+            <th><%= lang.title %></th>
+            <% if (enable_qualification == 1) { %>
+                <th><%= lang.score %></th>
+                <th><%= lang.Date %></th>
+                <th><%= lang.State %></th>
+            <% } else { %>
+                <th><%= lang.Feedback %></th>
+                <th><%= lang.Date %></th>
+            <% } %>
+            <th><%= lang.Actions %></th>
+            </tr>
+            <% for (var i = 0; i < collection.length; i++) { %>
+                <tr>
+                <td><% print(collection[i]['attributes']['fullname']); %></td>
+                <td><% print(collection[i]['attributes']['title_clean']); %></td>
+                <% if (enable_qualification == 1) { %>
+                    <td><% print(collection[i]['attributes']['qualification_only']); %></td>
+                    <td><% print(collection[i]['attributes']['sent_date']); %></td>
+                    <td>
+                        <% print(collection[i]['attributes']['qualificator_id']); %>
+                        <% if (collection[i]['attributes']['has_correction'] !== "" ) { %>
+                            <a id="<% print(collection[i]['attributes']['title_correction']); %>" 
+                               class="download_file_platform"
+                               href="<%= base %>&id=<% print(collection[i]['attributes']['id']); %>&correction=1">
+                               <img src="img/icons/22/check-circle.png" />
+                            </a>
+                        <% } %>
+                    </td>
+                <% } else { %>
+                    <td><% print(collection[i]['attributes']['feedback']); %></td>
+                    <td><% print(collection[i]['attributes']['sent_date']); %></td>
+                <% } %>
+                <td>
+                    <% if (collection[i]['attributes']['contains_file'] == 1) { %>
+                        <a id="<%= collection[i]['attributes']['title_clean'] %>" href="<%= base %>&id=<%= collection[i]['attributes']['id'] %>" class="download_file_platform">
+                            <img src="img/icons/32/save.png" />
+                        </a>
+                        &nbsp;
+                    <% } %>
+                    <a href="#work-view/<%= c_id %>/<%= s_id %>/<%= collection[i]['attributes']['id'] %>">
+                        <img src="img/icons/32/evaluation_rate.png" />
+                    </a>
+                    &nbsp;
+                    <a href="#work-edit-item/<%= c_id %>/<%= s_id %>/<%= collection[i]['attributes']['id'] %>">
+                        <img src="img/icons/32/edit.png" />
+                    </a>
+                    &nbsp;
+                    <!--
+                    <a href="#work-move/<%= c_id %>/<%= s_id %>/<%= collection[i]['attributes']['id'] %>">
+                        <img src="img/icons/22/move.png" />
+                    </a>
+                    -->
+                    <% if (collection[i]['attributes']['accepted'] == '1') { %>
+                        <a href="#" id="work_<%= collection[i]['attributes']['id'] %>" class="set_invisible">
+                            <img src="img/icons/32/eyes-visible.png" />
+                        </a>
+                        &nbsp;
+                    <% } else { %>
+                        <a href="#" id="work_<%= collection[i]['attributes']['id'] %>" class="set_visible">
+                            <img src="img/icons/32/eyes-invisible.png" />
+                        </a>
+                        &nbsp;
+                    <% } %>
+                    <a href="#" id="delete<%= collection[i]['attributes']['id'] %>" class="delete_item">
+                        <img src="img/icons/32/delete.png" />
+                    </a>
+                </td>
+                </tr>
+            <% } %>
+            </table>
+        <% } else { %>
+            <% for (var i = 0; i < collection.length; i++) { %>
+                <article class="panel panel-primary">
+                    <header class="panel-heading">
+                        <h3 class="panel-title">
+                            <a href="#work-view/<%= c_id %>/<%= s_id %>/<%= collection[i]['attributes']['id'] %>">
+                                <% print(collection[i]['attributes']['title']); %>
+                            </a>
+                        </h3>
+                    </header>
+                    <div class="panel-body">
+                    <table class="table data_table" width="100%">
+                        <tr>
+                        <% if (enable_qualification == 1) { %>
+                            <th><%= lang.Qualification %></th>
+                            <th><%= lang.Date %></th>
+                            <th><%= lang.State %></th>
+                        <% } else { %>
+                            <th><%= lang.Feedback %></th>
+                            <th><%= lang.Date %></th>
+                        <% } %>
+                        </tr>
+                    
+                        <tr>
+                        <% if (enable_qualification == 1) { %>
+                            <td><% print(collection[i]['attributes']['qualification_only']); %></td>
+                            <td><% print(collection[i]['attributes']['sent_date']); %></td>
+                            <td>
+                                <% print(collection[i]['attributes']['qualificator_id']); %>
+                                <% if (collection[i]['attributes']['has_correction'] !== "" ) { %>
+                                    <a id="<% print(collection[i]['attributes']['title_correction']); %>" 
+                                       class="download_file_platform btn btn-xs btn-info"
+                                       href="<%= base %>&id=<% print(collection[i]['attributes']['id']); %>&correction=1">
+                                       <%= lang.Correction %>
+                                    </a>
+                                <% } %>
+                            </td>
+                        <% } else { %>
+                            <td><% print(collection[i]['attributes']['feedback']); %></td>
+                            <td><% print(collection[i]['attributes']['sent_date']); %></td>
+                        <% } %>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <% if (collection[i]['attributes']['contains_file'] == 1) { %>
+                                    <a id="<%= collection[i]['attributes']['title_clean'] %>" href="<%= base %>&id=<%= collection[i]['attributes']['id'] %>" class="btn btn-primary btn-sm download_file_platform"><%= lang.Save %></a>
+                                <% } %>
+                                <a href="#work-view/<%= c_id %>/<%= s_id %>/<%= collection[i]['attributes']['id'] %>" class="btn btn-success btn-sm"><%= lang.View %></a>
+                            </td>
+                        </tr>
+                    </table>
+                    </div>
+                </article>
+            <% } %>
+        <% } %>
+    </div>
+</section>

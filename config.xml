@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="org.chamilo.app" version="1.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="org.chamilo.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:android="http://schemas.android.com/apk/res/android" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>Chamilo Mobile</name>
     <description>
         Chamilo Mobile App is a multi-mobile-OS application that allows you access to Chamilo LMS's plattform.
@@ -20,12 +20,15 @@
         <allow-intent href="market:*" />
         <preference name="android-targetSdkVersion" value="29" />
         <preference name="AndroidPersistentFileLocation" value="Compatibility" />
-        <resource-file src="res/drawable/notification_icon.png" target="app/src/main/res/drawable/notification_icon.png" />
+        <preference name="AndroidExtraFilesystems" value="files,cache, sdcard, cache-external, files-external" />
         <resource-file src="res/values/colors.xml" target="app/src/main/res/values/colors.xml" />
+        <resource-file src="res/drawable/notification_icon.png" target="app/src/main/res/drawable/notification_icon.png" />
+		<!--
         <config-file parent="/manifest/application" target="app/src/main/AndroidManifest.xml">
             <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/notification_icon" />
             <meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@color/notification_color" />
         </config-file>
+		-->
         <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
             <application android:usesCleartextTraffic="true" />
         </edit-config>
