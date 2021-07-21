@@ -4,7 +4,8 @@ Chamilo LMS Mobile app
 Instalación
 -----------------------------
 
-Primero, clonar este repositorio
+Primero, instalar Apache Cordova en tu equipo https://cordova.apache.org/
+clonar este repositorio
 
 ```
 git clone git@github.com:nosolored/chamilo-mobile.git
@@ -60,9 +61,10 @@ Ejecutar sobre un dispositivo Android
 ```
 cordova run android
 ```
+En tu aula virtual Chamilo LMS:
 
-* La carpeta "chamilo-app" debe ser copiada en el directorio plugin de la plataforma chamilo.
-* Para poder visualizar las imágenes de las secciones de mensajes, descripción, anuncios y foros, debemos modificar el fichero .htaccess de la carpeta "courses".
+* El contenido de la carpeta "chamilo_app" debe ser copiada en el directorio plugin de la plataforma.
+* Para poder visualizar las imágenes de las secciones de mensajes, descripción, anuncios y foros, debes modificar el fichero .htaccess de la carpeta "courses".
 ```
 RewriteCond %{HTTP_USER_AGENT} !android [NC]
 RewriteRule ([^/]+)/document/(.*)$ /main/document/download.php?doc_url=/$2&cDir=$1 [QSA,L]
