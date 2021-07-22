@@ -5,8 +5,8 @@ Instalación
 -----------------------------
 
 Primero, instalar Apache Cordova en tu equipo https://cordova.apache.org/
-clonar este repositorio
 
+Clonar este repositorio:
 ```
 git clone git@github.com:nosolored/chamilo-mobile.git
 cd chamilo-mobile
