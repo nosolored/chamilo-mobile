@@ -42,6 +42,11 @@ cordova plugin add phonegap-plugin-push
 ``` 
 Es necesario tener en la raíz del proyecto el fichero google-services.json
 Para generarlo debes crear un proyecto en https://console.firebase.google.com/u/0/?pli=1 
+
+En Firebase, una vez creado el proyecto para descargare el archivo google-services.json hay que seguir las instrucciones indicadas aquí:
+Cómo descargar un archivo de configuración 
+https://support.google.com/firebase/answer/7015592?hl=es#zippy=%2Cen-este-art%C3%ADculo
+
 En el fichero config.xml está añadida la linea necesaria para las notificaciones:
 ```
 <resource-file src="google-services.json" target="app/google-services.json" />
