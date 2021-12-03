@@ -51,9 +51,11 @@ En el fichero config.xml está añadida la linea necesaria para las notificacion
 ```
 <resource-file src="google-services.json" target="app/google-services.json" />
 ```
-En caso de no usar notificaciones deberá eliminarla
+En caso de no usar notificaciones deberá eliminarla.
 
-
+Nota:
+Se debe editar la cadena org.chamilo.app que aparece en el fichero config.xml y sustituirlo por el que se haya creado en google-services.json
+Si no se hace dará un error Apache Cordova.
 
 Construir el APK de Android
 
@@ -68,7 +70,7 @@ cordova run android
 ```
 En tu aula virtual Chamilo LMS:
 
-* El contenido de la carpeta "chamilo_app" debe ser copiada en el directorio plugin de la plataforma.
+* El contenido de la carpeta "chamilo_app" debe ser copiada en el directorio plugin de la plataforma (plugins/chamilo_app).
 * Para poder visualizar las imágenes de las secciones de mensajes, descripción, anuncios y foros, debes modificar el fichero .htaccess de la carpeta "courses".
 ```
 RewriteCond %{HTTP_USER_AGENT} !android [NC]
