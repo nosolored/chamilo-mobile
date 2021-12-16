@@ -57,7 +57,7 @@ Nota:
 Se debe editar la cadena org.chamilo.app que aparece en el fichero config.xml y sustituirlo por el que se haya creado en google-services.json
 Si no se hace dará un error Apache Cordova.
 
-El fichero google-serves.json debe copiarse a la ruta ../platforms/android/app/google-services.json para que no muestre error Cordova al compilar.
+El fichero google-services.json debe copiarse a la ruta ../platforms/android/app/google-services.json para que no muestre error Cordova al compilar.
 
 Construir el APK de Android
 
