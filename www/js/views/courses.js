@@ -20,34 +20,31 @@ define([
 	    var options = { dimBackground: true };
         SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
-	    var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+	    var url = campusModel.get('url') + '/main/webservices/api/v2.php';
 	    var getCourses = $.post(url, {
-	        action: 'getCoursesList',
+	        action: 'user_courses',
             username: campusModel.get('username'),
-            api_key: campusModel.get('apiKey'),
-    		user_id: campusModel.get('user_id')
+            api_key: campusModel.get('apiKey')
         });
 
 	    $.when(getCourses).done(function (response) {
-	        if (!response.status) {
+	        if (response.error) {
 	            return;
 	        }
 
-	        courses.set({"user_id": response.user_id});
-	        courses.set({"list_courses": response.courses});
-	        courses.set({"list_sessions": response.sessions});
-	        courses.cid = response.user_id;
+	        courses.set({"user_id": campusModel.get('user_id')});
+	        courses.set({"list_courses": response.data});
+    
+	        courses.cid = campusModel.get('user_id');	        
 
-	        SpinnerPlugin.activityStop();
-
-	        if (response.courses.length === 0 && response.sessions.length === 0) {
+	        /*if (response.courses.length === 0 && response.sessions.length === 0) {
 	            new AlertView({
 	                model: {
 	                    message: window.lang.noCourses
 	                }
 	            });
 	            return;
-	        }
+	        }*/
 	    })
 	    .fail(function() {
             SpinnerPlugin.activityStop();
@@ -57,6 +54,31 @@ define([
                 }
             });
             return;
+        });
+
+	    var getSessions = $.post(url, {
+	        action: 'user_sessions',
+            username: campusModel.get('username'),
+            api_key: campusModel.get('apiKey')
+        });
+
+        $.when(getSessions).done(function (response) {
+            if (response.error) {
+                return;
+            }
+
+            courses.set({"list_sessions": response.data});
+
+            SpinnerPlugin.activityStop();
+
+            /*if (response.courses.length === 0 && response.sessions.length === 0) {
+                new AlertView({
+                    model: {
+                        message: window.lang.noCourses
+                    }
+                });
+                return;
+            }*/
         });
     };
 
