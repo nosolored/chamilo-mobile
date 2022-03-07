@@ -75,14 +75,14 @@ define([
 
             self.$('#btn-submit').prop('disabled', true);
 
-            var checkingLogin = $.post(hostName + '/plugin/chamilo_app/rest.php', {
-                action: 'loginNewMessages',
+            var checkingLogin = $.post(hostName + '/main/webservices/api/v2.php', {
+                action: 'authenticate',
                 username: username,
                 password: password
             });
 
             $.when(checkingLogin).done(function (response) {
-                if (!response.status) {
+                if (response.error) {
                     new AlertView({
                         model: {
                             message: window.lang.incorrectCredentials
@@ -95,43 +95,71 @@ define([
                     return;
                 }
 
-                if (response.userInfo.active != '1') {
-                    new AlertView({
-                        model: {
-                            message: window.lang.invalidAccount
-                        }
-                    });
+                var apiKey = response.data.apiKey;
+                var gcmSenderId = response.data.gcmSenderId;
 
-                    self.$('#btn-submit').prop('disabled', false);
-                    SpinnerPlugin.activityStop();
-
-                    return;
-                }
-                
-                self.$('body').prop('style', '');
-                
-                var campusModel = new CampusModel({
-                    url: hostName,
+                var checkingUserInfo = $.post(hostName + '/main/webservices/api/v2.php', {
+                    action: 'user_profile',
                     username: username,
-                    apiKey: response.userInfo.apiKey,
-					user_id: response.userInfo.user_id,
-					gcmSenderId: response.gcmSenderId
-                });
-                var savingCampus = campusModel.save();
-
-                $.when(savingCampus).done(function () {
-                    window.location.reload();
+                    api_key: apiKey
                 });
 
-                $.when(savingCampus).fail(function () {
-                    new AlertView({
-                        model: {
-                            message: "Account don't saved."
-                        }
+                var userInfo;
+
+                $.when(checkingUserInfo).done(function (response) {
+                    if (response.error) {
+                        new AlertView({
+                            model: {
+                                message: window.lang.incorrectCredentials
+                            }
+                        });
+
+                        self.$('#btn-submit').prop('disabled', false);
+                        SpinnerPlugin.activityStop();
+
+                        return;
+                    }
+
+                    userInfo = response.data;
+
+                    if (userInfo.status != 1) {
+                        new AlertView({
+                            model: {
+                                message: window.lang.invalidAccount
+                            }
+                        });
+
+                        self.$('#btn-submit').prop('disabled', false);
+                        SpinnerPlugin.activityStop();
+
+                        return;
+                    }
+
+                    self.$('body').prop('style', '');
+
+                    var campusModel = new CampusModel({
+                        url: hostName,
+                        username: username,
+                        apiKey: apiKey,
+                        user_id: userInfo.id,
+                        gcmSenderId: gcmSenderId
+                    });
+                    var savingCampus = campusModel.save();
+
+                    $.when(savingCampus).done(function () {
+                        window.location.reload();
                     });
 
-                    SpinnerPlugin.activityStop();
-                    self.$('#btn-submit').prop('disabled', false);
+                    $.when(savingCampus).fail(function () {
+                        new AlertView({
+                            model: {
+                                message: "Account don't saved."
+                            }
+                        });
+
+                        SpinnerPlugin.activityStop();
+                        self.$('#btn-submit').prop('disabled', false);
+                    });
                 });
             });
 
