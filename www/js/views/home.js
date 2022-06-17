@@ -12,19 +12,18 @@ define([
     var check_conditions = function () {
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getResponse = $.post(url, {
-            action: 'check_conditions',
+            action: 'check_conditional_login',
             username: campusModel.get('username'),
-            api_key: campusModel.get('apiKey'),
-            user_id: campusModel.get('user_id')
+            api_key: campusModel.get('apiKey')
         });
 
         $.when(getResponse).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 console.log("no response status");
                 return;
             }
 
-            if (!response.check_condition) {
+            if (!response.data.check_conditional_login) {
                 // Redirect
                 window.location.href = '#inscription';
             }
@@ -45,22 +44,21 @@ define([
     };    
     
     var loadNumMessage = function () {
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
-        var getResponse = $.post(url, {
-            action: 'getNumMessages',
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
+	    var getResponse = $.post(url, {
+            action: 'get_count_new_messages',
             username: campusModel.get('username'),
-            api_key: campusModel.get('apiKey'),
-            user_id: campusModel.get('user_id')
+            api_key: campusModel.get('apiKey')
         });
 
         $.when(getResponse).done(function (response) {
-            if (!response.status) {
-				console.log("no response status");
+            if (response.error) {
+                console.log("no response status");
                 return;
             }
             homeModel.cid = parseInt(1);
-            homeModel.set({"num_messages": response.num_messages});
-            homeModel.set({"allow_students_to_browse_courses": response.allow_students_to_browse_courses});
+            homeModel.set({"num_messages": response.data.ms_inbox});
+            homeModel.set({"allow_students_to_browse_courses": 1);
 
             SpinnerPlugin.activityStop();
         })
