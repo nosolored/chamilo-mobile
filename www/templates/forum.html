@@ -37,51 +37,49 @@
 <div class="container">
     <div class="row">
         <div class="col-xs-12 col-md-12">
-        <% for( j in category ){ %>
+        <% for( j in list_categories.category ){ %>
             <div class="category-forum" id="category_<%= j %>">
             <h3>
                 <img src="img/icons/32/forum_blue.png" />
-                <a href="#" class="disabled" title="<% print(category[j]['cat_title']); %>"><% print(category[j]['cat_title']); %></a>
+                <a href="#" class="disabled" title="<% print(category[j]['title']); %>"><% print(category[j]['title']); %></a>
             </h3>
             <div class="forum-description">
-                <% print(category[j]['cat_comment']); %>
+                <% print(category[j]['description']); %>
             </div>
                 <% var num_foros = 0 %>
-                <% for (var i = 0; i < collection.length; i++) { %>
-                    <% if ( collection[i]['id_category'] == category[j]['cat_id']) { %>
-                        <% num_foros++; %>
-                        <div class="forum_display">
-                            <div class="panel panel-default forum">
-                                <div class="panel-body">
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <div class="number-post">
-                                                <a href="#thread/<%= collection[i]['c_id'] %>/<%= s_id %>/<%= collection[i]['forum_id'] %>" title="<% print(collection[i]['title']); %>">
-                                                    <img src="img/icons/forum_group.png" width="48px">
-                                                </a>
-                                                <p><%= lang.ForumTopics %>: <% print(collection[i]['threads']); %> </p>
-                                            </div>
+                <% for ( i in category[j]['forums'] ) { %>
+                    <% num_foros++; %>
+                    <div class="forum_display">
+                        <div class="panel panel-default forum">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="number-post">
+                                            <a href="#thread/<%= c_id %>/<%= s_id %>/<%= category[j]['forums'][i]['id'] %>" title="<% print(category[j]['forums'][i]['title']); %>">
+                                                <img src="img/icons/forum_group.png" width="48px">
+                                            </a>
+                                            <p><%= lang.ForumTopics %>: <% print(category[j]['forums'][i]['numberOfThreads']); %> </p>
                                         </div>
-                                        <div class="col-md-9">
-                                            <h3 class="title">
-                                              <img src="img/icons/32/forum_yellow.png" />
-                                              <a href="#thread/<%= collection[i]['c_id'] %>/<%= s_id %>/<%= collection[i]['forum_id'] %>" class=""><% print(collection[i]['title']); %></a>
-                                            </h3>
-                                            <% if (collection[i]['threads'] > 0 ) { %>
-                                                <div class="forum-date">
-                                                    <i class="fa fa-comments" aria-hidden="true"></i>
-                                                    <%= lang.LastMessage %>: <% print(collection[i]['last_post_date']); %> <%= lang.PublishedBy %> <% print(collection[i]['last_poster']); %>
-                                                </div>
-                                            <% } %>
-                                            <div class="description">
-                                                <% print(collection[i]['description']); %>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <h3 class="title">
+                                          <img src="img/icons/32/forum_yellow.png" />
+                                          <a href="#thread/<%= c_id %>/<%= s_id %>/<%= category[j]['forums'][i]['id'] %>" class=""><% print(category[j]['forums'][i]['title']); %></a>
+                                        </h3>
+                                        <% if (category[j]['forums'][i]['numberOfThreads'] > 0 ) { %>
+                                            <div class="forum-date">
+                                                <i class="fa fa-comments" aria-hidden="true"></i>
+                                                <%= lang.LastMessage %>: <% print(category[j]['forums'][i]['lastPost']['date']); %> <%= lang.PublishedBy %> <% print(category[j]['forums'][i]['lastPost']['user']); %>
                                             </div>
+                                        <% } %>
+                                        <div class="description">
+                                            <% print(category[j]['forums'][i]['description']); %>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    <% } %>
+                    </div>
                 <% } %>
                 
                 <% if ( num_foros == 0 ){ %>
