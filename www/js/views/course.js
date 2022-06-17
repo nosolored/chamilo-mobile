@@ -25,16 +25,15 @@ define([
 
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getInfoCourse = $.post(url, {
-            action: 'getInfoCourse',
+            action: 'course_info',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-            user_id: campusModel.get('user_id'),
-            c_id: courseId,
-            s_id: sessionId
+            course: courseId,
+            session: sessionId
         });
 
         $.when(getInfoCourse).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 console.log("error");
                 SpinnerPlugin.activityStop();
                 return;
@@ -46,33 +45,33 @@ define([
                 coursesCollection.create({
                     c_id: courseId,
                     s_id: sessionId,
-                    title: response.info.title,
-                    visibility: response.info.section.visibility,
-                    icons: response.info.section.icons,
-                    name: response.info.section.name,
-                    status_user: response.info.statusUser
+                    title: response.data.title,
+                    visibility: response.data.section.visibility,
+                    icons: response.data.section.icons,
+                    name: response.data.section.name,
+                    status_user: 0
                 })
             } else {
-                if (course.get("title") != response.info.title ||
-                    course.get("status_user") != response.info.statusUser ||
-                    course.get("visibility") != response.info.section.visibility ||
-                    course.get("icons") != response.info.section.icons ||
-                    course.get("name") != response.info.section.name
+                if (course.get("title") != response.data.title ||
+                    course.get("status_user") != 0 ||
+                    course.get("visibility") != response.data.section.visibility ||
+                    course.get("icons") != response.data.section.icons ||
+                    course.get("name") != response.data.section.name
                 ) {
                     course.set({"c_id": courseId});
                     course.set({"s_id": sessionId});
-                    course.set({"title": response.info.title});
-                    course.set({"visibility": response.info.section.visibility});
-                    course.set({"icons": response.info.section.icons});
-                    course.set({"name": response.info.section.name});
-                    course.set({"status_user": response.info.statusUser});
+                    course.set({"title": response.data.title});
+                    course.set({"visibility": response.data.section.visibility});
+                    course.set({"icons": response.data.section.icons});
+                    course.set({"name": response.data.section.name});
+                    course.set({"status_user": response.data.statusUser});
                     coursesCollection.set(course,{remove: false});
                 }
             }
 
             SpinnerPlugin.activityStop();
 
-            if (response.info.length === 0) {
+            if (response.data.length === 0) {
                 new AlertView({
                     model: {
                         message: window.lang.noInfo
@@ -153,84 +152,85 @@ define([
         },
         exerciseOnClick: function (e) {
             e.preventDefault();
-            
+
             var options = { dimBackground: true };
             SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
-            
-            var assetURL = campusModel.get('url') + 
-                '/plugin/chamilo_app/tool_access.php?' +
-                'tool=exercise' +
-                '&username=' + campusModel.get('username') +
-                '&api_key=' + campusModel.get('apiKey') +
-                '&user_id=' + campusModel.get('user_id') +
-                '&course_id=' + courseId +
-                '&session_id=' + sessionId +
-                '&isStudentView=1';
 
-            var messageBack = window.lang.BackToApp;
-            var options = "location=yes,hardwareback=no,zoom=yes,hideurlbar=yes,hidenavigationbuttons=yes,toolbarcolor=#3b6b78,closebuttoncolor=#FFFFFF,closebuttoncaption=< "+messageBack;
-            var inAppBrowserRef = cordova.InAppBrowser.open(assetURL, '_blank', options);
+            var url = campusModel.get('url') + '/main/webservices/api/v2.php';
+            var getQuizTool = $.post(url, {
+                action: 'view_quiz_tool',
+                username: campusModel.get('username'),
+                api_key: campusModel.get('apiKey'),
+                course: courseId,
+                session: sessionId
+            });
 
-            inAppBrowserRef.addEventListener('loadstop', function(event) { SpinnerPlugin.activityStop(); });
-            inAppBrowserRef.addEventListener('exit', loadStopCallBack);
+            $.when(getQuizTool).done(function (response) {
+                var messageBack = window.lang.BackToApp;
+                var options = "location=yes,hardwareback=no,zoom=yes,hideurlbar=yes,hidenavigationbuttons=yes,toolbarcolor=#3b6b78,closebuttoncolor=#FFFFFF,closebuttoncaption=< "+messageBack;
+                var inAppBrowserRef = cordova.InAppBrowser.open(response, '_blank', options);
 
-            function loadStopCallBack() {
-                if (inAppBrowserRef != undefined) {
-                    var networkState = navigator.connection.type;
-                    if (networkState == Connection.NONE) {
-                        window.setTimeout(function () {
-                            new AlertView({
-                                model: {
-                                    message: window.lang.notOnLine
-                                }
-                            });
-                        }, 1000);
-                    } else {
-                        loadInfoCourse();
+                inAppBrowserRef.addEventListener('loadstop', function(event) { SpinnerPlugin.activityStop(); });
+                inAppBrowserRef.addEventListener('exit', loadStopCallBack);
+
+                function loadStopCallBack() {
+                    if (inAppBrowserRef != undefined) {
+                        var networkState = navigator.connection.type;
+                        if (networkState == Connection.NONE) {
+                            window.setTimeout(function () {
+                                new AlertView({
+                                    model: {
+                                        message: window.lang.notOnLine
+                                    }
+                                });
+                            }, 1000);
+                        } else {
+                            loadInfoCourse();
+                        }
                     }
                 }
-            }
+            });
         },
         surveyOnClick: function (e) {
             e.preventDefault();
-            
+
             var options = { dimBackground: true };
             SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
-            
-            var assetURL = campusModel.get('url') + 
-                '/plugin/chamilo_app/tool_access.php?' +
-                'tool=survey' +
-                '&username=' + campusModel.get('username') +
-                '&api_key=' + campusModel.get('apiKey') +
-                '&user_id=' + campusModel.get('user_id') +
-                '&course_id=' + courseId +
-                '&session_id=' + sessionId +
-                '&isStudentView=1';
 
-            var messageBack = window.lang.BackToApp;
-            var options = "location=yes,hardwareback=no,zoom=no,hideurlbar=yes,hidenavigationbuttons=yes,toolbarcolor=#3b6b78,closebuttoncolor=#FFFFFF,closebuttoncaption=< "+messageBack;
-            var inAppBrowserRef = cordova.InAppBrowser.open(assetURL, '_blank', options);
+            var url = campusModel.get('url') + '/main/webservices/api/v2.php';
+            var getSurveyTool = $.post(url, {
+                action: 'view_survey_tool',
+                username: campusModel.get('username'),
+                api_key: campusModel.get('apiKey'),
+                course: courseId,
+                session: sessionId
+            });
 
-            inAppBrowserRef.addEventListener('loadstop', function(event) { SpinnerPlugin.activityStop(); });
-            inAppBrowserRef.addEventListener('exit', loadStopCallBack);
-            
+            $.when(getSurveyTool).done(function (response) {
+                var messageBack = window.lang.BackToApp;
+                var options = "location=yes,hardwareback=no,zoom=no,hideurlbar=yes,hidenavigationbuttons=yes,toolbarcolor=#3b6b78,closebuttoncolor=#FFFFFF,closebuttoncaption=< "+messageBack;
+                var inAppBrowserRef = cordova.InAppBrowser.open(response, '_blank', options);
 
-            function loadStopCallBack() {
-                if (inAppBrowserRef != undefined) {
-                    var networkState = navigator.connection.type;
-                    if (networkState == Connection.NONE) {
-                        window.setTimeout(function () {
-                            new AlertView({
-                                model: {
-                                    message: window.lang.notOnLine
-                                }
-                            });
-                        }, 1000);
-                    } else {
-                        loadInfoCourse();
+                inAppBrowserRef.addEventListener('loadstop', function(event) { SpinnerPlugin.activityStop(); });
+                inAppBrowserRef.addEventListener('exit', loadStopCallBack);
+
+                function loadStopCallBack() {
+                    if (inAppBrowserRef != undefined) {
+                        var networkState = navigator.connection.type;
+                        if (networkState == Connection.NONE) {
+                            window.setTimeout(function () {
+                                new AlertView({
+                                    model: {
+                                        message: window.lang.notOnLine
+                                    }
+                                });
+                            }, 1000);
+                        } else {
+                            loadInfoCourse();
+                        }
                     }
                 }
-            }
+            });
         }
     });
 
