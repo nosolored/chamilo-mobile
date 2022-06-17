@@ -19,18 +19,17 @@ define([
 	    var options = { dimBackground: true };
 	    SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
-		var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+		var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getAgenda = $.post(url, {
-            action: 'getAgenda',
+            action: 'course_agenda',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-			c_id: courseId,
-			s_id: sessionId,
-			user_id: campusModel.get('user_id')
+			course: courseId,
+			session: sessionId
         });
 
         $.when(getAgenda).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 SpinnerPlugin.activityStop();
                 return;
             }
@@ -38,7 +37,7 @@ define([
 			agendaModel.cid = parseInt(""+courseId+'000'+sessionId);
 			agendaModel.set({"c_id": courseId});
 			agendaModel.set({"s_id": sessionId});
-			agendaModel.set({"events": response.events});
+			agendaModel.set({"events": response.data});
 
 			SpinnerPlugin.activityStop();
 			
