@@ -23,16 +23,15 @@ define([
 
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getDocuments = $.post(url, {
-            action: 'getDocuments',
+            action: 'course_documents',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-			c_id: courseId,
-			s_id: sessionId,
-			path: path
+            course: courseId,
+            session: sessionId
         });
 
         $.when(getDocuments).done(function (response) {
-			if (!response.status) {
+			if (response.error) {
 			    SpinnerPlugin.activityStop();
                 return;
             }
@@ -49,12 +48,12 @@ define([
 			} else {
 				documentsModel.set({"path_back": "empty"});
 			}
-			documentsModel.set({"documents": response.documents});
+			documentsModel.set({"documents": response.data});
 			documentsModel.cid = parseInt(""+courseId+'000'+sessionId);
 
 			SpinnerPlugin.activityStop();
 
-            if (response.documents.length === 0) {
+            if (response.data.length === 0) {
                 new AlertView({
                     model: {
                         message: window.lang.noDocuments
@@ -139,40 +138,42 @@ define([
             if (fileName.indexOf(".html") != -1) {
                 var options = { dimBackground: true };
                 SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
-                
-                var assetURL = campusModel.get('url') + 
-                    '/plugin/chamilo_app/tool_access.php?' +
-                    'tool=document_html' +
-                    '&username=' + campusModel.get('username') +
-                    '&api_key=' + campusModel.get('apiKey') +
-                    '&user_id=' + campusModel.get('user_id') +
-                    '&course_id=' + courseId +
-                    '&session_id=' + sessionId +
-                    '&document_id=' + document_id;
 
-                var messageBack = window.lang.BackToApp;
-                var options = "location=yes,hardwareback=no,zoom=yes,hideurlbar=yes,hidenavigationbuttons=yes,toolbarcolor=#3b6b78,closebuttoncolor=#FFFFFF,closebuttoncaption=< "+messageBack;
-                var inAppBrowserRef = cordova.InAppBrowser.open(assetURL, '_blank', options);
+                var url = campusModel.get('url') + '/main/webservices/api/v2.php';
+                var getDocumentInFrame = $.post(url, {
+                    action: 'view_document_in_frame',
+                    username: campusModel.get('username'),
+                    api_key: campusModel.get('apiKey'),
+                    course: courseId,
+                    session: sessionId,
+                    document: document_id
+                });
 
-                inAppBrowserRef.addEventListener('loadstop', function(event) { SpinnerPlugin.activityStop(); });
-                inAppBrowserRef.addEventListener('exit', loadStopCallBack);
+                $.when(getDocumentInFrame).done(function (response) {
+                    var messageBack = window.lang.BackToApp;
+                    var options = "location=yes,hardwareback=no,zoom=yes,hideurlbar=yes,hidenavigationbuttons=yes,toolbarcolor=#3b6b78,closebuttoncolor=#FFFFFF,closebuttoncaption=< "+messageBack;
+                    var inAppBrowserRef = cordova.InAppBrowser.open(response, '_blank', options);
 
-                function loadStopCallBack() {
-                    if (inAppBrowserRef != undefined) {
-                        var networkState = navigator.connection.type;
-                        if (networkState == Connection.NONE) {
-                            window.setTimeout(function () {
-                                new AlertView({
-                                    model: {
-                                        message: window.lang.notOnLine
-                                    }
-                                });
-                            }, 1000);
-                        } else {
-                            loadInfoCourse();
+                    inAppBrowserRef.addEventListener('loadstop', function(event) { SpinnerPlugin.activityStop(); });
+                    inAppBrowserRef.addEventListener('exit', loadStopCallBack);
+
+                    function loadStopCallBack() {
+                        if (inAppBrowserRef != undefined) {
+                            var networkState = navigator.connection.type;
+                            if (networkState == Connection.NONE) {
+                                window.setTimeout(function () {
+                                    new AlertView({
+                                        model: {
+                                            message: window.lang.notOnLine
+                                        }
+                                    });
+                                }, 1000);
+                            } else {
+                                loadInfoCourse();
+                            }
                         }
                     }
-                }
+                });
             } else {
                 goToDownload(assetURL, fileName);
             }
