@@ -23,17 +23,17 @@ define([
         var options = { dimBackground: true };
         SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getDescription = $.post(url, {
-            action: 'getDescription',
+            action: 'course_descriptions',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-			c_id: courseId,
-			s_id: sessionId
+            course: courseId,
+            session: sessionId
         });
 
         $.when(getDescription).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 return;
             }
 
@@ -43,18 +43,18 @@ define([
                 descriptionsCollection.create({
                     c_id: courseId,
                     s_id: sessionId,
-                    descriptions: response.descriptions,
+                    descriptions: response.data,
                 })
             } else {
-                if (!isEqual(description.get("descriptions"), response.descriptions)) {
-                    description.set({"descriptions": response.descriptions});
+                if (!isEqual(description.get("descriptions"), response.data)) {
+                    description.set({"descriptions": response.data});
                     descriptionsCollection.set(description,{remove: false});
                 }
             }
 
             SpinnerPlugin.activityStop();
 
-			if (response.descriptions.length === 0) {
+			if (response.data.length === 0) {
                 new AlertView({
                     model: {
                         message: window.lang.noDescription
