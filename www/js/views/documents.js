@@ -21,7 +21,7 @@ define([
 	    var options = { dimBackground: true };
         SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getDocuments = $.post(url, {
             action: 'course_documents',
             username: campusModel.get('username'),
@@ -39,7 +39,6 @@ define([
 			documentsModel.set({"c_id": courseId});
 			documentsModel.set({"s_id": sessionId});
 			documentsModel.set({"path": path});
-			documentsModel.set({"base": campusModel.get('url') + '/plugin/chamilo_app/download.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey')});
 			if (path_back.length > 0) {
 				var top = path_back.pop();
 				documentsModel.set({"path_back": top});
