@@ -7,18 +7,15 @@ define([
     var courseId = 0;
     var sessionId = 0;
     var logoutPlatform = function () {
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getResponse = $.post(url, {
-            action: 'logoutPlatform',
+            action: 'logout',
             username: campusModel.get('username'),
-            api_key: campusModel.get('apiKey'),
-            user_id: campusModel.get('user_id'),
-            c_id: courseId,
-            s_id: sessionId
+            api_key: campusModel.get('apiKey')
         });
 
         $.when(getResponse).done(function (response) {
-            if (!response.status) {
+            if (!response.data || !response.data.status) {
                 console.log("no response status");
                 return;
             }
