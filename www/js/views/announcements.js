@@ -21,47 +21,46 @@ define([
         var options = { dimBackground: true };
         SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getAnnouncements = $.post(url, {
-            action: 'getAnnouncementsList',
+            action: 'course_announcements',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-			user_id: campusModel.get('user_id'),
-			c_id: courseId,
-			s_id: sessionId
+			course: courseId,
+			session: sessionId
         });
 
         $.when(getAnnouncements).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 SpinnerPlugin.activityStop();
                 return;
             }
 
-            response.announcements.forEach(function (announcementData) {
-				if(announcementsCollection.get(announcementData.iid) == null){
+            response.data.forEach(function (announcementData) {
+				if(announcementsCollection.get(announcementData.id) == null){
 				    announcementsCollection.create({
 						c_id: courseId,
 						s_id: sessionId,
-						a_id: parseInt(announcementData.a_id),
-						iid: parseInt(announcementData.iid),
+						a_id: parseInt(announcementData.id),
+						iid: parseInt(announcementData.id),
 						title: announcementData.title,
 						content: announcementData.content,
-						last_edit: announcementData.last_edit,
-						teacher: announcementData.teacher
+						last_edit: announcementData.date,
+						teacher: announcementData.creatorName
 					});
 				}else{
-					var announcement = announcementsCollection.get(announcementData.iid);
+					var announcement = announcementsCollection.get(announcementData.id);
 					announcement.set({"title": announcementData.title});
 					announcement.set({"content": announcementData.content});
-					announcement.set({"last_edit": announcementData.last_edit});
-					announcement.set({"teacher": announcementData.teacher});
+					announcement.set({"last_edit": announcementData.date});
+					announcement.set({"teacher": announcementData.creatorName});
 					announcementsCollection.set(announcement,{remove: false});
 				}
             });
             
             SpinnerPlugin.activityStop();
 
-            if (response.announcements.length === 0) {
+            if (response.data.length === 0) {
                 new AlertView({
                     model: {
                         message: window.lang.noAnnouncements
