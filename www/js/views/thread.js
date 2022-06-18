@@ -21,54 +21,55 @@ define([
     var loadThreads = function () {
         //console.log("funcion loadThreads");
 
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getForums = $.post(url, {
-            action: 'getThreadsList',
+            action: 'course_forum',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
             user_id: campusModel.get('user_id'),
-            c_id: courseId,
-            f_id: forumId
+            course: courseId,
+            session: sessionId,
+            forum: forumId
         });
 
         $.when(getForums).done(function (response) {
 
-            if (!response.status) {
+            if (response.error) {
                 return;
             }
 
             //console.log(response);
 
-            forum_title = response.data.forum_title;
+            forum_title = response.data.title;
             infoModel.set("forum_title", forum_title);
             response.data.threads.forEach(function (threadData) {
-                var cid = parseInt("" + threadData.c_id + "00" + threadData.forum_id + "00" + threadData.thread_id);
+                var cid = parseInt("" + courseId + "00" + response.data.id + "00" + threadData.id);
                 if(threadsCollection.get(cid) == null){
                     threadsCollection.create({
-                        c_id: parseInt(threadData.c_id),
-                        forum_id: parseInt(threadData.forum_id),
-                        title: threadData.thread_title,
-                        thread_id: parseInt(threadData.thread_id),
-                        replies: parseInt(threadData.thread_replies),
-                        views: threadData.thread_views,
-                        thread_poster_name: threadData.thread_poster_name,
-                        last_post_date: threadData.last_post_date,
-                        last_poster: threadData.last_post_name,
-                        insert_date: threadData.insert_date,
-                        iconnotify: threadData.iconnotify,
-                        image: threadData.image
+                        c_id: parseInt(courseId),
+                        forum_id: parseInt(response.data.id),
+                        title: threadData.title,
+                        thread_id: parseInt(threadData.id),
+                        replies: parseInt(threadData.numberOfReplies),
+                        views: threadData.numberOfViews,
+                        thread_poster_name: threadData.author,
+                        last_post_date: threadData.lastPostDate,
+                        last_poster: threadData.lastPosterName,
+                        insert_date: threadData.insertDate,
+                        iconnotify: threadData.notifyIcon,
+                        image: threadData.authorAvatar
                     });
                 }else{
                     var thread = threadsCollection.get(cid);
-                    thread.set({"title": threadData.thread_title});
-                    thread.set({"replies": threadData.thread_replies});
-                    thread.set({"views": threadData.thread_views});
-                    thread.set({"thread_poster_name": threadData.thread_poster_name})
-                    thread.set({"last_post_date": threadData.last_post_date});
-                    thread.set({"last_poster": threadData.last_poster});
-                    thread.set({"insert_date": threadData.insert_date});
-                    thread.set({"iconnotify": threadData.iconnotify});
-                    thread.set({"image": threadData.image});
+                    thread.set({"title": threadData.title});
+                    thread.set({"replies": threadData.numberOfReplies});
+                    thread.set({"views": threadData.numberOfViews});
+                    thread.set({"thread_poster_name": threadData.author})
+                    thread.set({"last_post_date": threadData.lastPostDate});
+                    thread.set({"last_poster": threadData.lastPosterName});
+                    thread.set({"insert_date": threadData.insertDate});
+                    thread.set({"iconnotify": threadData.notifyIcon});
+                    thread.set({"image": threadData.authorAvatar});
                     threadsCollection.set(thread,{remove: false});
                 }
             });
@@ -124,19 +125,18 @@ define([
             var forum_id = $("#forum_id").val();
             var thread_id = e.currentTarget.id;
 
-            var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+            var url = campusModel.get('url') + '/main/webservices/api/v2.php';
             var checkingNotify = $.post(url, {
-                action: 'setNotify',
+                action: 'set_thread_notify',
                 username: campusModel.get('username'),
                 api_key: campusModel.get('apiKey'),
-                user_id: campusModel.get('user_id'),
-                f_id: forum_id,
-                t_id: thread_id
+                course: courseId,
+                session: sessionId,
+                thread: thread_id.substring(6)
             });
 
             $.when(checkingNotify).done(function (response) {
-                //console.log(response);
-                if (!response.status) {
+                if (response.error) {
                     new AlertView({
                         model: {
                             message: window.lang.problemSave
@@ -147,16 +147,15 @@ define([
 
                 new AlertView({
                     model: {
-                        message: response.message
+                        message: response.data.message
                     }
                 });
-                //console.log(response.id);
-                //console.log(self.$('#'+response.id).prop("src"));
-                var src = self.$('#'+response.id).attr("src");
+
+                var src = self.$('#'+thread_id).attr("src");
                 if (src.indexOf("notification_mail_na") > 0) {
-                    self.$('#'+response.id).attr("src", "img/icons/22/notification_mail.png");
+                    self.$('#'+thread_id).attr("src", "img/icons/22/notification_mail.png");
                 } else {
-                    self.$('#'+response.id).attr("src", "img/icons/22/notification_mail_na.png");
+                    self.$('#'+thread_id).attr("src", "img/icons/22/notification_mail_na.png");
                 }
 
             });
