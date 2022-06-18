@@ -36,22 +36,21 @@ define([
             listId += model.get('messageId');
         });
         
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getMessages = $.post(url, {
-            action: 'getNewMessages',
+            action: 'user_messages_received',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-            last: campusModel.get('lastMessage'),
-            list: listId
+            last: campusModel.get('lastMessage')
         });
 
         $.when(getMessages).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 return;
             }
             
             //Add new messages
-            response.messages.forEach(function (messageData) {
+            response.data.forEach(function (messageData) {
                 messagesCollection.create({
                     messageId: parseInt(messageData.id),
                     sender: messageData.sender.completeName,
@@ -59,19 +58,12 @@ define([
                     content: messageData.content,
                     hasAttachment: messageData.hasAttachments,
                     sendDate: messageData.sendDate,
-                    //url: messageData.platform.messagingTool
-                    url: campusModel.get('url') + '/plugin/chamilo_app/inbox.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey') + '&user_id=' + campusModel.get('user_id') + '&message_id=' + parseInt(messageData.id),
-                    read: messageData.status
+                    url: messageData.url,
+                    read: messageData.msgStatus
                 });
             });
-            
-            //Remove messages
-            response.remove_messages.forEach(function (messageId) {
-                messagesCollection.removeDB(messageId);
-            });
-            
 
-            if (response.messages.length === 0) {
+            if (response.data.length === 0) {
                 new AlertView({
                     model: {
                         message: window.lang.noNewMessages
@@ -80,7 +72,7 @@ define([
                 return;
             }
 
-            var lastMessage = _.first(response.messages);
+            var lastMessage = _.first(response.data);
 
             campusModel.save({
                 lastMessage: parseInt(lastMessage.id),
@@ -90,19 +82,19 @@ define([
     };
     
     var loadAllMessages = function () {
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getMessages = $.post(url, {
-            action: 'getAllMessages',
+            action: 'user_messages_received',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey')
         });
 
         $.when(getMessages).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 return;
             }
 
-            response.messages.forEach(function (messageData) {
+            response.data.forEach(function (messageData) {
                 messagesCollection.create({
                     messageId: parseInt(messageData.id),
                     sender: messageData.sender.completeName,
@@ -110,13 +102,12 @@ define([
                     content: messageData.content,
                     hasAttachment: messageData.hasAttachments,
                     sendDate: messageData.sendDate,
-                    //url: messageData.platform.messagingTool
-                    url: campusModel.get('url') + '/plugin/chamilo_app/inbox.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey') + '&user_id=' + campusModel.get('user_id') + '&message_id=' + parseInt(messageData.id),
-                    read: messageData.status
+                    url: messageData.url,
+                    read: messageData.msgStatus
                 });
             });
 
-            if (response.messages.length === 0) {
+            if (response.data.length === 0) {
                 new AlertView({
                     model: {
                         message: window.lang.noNewMessages
@@ -125,7 +116,7 @@ define([
                 return;
             }
 
-            var lastMessage = _.first(response.messages);
+            var lastMessage = _.first(response.data);
 
             campusModel.save({
                 lastMessage: parseInt(lastMessage.id),
