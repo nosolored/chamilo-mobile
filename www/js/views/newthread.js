@@ -5,19 +5,19 @@ define([
     'text!template/newthread.html',
     'views/alert'
 ], function ($, _, Backbone, NewThreadTemplate, AlertView) {
-	var campusModel = null;
+    var campusModel = null;
     var NewThreadView = Backbone.View.extend({
-		el: 'body',
+        el: 'body',
         template: _.template(NewThreadTemplate),
-		initialize: function (options) {
-			this.options = options;
-			$(this.el).unbind();
+        initialize: function (options) {
+            this.options = options;
+            $(this.el).unbind();
             campusModel = this.model;
-			courseId = this.options.courseId;
-			sessionId = this.options.sessionId;
-			forumId = this.options.forum_id;
-			console.log("initialize")
-		},
+            courseId = this.options.courseId;
+            sessionId = this.options.sessionId;
+            forumId = this.options.forum_id;
+            console.log("initialize")
+        },
         events: {
             'submit #frm-new-thread': 'frmNewThreadOnSubmit'
         },
@@ -34,9 +34,9 @@ define([
             var title = self.$('#txt-title').val().trim(); 
             var text = self.$('#txt-text').val().trim();
             var notice = self.$('#notice-email').val().trim();
-			var course_id = self.$('#course-id').val().trim();
-			var session_id = self.$('#session-id').val().trim();
-			var forum_id = self.$('#forum-id').val().trim();
+            var course_id = self.$('#course-id').val().trim();
+            var session_id = self.$('#session-id').val().trim();
+            var forum_id = self.$('#forum-id').val().trim();
 
             if (!title) {
                 new AlertView({
@@ -59,10 +59,10 @@ define([
             }
 
             self.$('#btn-submit').prop('disabled', true);
-			
-			console.log(title +' '+ text +' '+ notice +' '+ course_id +' '+ session_id +' '+ forum_id);
 
-			var url = campusModel.get('url') + '/main/webservices/api/v2.php';
+            console.log(title +' '+ text +' '+ notice +' '+ course_id +' '+ session_id +' '+ forum_id);
+
+            var url = campusModel.get('url') + '/main/webservices/api/v2.php';
             var checkingForm = $.post(url, {
                 action: 'save_forum_thread',
                 username: campusModel.get('username'),
