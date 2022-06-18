@@ -63,6 +63,28 @@ define([
                 });
             });
 
+            //Remove messages
+            if (listId) {
+                var messagesIdToDelete = listId.split('-');
+                messagesIdToDelete.forEach(function (item, index) {
+                    var getRemoveMessage = $.post(url, {
+                        action: 'delete_user_message',
+                        username: campusModel.get('username'),
+                        api_key: campusModel.get('apiKey'),
+                        message_id: item,
+                        msg_type: ''
+                    });
+
+                    $.when(getRemoveMessage).done(function (subresponse) {
+                        if (!subresponse.error) {
+                            console.log('delete received message: ' + item);
+                            outmessagesCollection.removeDB(item);
+                        }
+                    });
+
+                });
+            }
+
             if (response.data.length === 0) {
                 new AlertView({
                     model: {
