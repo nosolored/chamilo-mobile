@@ -35,33 +35,33 @@
 </header>
 
 <div class="container">
-	<section id="main_content">
-    	<% if (learnpath.length > 0) { %>
-        	<% for (var i = 0; i < learnpath.length; i++) { %>
-                <% if (learnpath[i]['lp_list'].length == 0) { 
+    <section id="main_content">
+        <% if (learnpath.length > 0) { %>
+            <% for (var i = 0; i < learnpath.length; i++) { %>
+                <% if (learnpath[i]['learnpaths'].length == 0) {
                     continue;
                 } %>
-                <% if (learnpath[i]['category'] != '') { %>
-                	<h4><% print(learnpath[i]['category']); %></h4>
+                <% if (learnpath[i]['name'] != '') { %>
+                    <h4><% print(learnpath[i]['name']); %></h4>
                 <% } %>
                 <table class="table-striped" width="100%">
-                <tr><th>Título</th><th class="text-center">Progreso</th></tr>
-                <% for (var j = 0; j < learnpath[i]['lp_list'].length; j++) { %>
-                    <tr>
-                    <td>
-                        <a class="link-learnpath" href="<%= base %>&url=<% print(learnpath[i]['lp_list'][j]['url_start']); %>">
-                    		<% print(learnpath[i]['lp_list'][j]['title']); %>
-                        </a>
-                    </td>
-                    <td>
-                        <div class="progress">
-                            <div id="progress_bar_value" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="<% print(learnpath[i]['lp_list'][j]['dsp_progress']); %>" aria-valuemin="0" aria-valuemax="100" style="width: <% print(learnpath[i]['lp_list'][j]['dsp_progress']); %>%;">
-                                <% print(learnpath[i]['lp_list'][j]['dsp_progress']); %>%
-                            </div>
-                        </div>
-                    </td>
-                    </tr>
-                <% } %>
+                    <tr><th>Título</th><th class="text-center">Progreso</th></tr>
+                    <% for (var j = 0; j < learnpath[i]['learnpaths'].length; j++) { %>
+                        <tr>
+                            <td>
+                                <a class="link-learnpath" href="<% print(learnpath[i]['learnpaths'][j]['url']); %>">
+                                    <% print(learnpath[i]['learnpaths'][j]['title']); %>
+                                </a>
+                            </td>
+                            <td>
+                                <div class="progress">
+                                    <div id="progress_bar_value" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="<% print(learnpath[i]['learnpaths'][j]['progress']); %>" aria-valuemin="0" aria-valuemax="100" style="width: <% print(learnpath[i]['lp_list'][j]['progress']); %>%;">
+                                        <% print(learnpath[i]['learnpaths'][j]['progress']); %>%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    <% } %>
                 </table>
             <% } %>
         <% } %>

@@ -4,10 +4,9 @@ define([
     var LearnpathModel = Backbone.Model.extend({
         defaults: {
             c_id: 0,
-			s_id: 0,
-			base: '',
-			learnpath: []
-		}
+            s_id: 0,
+            learnpath: []
+        }
     });
 
     return LearnpathModel;
