@@ -5,26 +5,26 @@ define([
     'text!template/replymessage.html',
     'views/alert'
 ], function ($, _, Backbone, ReplyMessageTemplate, AlertView) {
-	var campusModel = null;
-	var messageModel = null;
-	var messageId = 0;
+    var campusModel = null;
+    var messageModel = null;
+    var messageId = 0;
     var ReplyMessageView = Backbone.View.extend({
-		el: 'body',
+        el: 'body',
         template: _.template(ReplyMessageTemplate),
-		
-		initialize: function (options) {
-			this.options = options;
-			$(this.el).unbind();
-			campusModel = this.options.campus;
+
+        initialize: function (options) {
+            this.options = options;
+            $(this.el).unbind();
+            campusModel = this.options.campus;
             messageId = this.id;
-			messageModel = this.model;
-			console.log("initialize");
-			console.log(campusModel);
-		},
+            messageModel = this.model;
+            console.log("initialize");
+            console.log(campusModel);
+        },
         events: {
             'submit #frm-reply-message': 'frmReplyMessageOnSubmit'
         },
-		render: function () {
+        render: function () {
             this.el.innerHTML = this.template({messageId: messageModel.get("messageId"), sender: messageModel.get("sender"), subject: 'RE: '+messageModel.get("title"), content: messageModel.get("content")});
             return this;
         },
@@ -36,7 +36,7 @@ define([
             var title = self.$('#txt-title').val().trim(); 
             var text = self.$('#txt-text').val().trim();
             var message_id = self.$('#message-id').val().trim();
-			var check_quote = self.$('#check_quote').is(":checked") ? 1 : 0;
+            var check_quote = self.$('#check_quote').is(":checked") ? 1 : 0;
 
             if (!title) {
                 new AlertView({
@@ -59,18 +59,18 @@ define([
             }
 
             self.$('#btn-submit').prop('disabled', true);
-			
-			console.log(title +' '+ text +' '+message_id);
 
-			var url = campusModel.get('url') + '/main/webservices/api/v2.php';
+            console.log(title +' '+ text +' '+message_id);
+
+            var url = campusModel.get('url') + '/main/webservices/api/v2.php';
             var checkingForm = $.post(url, {
                 action: 'save_user_message_reply',
-				username: campusModel.get('username'),
-				api_key: campusModel.get('apiKey'),
+                username: campusModel.get('username'),
+                api_key: campusModel.get('apiKey'),
                 subject: title,
                 text: text,
-				message_id: message_id,
-				quoted: check_quote
+                message_id: message_id,
+                quoted: check_quote
             });
 
             $.when(checkingForm).done(function (response) {
@@ -100,7 +100,7 @@ define([
                 self.$('#btn-submit').prop('disabled', false);
             });
         }
-		
+
     });
 
     return ReplyMessageView;
