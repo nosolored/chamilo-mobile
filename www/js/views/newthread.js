@@ -61,22 +61,22 @@ define([
             self.$('#btn-submit').prop('disabled', true);
 			
 			console.log(title +' '+ text +' '+ notice +' '+ course_id +' '+ session_id +' '+ forum_id);
-			var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+
+			var url = campusModel.get('url') + '/main/webservices/api/v2.php';
             var checkingForm = $.post(url, {
-                action: 'formNewThread',
-				username: campusModel.get('username'),
-				api_key: campusModel.get('apiKey'),
-				user_id: campusModel.get('user_id'),
+                action: 'save_forum_thread',
+                username: campusModel.get('username'),
+                api_key: campusModel.get('apiKey'),
+                course: course_id,
+                session: session_id,
                 title: title,
                 text: text,
-				notice: notice,
-				c_id: course_id,
-				s_id: session_id,
-				f_id: forum_id
+                forum: forum_id,
+                notify: notice
             });
 
             $.when(checkingForm).done(function (response) {
-                if (!response.status) {
+                if (response.error) {
                     new AlertView({
                         model: {
                             message: window.lang.problemSave
