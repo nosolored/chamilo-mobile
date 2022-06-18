@@ -20,18 +20,17 @@ define([
       var options = { dimBackground: true };
       SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+      var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getLink = $.post(url, {
-            action: 'getLink',
+            action: 'course_links',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-            c_id: courseId,
-            s_id: sessionId,
-            user_id: campusModel.get('user_id')
+            course: courseId,
+            session: sessionId
         });
 
         $.when(getLink).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 SpinnerPlugin.activityStop();
                 return;
             }
@@ -39,9 +38,7 @@ define([
             linkModel.cid = parseInt(""+courseId+'000'+sessionId);
             linkModel.set({"c_id": courseId});
             linkModel.set({"s_id": sessionId});
-            linkModel.set({"category": response.links.category});
-            linkModel.set({"links": response.links.links});
-            linkModel.set({"orden": response.links.orden});
+            linkModel.set({"category": response.data});
 
             SpinnerPlugin.activityStop();
 
