@@ -31,23 +31,22 @@ define([
                 var options = { dimBackground: true };
                 SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
-                var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+                var url = campusModel.get('url') + '/main/webservices/api/v2.php';
                 var getUsers = $.post(url, {
-                    action: 'getUsersMessage',
+                    action: 'message_users',
                     username: campusModel.get('username'),
                     api_key: campusModel.get('apiKey'),
-                    user_id: campusModel.get('user_id'),
-                    user_search: user_search
+                    q: user_search
                 });
 
                 $.when(getUsers).done(function (response) {
-                    if (!response.status) {
+                    if (response.error) {
                         return;
                     }
                     var texto = '';
-                    for (var i in response.users){
-                        var userData = response.users[i];
-                        texto += '<label><input type="checkbox" name="remite[]" value="'+userData.id+'" /> '+userData.text+'</label><br/>';
+                    for (var i in response.data){
+                        var userData = response.data[i];
+                        texto += '<label><input type="checkbox" name="remite[]" value="'+userData.id+'" /> '+userData.name+'</label><br/>';
                     }
                     if(texto == ''){
                         texto = '<div class="alert alert-warning"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'+window.lang.NoMatches+'</div>';
@@ -103,19 +102,18 @@ define([
 
             self.$('#btn-submit').prop('disabled', true);
 
-            var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+            var url = campusModel.get('url') + '/main/webservices/api/v2.php';
             var checkingForm = $.post(url, {
-                action: 'formNewMessage',
+                action: 'save_user_message',
                 username: campusModel.get('username'),
                 api_key: campusModel.get('apiKey'),
-                user_id: campusModel.get('user_id'),
-                to_userid: list_user,
-                title: title,
+                receivers: list_user,
+                subject: title,
                 text: text
             });
 
             $.when(checkingForm).done(function (response) {
-                if (!response.status) {
+                if (response.error) {
                     new AlertView({
                         model: {
                             message: window.lang.problemSave
