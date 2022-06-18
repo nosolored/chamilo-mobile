@@ -24,51 +24,48 @@ define([
        
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
         var getPosts = $.post(url, {
-            action: 'getPostsList',
+            action: 'course_forumthread',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
             user_id: campusModel.get('user_id'),
-            c_id: courseId,
-            f_id: forumId,
-            t_id: threadId
+            course: courseId,
+            session: sessionId,
+            forum: forumId,
+            thread: threadId
         });
         
         $.when(getPosts).done(function (response) {
-            //console.log(response);
-            if (!response.status) {
+            if (response.error) {
                 return;
             }
-            thread_title = response.data.thread_title;
+            thread_title = response.data.title;
             infoModel.set("thread_title", thread_title);        
             
             for (var i in response.data.posts) {
                 var postData = response.data.posts[i];
-                var cid = postData.iid;
+                var cid = postData.id;
                 if (postsCollection.get(cid) == null) { 
                     postsCollection.create({
-                        c_id: parseInt(postData.c_id),
-                        forum_id: parseInt(postData.forum_id),
-                        thread_id: parseInt(postData.thread_id),
-                        post_id: parseInt(postData.post_id),
-                        title: postData.post_title,
-                        text: postData.post_text,                        
-                        poster: postData.poster_name,
+                        c_id: parseInt(response.data.cId),
+                        forum_id: parseInt(response.data.forumId),
+                        thread_id: parseInt(response.data.id),
+                        post_id: parseInt(postData.id),
+                        title: postData.title,
+                        text: postData.text,
+                        poster: postData.author,
                         date: postData.date,
-                        path: postData.path,
-                        filename: postData.filename,
-                        image: postData.image,
-                        indent_cnt: postData.indent_cnt,
-                        iid: postData.iid
+                        attachments: postData.attachments,
+                        avatar: postData.avatar,
+                        indent_cnt: postData.indent_cnt
                     });
                 } else {
                     var post = postsCollection.get(cid);
-                    post.set({"title": postData.post_title});
+                    post.set({"title": postData.title});
                     post.set({"text": postData.post_text});
-                    post.set({"date": postData.date});
-                    post.set({"poster": postData.poster_name});
-                    post.set({"path": postData.path});
-                    post.set({"filename": postData.filename});
-                    post.set({"image": postData.image});
+                    post.set({"date": postData.text});
+                    post.set({"poster": postData.author});
+                    post.set({"attachments": postData.attachments});
+                    post.set({"avatar": postData.avatar});
                     postsCollection.set(post,{remove: false});
                 }
             };

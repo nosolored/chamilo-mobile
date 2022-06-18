@@ -50,7 +50,7 @@
                 <div class="row">
                 <div class="col-md-2">
                     <div class="thumbnail">
-                        <% print(collection[i]['image']); %>
+                        <% print(collection[i]['avatar']); %>
                     </div>
                     <h4 class="title-username">
                         <a href="#profile/<% print(collection[i]['poster_id']); %>">
@@ -71,19 +71,19 @@
                 </div>
             </div>
             <div class="row">
-                <% if (collection[i]['path'].length > 0) { %>
+                <% if (collection[i]['attachments'].length > 0) { %>
                     <div class="col-md-12">
-                    <% for ( var j = 0; j < collection[i]['path'].length; j++){ %>
+                    <% for ( var j = 0; j < collection[i]['attachments'].length; j++){ %>
                         <img src="img/icons/attachment.gif" />
-                        <a id="<% print(collection[i]['filename'][j]) %>" class="link-file-post" href="<%= base %>&c_id=<%= c_id %>&s_id=<%= s_id %>&path=<% print(collection[i]['path'][j]) %>"><% print(collection[i]['filename'][j]) %></a>
+                        <a id="<% print(collection[i]['attachments'][j][filename]) %>" class="link-file-post" href="#"><% print(collection[i]['attachments'][j][filename]) %></a>
                     <% } %>
                     </div>
                 <% } %>
                 <div class="col-md-12 text-right">
-                    <a id="reply-to-post-<%= collection[i]['post_id'] %>" class="btn btn-primary" href="#reply_post/<%= c_id %>/<%= s_id %>/<%= f_id %>/<%= t_id %>/<%= collection[i]['post_id'] %>/<%= collection[i]['iid'] %>">
+                    <a id="reply-to-post-<%= collection[i]['post_id'] %>" class="btn btn-primary" href="#reply_post/<%= c_id %>/<%= s_id %>/<%= f_id %>/<%= t_id %>/<%= collection[i]['post_id'] %>">
                         <i class="fa fa-reply fa-fw" aria-hidden="true"></i> <%= lang.ReplyToMessage %>
                     </a>
-                    <a id="quote-post-<%= collection[i]['post_id'] %>" class="btn btn-success" href="#reply_quote/<%= c_id %>/<%= s_id %>/<%= f_id %>/<%= t_id %>/<%= collection[i]['post_id'] %>/<%= collection[i]['iid'] %>">
+                    <a id="quote-post-<%= collection[i]['post_id'] %>" class="btn btn-success" href="#reply_quote/<%= c_id %>/<%= s_id %>/<%= f_id %>/<%= t_id %>/<%= collection[i]['post_id'] %>">
                         <i class="fa fa-quote-left fa-fw" aria-hidden="true"></i> <%= lang.QuoteMessage %>
                     </a>
                 </div>
