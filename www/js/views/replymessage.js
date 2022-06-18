@@ -61,20 +61,20 @@ define([
             self.$('#btn-submit').prop('disabled', true);
 			
 			console.log(title +' '+ text +' '+message_id);
-			var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+
+			var url = campusModel.get('url') + '/main/webservices/api/v2.php';
             var checkingForm = $.post(url, {
-                action: 'formReplyMessage',
+                action: 'save_user_message_reply',
 				username: campusModel.get('username'),
 				api_key: campusModel.get('apiKey'),
-				user_id: campusModel.get('user_id'),
-                title: title,
+                subject: title,
                 text: text,
 				message_id: message_id,
-				check_quote: check_quote
+				quoted: check_quote
             });
 
             $.when(checkingForm).done(function (response) {
-                if (!response.status) {
+                if (response.error) {
                     new AlertView({
                         model: {
                             message: window.lang.problemSave
