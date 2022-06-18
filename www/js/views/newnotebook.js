@@ -58,20 +58,20 @@ define([
             self.$('#btn-submit').prop('disabled', true);
 			
 			console.log(title +' '+ text +' '+ course_id +' '+ session_id);
-			var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+
+			var url = campusModel.get('url') + '/main/webservices/api/v2.php';
             var checkingForm = $.post(url, {
-                action: 'formNewNotebook',
+                action: 'save_course_notebook',
 				username: campusModel.get('username'),
 				api_key: campusModel.get('apiKey'),
-				user_id: campusModel.get('user_id'),
                 title: title,
                 text: text,
-				c_id: course_id,
-				s_id: session_id
+				course: course_id,
+				session: session_id
             });
 
             $.when(checkingForm).done(function (response) {
-                if (!response.status) {
+                if (response.error) {
                     new AlertView({
                         model: {
                             message: window.lang.problemSave
