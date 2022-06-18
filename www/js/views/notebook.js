@@ -1,23 +1,23 @@
 define([
     'underscore',
     'backbone',
-	'models/notebook',
+    'models/notebook',
     'text!template/notebook.html',
     'views/alert'
 ], function (
     _,
     Backbone,
-	NotebookModel,
+    NotebookModel,
     NotebookTemplate,
     AlertView
 ) {
     var campusModel = null;
-	var courseId = 0;
-	var sessionId = 0;
-	var notebookModel = new NotebookModel();
+    var courseId = 0;
+    var sessionId = 0;
+    var notebookModel = new NotebookModel();
 
-	var loadNotebook = function () {
-	    var options = { dimBackground: true };
+    var loadNotebook = function () {
+        var options = { dimBackground: true };
         SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
         var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
@@ -25,9 +25,9 @@ define([
             action: 'getNotebook',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-			c_id: courseId,
-			s_id: sessionId,
-			user_id: campusModel.get('user_id')
+            c_id: courseId,
+            s_id: sessionId,
+            user_id: campusModel.get('user_id')
         });
 
         $.when(getNotebook).done(function (response) {
@@ -36,12 +36,12 @@ define([
                 return;
             }
 
-			notebookModel.cid = parseInt(""+courseId+'000'+sessionId);
-			notebookModel.set({"c_id": courseId});
-			notebookModel.set({"s_id": sessionId});
-			notebookModel.set({"notebooks": response.notebooks});
+            notebookModel.cid = parseInt(""+courseId+'000'+sessionId);
+            notebookModel.set({"c_id": courseId});
+            notebookModel.set({"s_id": sessionId});
+            notebookModel.set({"notebooks": response.notebooks});
 
-			SpinnerPlugin.activityStop();
+            SpinnerPlugin.activityStop();
 
             if (response.notebooks.length === 0) {
                 new AlertView({
@@ -51,8 +51,8 @@ define([
                 });
                 return;
             }
-		})
-		.fail(function() {
+        })
+        .fail(function() {
             SpinnerPlugin.activityStop();
 
             new AlertView({
@@ -69,16 +69,16 @@ define([
         el: 'body',
         template: _.template(NotebookTemplate),
         initialize: function (options) {
-			this.options = options;
-			$(this.el).unbind();
+            this.options = options;
+            $(this.el).unbind();
 
-			notebookModel.unbind();
+            notebookModel.unbind();
 
-			campusModel = this.model;
-			courseId = this.options.courseId;
-			sessionId = this.options.sessionId;
+            campusModel = this.model;
+            courseId = this.options.courseId;
+            sessionId = this.options.sessionId;
 
-			// Call data remote function
+            // Call data remote function
             var networkState = navigator.connection.type;
             if (networkState == Connection.NONE) {
                 window.setTimeout(function () {
@@ -96,7 +96,7 @@ define([
         },
         render: function () {
             this.el.innerHTML = this.template(notebookModel.toJSON());
-			return this;
+            return this;
         }
     });
 
