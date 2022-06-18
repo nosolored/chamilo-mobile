@@ -36,26 +36,26 @@
 </header>
 
 <div class="container" style="margin-top: 20px;">
-	<div class="sectiontitle" style="padding-top:5px;">
+    <div class="sectiontitle" style="padding-top:5px;">
         <span style="float:right">
             <a href="#new_notebook/<%= c_id %>/<%= s_id %>"><img src="img/icons/32/new_note.png" style="margin-top:-5px;" /></a>
         </span>
         <div class="clearfix"></div>
     </div>
-    
+
     <section id="main_content">
-       	<% for (var i = 0; i < notebooks.length; i++) { %>
-        	<div class="panel panel-default">
-        	<div class="panel-heading">
-            	<h3 class="panel-title"><% print(notebooks[i]['title']); %></h3>
+           <% for (var i = 0; i < notebooks.length; i++) { %>
+            <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><% print(notebooks[i]['title']); %></h3>
             </div>
             <div class="panel-body">
-            	<p><% print(notebooks[i]['description']); %></p>
+                <p><% print(notebooks[i]['description']); %></p>
             </div>
             <div class="panel-footer ">
-            	<%= lang.creationDate %>: <% print(notebooks[i]['creation_date']); %>
-                <% if (notebooks[i]['update_date'] != "") { %>
-                	, <%= lang.updateDate %>: <% print(notebooks[i]['update_date']); %>
+                <%= lang.creationDate %>: <% print(notebooks[i]['creationDate']); %>
+                <% if (notebooks[i]['updateDate'] != "") { %>
+                    , <%= lang.updateDate %>: <% print(notebooks[i]['updateDate']); %>
                 <% } %>
             </div>
             </div>

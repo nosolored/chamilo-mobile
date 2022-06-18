@@ -20,18 +20,17 @@ define([
         var options = { dimBackground: true };
         SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getNotebook = $.post(url, {
-            action: 'getNotebook',
+            action: 'course_notebooks',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-            c_id: courseId,
-            s_id: sessionId,
-            user_id: campusModel.get('user_id')
+            course: courseId,
+            session: sessionId
         });
 
         $.when(getNotebook).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 SpinnerPlugin.activityStop();
                 return;
             }
@@ -39,11 +38,11 @@ define([
             notebookModel.cid = parseInt(""+courseId+'000'+sessionId);
             notebookModel.set({"c_id": courseId});
             notebookModel.set({"s_id": sessionId});
-            notebookModel.set({"notebooks": response.notebooks});
+            notebookModel.set({"notebooks": response.data});
 
             SpinnerPlugin.activityStop();
 
-            if (response.notebooks.length === 0) {
+            if (response.data.length === 0) {
                 new AlertView({
                     model: {
                         message: window.lang.noNotebook
