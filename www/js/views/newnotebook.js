@@ -5,18 +5,18 @@ define([
     'text!template/newnotebook.html',
     'views/alert'
 ], function ($, _, Backbone, NewNotebookTemplate, AlertView) {
-	var campusModel = null;
+    var campusModel = null;
     var NewNotebookView = Backbone.View.extend({
-		el: 'body',
+        el: 'body',
         template: _.template(NewNotebookTemplate),
-		initialize: function (options) {
-			this.options = options;
-			$(this.el).unbind();
+        initialize: function (options) {
+            this.options = options;
+            $(this.el).unbind();
             campusModel = this.model;
-			courseId = this.options.courseId;
-			sessionId = this.options.sessionId;
-			console.log("initialize")
-		},
+            courseId = this.options.courseId;
+            sessionId = this.options.sessionId;
+            console.log("initialize")
+        },
         events: {
             'submit #frm-new-notebook': 'frmNewNotebookOnSubmit'
         },
@@ -32,9 +32,9 @@ define([
 
             var title = self.$('#txt-title').val().trim(); 
             var text = self.$('#txt-text').val().trim();
-           	var course_id = self.$('#course-id').val().trim();
-			var session_id = self.$('#session-id').val().trim();
-			
+               var course_id = self.$('#course-id').val().trim();
+            var session_id = self.$('#session-id').val().trim();
+
             if (!title) {
                 new AlertView({
                     model: {
@@ -56,18 +56,18 @@ define([
             }
 
             self.$('#btn-submit').prop('disabled', true);
-			
-			console.log(title +' '+ text +' '+ course_id +' '+ session_id);
 
-			var url = campusModel.get('url') + '/main/webservices/api/v2.php';
+            console.log(title +' '+ text +' '+ course_id +' '+ session_id);
+
+            var url = campusModel.get('url') + '/main/webservices/api/v2.php';
             var checkingForm = $.post(url, {
                 action: 'save_course_notebook',
-				username: campusModel.get('username'),
-				api_key: campusModel.get('apiKey'),
+                username: campusModel.get('username'),
+                api_key: campusModel.get('apiKey'),
                 title: title,
                 text: text,
-				course: course_id,
-				session: session_id
+                course: course_id,
+                session: session_id
             });
 
             $.when(checkingForm).done(function (response) {
