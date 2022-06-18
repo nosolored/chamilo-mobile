@@ -20,32 +20,31 @@ define([
         var options = { dimBackground: true };
         SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
           
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getCondictions = $.post(url, {
-            action: 'getConditions',
+            action: 'get_legal_conditions',
             username: campusModel.get('username'),
-            api_key: campusModel.get('apiKey'),
-            user_id: campusModel.get('user_id')
+            api_key: campusModel.get('apiKey')
         });
 
         $.when(getCondictions).done(function (response) {
             console.log(response);
-            if (!response.status) {
+            if (response.error) {
                 return;
             }
-            inscriptionModel.set({"language_id": response.language_id});
-		    inscriptionModel.set({"date": response.date});
-		    inscriptionModel.set({"content": response.content});
-		    inscriptionModel.set({"type": response.type});
-		    inscriptionModel.set({"changes": response.changes});
-		    inscriptionModel.set({"version": response.version});
-		    inscriptionModel.set({"id": response.id});
-		    inscriptionModel.cid = response.user_id;
+            inscriptionModel.set({"language_id": response.data.language_id});
+            inscriptionModel.set({"date": response.data.date});
+            inscriptionModel.set({"content": response.data.content});
+            inscriptionModel.set({"type": response.data.type});
+            inscriptionModel.set({"changes": response.data.changes});
+            inscriptionModel.set({"version": response.data.version});
+            inscriptionModel.set({"id": response.data.id});
+            //inscriptionModel.cid = response.user_id;
 
-		    SpinnerPlugin.activityStop();
+            SpinnerPlugin.activityStop();
 
-		}).fail(function() {
-		    console.log("fail");
+        }).fail(function() {
+            console.log("fail");
             SpinnerPlugin.activityStop();
             new AlertView({
                 model: {
@@ -82,53 +81,52 @@ define([
             inscriptionModel.on('change', this.render, this);
         },
         render: function () {
-			this.el.innerHTML = this.template(inscriptionModel.toJSON());
+            this.el.innerHTML = this.template(inscriptionModel.toJSON());
 
-			return this;
+            return this;
         },
         events: {
-			'click #registration_submit': 'setAcceptCondiction'
+            'click #registration_submit': 'setAcceptCondiction'
         },
         setAcceptCondiction: function (e) {
-		    e.preventDefault();
+            e.preventDefault();
 
-		    var options = { dimBackground: true };
-	        SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
+            var options = { dimBackground: true };
+            SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
-		    var self = this;
+            var self = this;
 
             var legal_accept_type = self.$('#registration_legal_accept_type').val();
             var legal_info = self.$('#registration_legal_info').val();
-		    
-			var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
-			var getResponse = $.post(url, {
-				action: 'setAcceptCondition',
-				username: campusModel.get('username'),
-				api_key: campusModel.get('apiKey'),
-				user_id: campusModel.get('user_id'),
-				legal_accept_type: legal_accept_type
-			});
-			
-			$.when(getResponse).done(function (response) {
-			    SpinnerPlugin.activityStop();
-				if (!response.status) {
-				    return;
-				}
-				
-				window.location.href = '#';
-			})
-			.fail(function() {
-	            SpinnerPlugin.activityStop();
 
-	            new AlertView({
-	                model: {
-	                    message: window.lang.noConnectionToServer
-	                }
-	            });
+            var url = campusModel.get('url') + '/main/webservices/api/v2.php';
+            var getResponse = $.post(url, {
+                action: 'update_condition_accepted',
+                username: campusModel.get('username'),
+                api_key: campusModel.get('apiKey'),
+                legal_accept_type: legal_accept_type
+            });
 
-	            return;
-	        });
-		}
+            $.when(getResponse).done(function (response) {
+                SpinnerPlugin.activityStop();
+                if (response.error) {
+                    return;
+                }
+
+                window.location.href = '#';
+            })
+            .fail(function() {
+                SpinnerPlugin.activityStop();
+
+                new AlertView({
+                    model: {
+                        message: window.lang.noConnectionToServer
+                    }
+                });
+
+                return;
+            });
+        }
     });
 
     return InscriptionView;
