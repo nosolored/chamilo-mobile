@@ -19,54 +19,67 @@ define([
     var outmessagesCollection = new OutmessagesCollection();
 
     var loadOutmessages = function () {
-		console.log("loadOutmessages");
+        console.log("loadOutmessages");
+
         var listId = '';
         outmessagesCollection.each(function(model){
             listId += listId ? '-' : '';
             listId += model.get('messageId');
         });
+
         console.log("listado de id de mensajes");
         console.log(listId);
-        
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getMessages = $.post(url, {
-            action: 'getOutMessages',
+            action: 'user_messages_sent',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-            last: campusModel.get('lastOutmessage'),
-            list: listId
+            last: campusModel.get('lastOutmessage')
         });
-        
+
         //console.log(getMessages);
 
         $.when(getMessages).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 return;
             }
-            
+
             console.log(response);
-            
+
             //Add new messages
-            response.messages.forEach(function (messageData) {
+            response.data.forEach(function (messageData) {
                 outmessagesCollection.create({
                     messageId: parseInt(messageData.id),
-                    sender: messageData.sender.completeName,
+                    sender: messageData.receiver.completeName,
                     title: messageData.title,
                     content: messageData.content,
                     hasAttachment: messageData.hasAttachments,
                     sendDate: messageData.sendDate,
-                    //url: messageData.platform.messagingTool
-                    url: campusModel.get('url') + '/plugin/chamilo_app/inbox.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey') + '&type=1&user_id=' + campusModel.get('user_id') + '&message_id=' + parseInt(messageData.id)
+                    url: messageData.url
+                });
+            });
+
+            //Remove messages
+
+            listId.forEach(function (item, index) {
+                var getRemoveMessage = $.post(url, {
+                    action: 'delete_user_message',
+                    username: campusModel.get('username'),
+                    api_key: campusModel.get('apiKey'),
+                    message_id: item,
+                    msg_type: 'sent'
+                });
+
+                $.when(getRemoveMessage).done(function (subresponse) {
+                    if (!subresponse.error) {
+                        console.log('delete sent message: ' + item);
+                        outmessagesCollection.removeDB(item);
+                    }
                 });
             });
             
-            //Remove messages
-            response.remove_messages.forEach(function (messageId) {
-                console.log(messageId);
-                outmessagesCollection.removeDB(messageId);
-            });
-            
-			if (response.messages.length === 0) {
+            if (response.data.length === 0) {
                 new AlertView({
                     model: {
                         message: window.lang.noNewMessages
@@ -74,45 +87,47 @@ define([
                 });
                 return;
             }
-			
-			var lastMessage = _.first(response.messages);
+
+            var lastMessage = _.first(response.data);
 
             campusModel.save({
                 lastOutmessage: parseInt(lastMessage.id),
                 lastCheckOutDate: new Date()
             });
-		});
+        });
     };
     
     var loadAllOutMessages = function () {
-		console.log("loadAllOutMessages");
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        console.log("loadAllOutMessages");
+
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getMessages = $.post(url, {
-            action: 'getAllOutMessages',
+            action: 'user_messages_sent',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey')
         });
 
         $.when(getMessages).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 return;
             }
-			console.log("loadAllOutMessages");
-			console.log(response);
-            response.messages.forEach(function (messageData) {
+
+            console.log("loadAllOutMessages");
+            console.log(response);
+
+            response.data.forEach(function (messageData) {
                 outmessagesCollection.create({
                     messageId: parseInt(messageData.id),
-                    sender: messageData.sender.completeName,
+                    sender: messageData.receiver.completeName,
                     title: messageData.title,
                     content: messageData.content,
                     hasAttachment: messageData.hasAttachments,
                     sendDate: messageData.sendDate,
-                    //url: messageData.platform.messagingTool
-                    url: campusModel.get('url') + '/plugin/chamilo_app/inbox.php?username=' + campusModel.get('username') + '&api_key=' + campusModel.get('apiKey') + '&type=1&user_id=' + campusModel.get('user_id') + '&message_id=' + parseInt(messageData.id)
+                    url: messageData.url
                 });
             });
 
-            if (response.messages.length === 0) {
+            if (response.data.length === 0) {
                 new AlertView({
                     model: {
                         message: window.lang.noNewMessages
@@ -120,8 +135,8 @@ define([
                 });
                 return;
             }
-			
-			var lastMessage = _.first(response.messages);
+
+            var lastMessage = _.first(response.data);
 
             campusModel.save({
                 lastOutmessage: parseInt(lastMessage.id),
@@ -134,7 +149,7 @@ define([
         el: 'body',
         template: _.template(OutboxTemplate),
         initialize: function () {
-			console.log("initialize outbox");
+            console.log("initialize outbox");
             $(this.el).unbind();
             outmessagesCollection.unbind();
             outmessagesCollection.reset();
@@ -149,7 +164,7 @@ define([
                     loadOutmessages();
                 }
             });
-            
+
             outmessagesCollection.on('add', this.renderMessageAdd, this);
             outmessagesCollection.on('remove', this.renderMessageRemove, this);
             
