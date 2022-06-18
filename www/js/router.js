@@ -147,8 +147,8 @@ define([
             'profile': 'showProfile',
             'new_thread/:course_id/:session_id/:f_id': 'showNewThread',
             'new_post/:course_id/:session_id/:f_id/:t_id': 'showNewPost',
-            'reply_post/:course_id/:session_id/:f_id/:t_id/:post_id/:iid': 'showReplyPost',
-            'reply_quote/:course_id/:session_id/:f_id/:t_id/:post_id/:iid': 'showQuotePost',
+            'reply_post/:course_id/:session_id/:f_id/:t_id/:post_id': 'showReplyPost',
+            'reply_quote/:course_id/:session_id/:f_id/:t_id/:post_id': 'showQuotePost',
             'ranking/:course_id/:session_id': 'showRanking',
             'details-ranking/:course_id/:session_id/:u_id': 'showDetailsRanking',
             'course-catalog': 'showCourseCatalog',
@@ -1484,7 +1484,7 @@ define([
         });
     };
     
-    var showReplyPost = function (courseId, sessionId, forumId, threadId, postId, iid){
+    var showReplyPost = function (courseId, sessionId, forumId, threadId, postId){
         console.log("showNewPost");
         courseId = parseInt(courseId);
         sessionId = parseInt(sessionId);
@@ -1502,7 +1502,7 @@ define([
         }
         
         var getCampusData = campusModel.getData();
-        var postModel = postsCollection.get(iid);
+        var postModel = postsCollection.get(postId);
 
         $.when(getCampusData).done(function () {
             var newPostView = new NewPostView({
@@ -1528,7 +1528,7 @@ define([
         });
     };
     
-    var showQuotePost = function (courseId, sessionId, forumId, threadId, postId, iid){
+    var showQuotePost = function (courseId, sessionId, forumId, threadId, postId){
         console.log("showQuotePost");
         courseId = parseInt(courseId);
         sessionId = parseInt(sessionId);
@@ -1546,7 +1546,7 @@ define([
         }
         
         var getCampusData = campusModel.getData();
-        var postModel = postsCollection.get(iid);
+        var postModel = postsCollection.get(postId);
 
         $.when(getCampusData).done(function () {
             var newPostView = new NewPostView({
