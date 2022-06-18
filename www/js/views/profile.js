@@ -30,9 +30,9 @@ define([
 		
 		console.log(profileModel);
 		
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getCourses = $.post(url, {
-            action: 'getProfile',
+            action: 'user_profile',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
 			user_id: campusModel.get('user_id')
@@ -40,24 +40,19 @@ define([
 
         $.when(getCourses).done(function (response) {
 			console.log(response);
-            if (!response.status) {
+            if (response.error) {
                 return;
             }
 
-            profileModel.set({"complete_name": response.profile.complete_name});
-			profileModel.set({"username": response.profile.username});
-			profileModel.set({"email": response.profile.email});
-			profileModel.set({"official_code": response.profile.official_code});
-			profileModel.set({"phone": response.profile.phone});
-			profileModel.set({"picture_uri": response.profile.picture_uri});
-			profileModel.set({"competences": response.profile.competences});
-			profileModel.set({"diplomas": response.profile.diplomas});
-			profileModel.set({"openarea": response.profile.openarea});
-			profileModel.set({"teach": response.profile.teach});
-			profileModel.set({"extra": response.profile.extra});
-            
+            profileModel.set({"complete_name": response.data.fullName});
+			profileModel.set({"username": response.data.username});
+			profileModel.set({"email": response.data.email});
+			profileModel.set({"official_code": response.data.officialCode});
+			profileModel.set({"phone": response.data.phone});
+			profileModel.set({"picture_uri": response.data.pictureUri});
+            profileModel.set({"extra": response.data.extra});
 
-            if (response.profile.length === 0) {
+            if (response.data.length === 0) {
                 new AlertView({
                     model: {
                         message: window.lang.noCourses
