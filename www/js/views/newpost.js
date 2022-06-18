@@ -148,6 +148,9 @@ define([
             var poster = self.$('#poster').val().trim();
             var file_upload = self.$('#upload_file').val().trim();
 
+            // JCP - No permitiremos la subida de archivos por ahora al no tener endpoint en los webservices actuales
+            file_upload = false;
+
             if (!title) {
                 new AlertView({
                     model: {
@@ -183,24 +186,23 @@ define([
             }
 
             // console.log(title +' '+ text +' '+ notice +' '+ course_id +' '+ session_id +' '+forum_id+' '+thread_id);
-            var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+            var url = campusModel.get('url') + '/main/webservices/api/v2.php';
             var checkingForm = $.post(url, {
-                action: 'formNewPost',
+                action: 'save_forum_post',
                 username: campusModel.get('username'),
                 api_key: campusModel.get('apiKey'),
-                user_id: campusModel.get('user_id'),
+                course: course_id,
+                session: session_id,
                 title: title,
                 text: text,
-                notice: notice,
-                c_id: course_id,
-                f_id: forum_id,
-                t_id: thread_id,
-                parent_id: post_id
+                thread: thread_id,
+                forum: forum_id,
+                notify: notice,
+                parent: post_id
             });
 
             $.when(checkingForm).done(function (response) {
-                if (!response.status) {
-                    console.log("problem134");
+                if (response.error) {
                     new AlertView({
                         model: {
                             message: window.lang.problemSave
