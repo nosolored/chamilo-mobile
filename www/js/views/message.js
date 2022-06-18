@@ -9,15 +9,15 @@ define([
 	var messageModel = null;
 	
 	var loadReadMessage = function (messageId) {
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getResponse = $.post(url, {
-            action: 'setReadMessage',
+            action: 'set_message_read',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-            messageId: messageId
+            message_id: messageId
         });
         $.when(getResponse).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 return;
             }
 		});
