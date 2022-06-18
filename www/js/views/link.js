@@ -1,20 +1,20 @@
 define([
     'underscore',
     'backbone',
-	'models/link',
+    'models/link',
     'text!template/link.html',
     'views/alert'
 ], function (
     _,
     Backbone,
-	LinkModel,
+    LinkModel,
     LinkTemplate,
     AlertView
 ) {
     var campusModel = null;
-	var courseId = 0;
-	var sessionId = 0;
-	var linkModel = new LinkModel();
+    var courseId = 0;
+    var sessionId = 0;
+    var linkModel = new LinkModel();
 
   var loadLink = function () {
       var options = { dimBackground: true };
@@ -25,9 +25,9 @@ define([
             action: 'getLink',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-			c_id: courseId,
-			s_id: sessionId,
-			user_id: campusModel.get('user_id')
+            c_id: courseId,
+            s_id: sessionId,
+            user_id: campusModel.get('user_id')
         });
 
         $.when(getLink).done(function (response) {
@@ -36,14 +36,14 @@ define([
                 return;
             }
             
-			linkModel.cid = parseInt(""+courseId+'000'+sessionId);
-			linkModel.set({"c_id": courseId});
-			linkModel.set({"s_id": sessionId});
-			linkModel.set({"category": response.links.category});
-			linkModel.set({"links": response.links.links});
-			linkModel.set({"orden": response.links.orden});
+            linkModel.cid = parseInt(""+courseId+'000'+sessionId);
+            linkModel.set({"c_id": courseId});
+            linkModel.set({"s_id": sessionId});
+            linkModel.set({"category": response.links.category});
+            linkModel.set({"links": response.links.links});
+            linkModel.set({"orden": response.links.orden});
 
-			SpinnerPlugin.activityStop();
+            SpinnerPlugin.activityStop();
 
             if (response.links.length === 0) {
                 new AlertView({
@@ -53,8 +53,8 @@ define([
                 });
                 return;
             }
-		})
-		.fail(function() {
+        })
+        .fail(function() {
             SpinnerPlugin.activityStop();
             new AlertView({
                 model: {
@@ -70,16 +70,16 @@ define([
         el: 'body',
         template: _.template(LinkTemplate),
         initialize: function (options) {
-			this.options = options;
-			$(this.el).unbind();
+            this.options = options;
+            $(this.el).unbind();
 
-			linkModel.unbind();
+            linkModel.unbind();
 
-			campusModel = this.model;
-			courseId = this.options.courseId;
-			sessionId = this.options.sessionId;
+            campusModel = this.model;
+            courseId = this.options.courseId;
+            sessionId = this.options.sessionId;
 
-			// Call data remote function
+            // Call data remote function
             var networkState = navigator.connection.type;
             if (networkState == Connection.NONE) {
                 window.setTimeout(function () {
@@ -97,7 +97,7 @@ define([
         },
         render: function () {
             this.el.innerHTML = this.template(linkModel.toJSON());
-			return this;
+            return this;
         }
     });
 
