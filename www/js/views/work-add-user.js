@@ -15,27 +15,26 @@ define([
         var options = { dimBackground: true };
         SpinnerPlugin.activityStart(window.lang.LoadingScreen, options);
 
-        var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+        var url = campusModel.get('url') + '/main/webservices/api/v2.php';
         var getWorks = $.post(url, {
-            action: 'getUserWork',
+            action: 'get_work_users',
             username: campusModel.get('username'),
             api_key: campusModel.get('apiKey'),
-            user_id: campusModel.get('user_id'),
-            c_id: courseId,
-            s_id: sessionId,
-            w_id: workId
+            course: courseId,
+            session: sessionId,
+            work: workId
         });
 
         $.when(getWorks).done(function (response) {
-            if (!response.status) {
+            if (response.error) {
                 return;
             }
 
             workUsersModel.set({"c_id": courseId});
             workUsersModel.set({"s_id": sessionId});
             workUsersModel.set({"w_id": workId});
-            workUsersModel.set({"users_added": response.users_added});
-            workUsersModel.set({"users_to_add": response.users_to_add});
+            workUsersModel.set({"users_added": response.data.users_added});
+            workUsersModel.set({"users_to_add": response.data.users_to_add});
 
             SpinnerPlugin.activityStop();
 
@@ -89,20 +88,19 @@ define([
         deleteUserWork: function (e) {
             e.preventDefault();
 
-            var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+            var url = campusModel.get('url') + '/main/webservices/api/v2.php';
             var checkingForm = $.post(url, {
-                action: 'formDeleteWorkUser',
+                action: 'delete_work_student',
                 username: campusModel.get('username'),
                 api_key: campusModel.get('apiKey'),
-                user_id: campusModel.get('user_id'),
-                student_id: e.target.id,
-                w_id: workId,
-                c_id: courseId,
-                s_id: sessionId,
+                work: workId,
+                student: e.target.id,
+                course: courseId,
+                session: sessionId,
             });
 
             $.when(checkingForm).done(function (response) {
-                if (!response.status) {
+                if (response.error) {
                     new AlertView({
                         model: {
                             message: window.lang.problemSave
@@ -125,20 +123,19 @@ define([
         addUserWork: function (e) {
             e.preventDefault();
 
-            var url = campusModel.get('url') + '/plugin/chamilo_app/rest.php';
+            var url = campusModel.get('url') + '/main/webservices/api/v2.php';
             var checkingForm = $.post(url, {
-                action: 'formAddWorkUser',
+                action: 'save_work_user',
                 username: campusModel.get('username'),
                 api_key: campusModel.get('apiKey'),
-                user_id: campusModel.get('user_id'),
-                student_id: e.target.id,
-                w_id: workId,
-                c_id: courseId,
-                s_id: sessionId,
+                work: workId,
+                student: e.target.id,
+                course: courseId,
+                session: sessionId,
             });
 
             $.when(checkingForm).done(function (response) {
-                if (!response.status) {
+                if (response.error) {
                     new AlertView({
                         model: {
                             message: window.lang.problemSave
