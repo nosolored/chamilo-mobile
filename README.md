@@ -34,6 +34,12 @@ cordova plugin add cordova-plugin-filepath
 cordova plugin add cordova-plugin-pdialog
 cordova plugin add cordova-plugin-file-opener2
 
+cordova plugin add cordova-support-google-services --save 
++ info: Cordova plugin to add support for google services
+As part of enabling Google APIs or Firebase services in your Android application you may have to add the google-services plugin to your build.gradle file.
+https://www.npmjs.com/package/cordova-support-google-services
+https://developers.google.com/android/guides/google-services-plugin
+
 ```
 
 Si se desea utilizar el sistema de notificaciones:
