@@ -40,11 +40,13 @@ As part of enabling Google APIs or Firebase services in your Android application
 https://www.npmjs.com/package/cordova-support-google-services
 https://developers.google.com/android/guides/google-services-plugin
 
-Para Android 12
-Remover plugin 
+Para Android 12 | Para compilar con Apache Cordova es necesario remover plugins:
+cordova plugin remove cordova-plugin-whitelist
 cordova plugin remove cordova-plugin-file-opener2
 cordova plugin remove cordova-plugin-file-transfer
 cordova plugin remove cordova-plugin-splashscreen
+cordova plugin remove phonegap-plugin-push
+cordova plugin remove cordova-support-google-services
 
 ```
 
