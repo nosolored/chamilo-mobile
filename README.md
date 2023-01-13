@@ -53,6 +53,11 @@ cordova plugin remove cordova-support-google-services
 Si se desea utilizar el sistema de notificaciones:
 ```
 cordova plugin add phonegap-plugin-push
+Nota: 
+phonegap-plugin-push (https://github.com/phonegap/phonegap-plugin-push) está descatalogado y lo ha sustituido el anterior. Para añadirlo a Apache Cordova - https://github.com/havesource/cordova-plugin-push/blob/master/docs/INSTALLATION.md
+
+cordova plugin add github:havesource/cordova-plugin-push
+
 ``` 
 Es necesario tener en la raíz del proyecto el fichero google-services.json
 Para generarlo debes crear un proyecto en https://console.firebase.google.com/u/0/?pli=1 
