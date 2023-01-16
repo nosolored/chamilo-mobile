@@ -16,6 +16,8 @@ Añadir la plataforma Android y los plugins necesarios
 
 ```
 cordova platform add android
+Para Android 12: cordova platform add android@11
+
 cordova plugin add cordova-plugin-device
 cordova plugin add cordova-plugin-dialogs
 cordova plugin add cordova-plugin-file
@@ -43,7 +45,6 @@ https://developers.google.com/android/guides/google-services-plugin
 Para Android 12 | Para compilar con Apache Cordova es necesario remover plugins:
 cordova plugin remove cordova-plugin-whitelist
 cordova plugin remove cordova-plugin-file-opener2
-cordova plugin remove cordova-plugin-file-transfer
 cordova plugin remove cordova-plugin-splashscreen
 cordova plugin remove phonegap-plugin-push
 cordova plugin remove cordova-support-google-services
@@ -53,10 +54,16 @@ cordova plugin remove cordova-support-google-services
 Si se desea utilizar el sistema de notificaciones:
 ```
 cordova plugin add phonegap-plugin-push
-Nota: 
-phonegap-plugin-push (https://github.com/phonegap/phonegap-plugin-push) está descatalogado y lo ha sustituido el anterior. Para añadirlo a Apache Cordova - https://github.com/havesource/cordova-plugin-push/blob/master/docs/INSTALLATION.md
+Nota para Android 12: 
+El plugin phonegap-plugin-push (https://github.com/phonegap/phonegap-plugin-push) está descatalogado.
+
+Utilizar https://github.com/havesource/cordova-plugin-push/blob/master/docs/INSTALLATION.md
 
 cordova plugin add github:havesource/cordova-plugin-push
+
+Información adicional:
+https://ionic.zendesk.com/hc/en-us/articles/7891143965975-Migrating-to-Cordova-Android-11
+https://volt.build/docs/android_12/
 
 ``` 
 Es necesario tener en la raíz del proyecto el fichero google-services.json
