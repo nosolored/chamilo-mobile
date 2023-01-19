@@ -15,6 +15,26 @@ cd chamilo-mobile
 Añadir la plataforma Android y los plugins necesarios
 
 ```
+cordova platform add android@10.1.2
+cordova platform add android@9.0.0
+
+Android 13 (nivel de API 33)
+Android 12 (niveles de API 31 y 32)
+Android 11 (nivel de API 30)
+Android 10 (nivel de API 29)
+
+En config.xml según corresponda
+<preference name="android-targetSdkVersion" value="32" />
+<preference name="android-targetSdkVersion" value="31" />
+<preference name="android-targetSdkVersion" value="30" />
+<preference name="android-targetSdkVersion" value="29" />
+
+cordova platform add browser
+cordova run browser
+para testear en navegador
+```
+
+```
 cordova platform add android
 Para Android 12: cordova platform add android@11
 
